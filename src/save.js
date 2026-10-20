@@ -1,6 +1,6 @@
 import { storageGet, storageSet } from './sdk.js';
 
-const KEY = 'saloon-shootout-save-v1';
+const KEY = 'fast-gun-save-v1';
 
 const DEFAULTS = () => ({
   coins: 0,

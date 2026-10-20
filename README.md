@@ -1,4 +1,4 @@
-# Saloon Shootout
+# Fast Gun
 
 A single-player Wild West duel game for the web, built with [Phaser 3](https://phaser.io) and aimed at [CrazyGames](https://www.crazygames.com).
 

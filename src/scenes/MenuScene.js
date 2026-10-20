@@ -20,7 +20,7 @@ export class MenuScene extends Phaser.Scene {
     addParallax(this);
     this.add.rectangle(0, 0, W, 720, 0x0d0614, 0.25).setOrigin(0);
 
-    const title = text(this, 640, 58, 'SALOON SHOOTOUT', 64, { color: '#ffd76a', strokeThickness: 10 });
+    const title = text(this, 640, 58, 'FAST GUN', 84, { color: '#ffd76a', strokeThickness: 10 });
     this.tweens.add({ targets: title, scale: 1.04, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
     text(this, 640, 112, 'Are you the fastest gun in the West?', 22, { color: '#f6e3c0' });
 
