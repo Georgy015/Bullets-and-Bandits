@@ -2,6 +2,8 @@
 
 A single-player Wild West game for the web, built with [Phaser 3](https://phaser.io) and aimed at [CrazyGames](https://www.crazygames.com).
 
+**▶ Play it: https://georgy015.github.io/Fast-Gun/** (redeployed automatically on every push to `main`)
+
 An old sheriff walks the trail through town, runs into outlaws and shoots it out with them. Go as far as you can.
 
 > Draft / prototype. All art and sound are generated in code so the game runs with no asset files. Real art and audio come later.
