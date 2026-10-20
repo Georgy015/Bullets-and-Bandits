@@ -10,6 +10,9 @@ export async function initSDK() {
     const cg = window.CrazyGames?.SDK;
     if (!cg) return;
     await cg.init();
+    // Off CrazyGames (e.g. GitHub Pages) the SDK reports "disabled" and every ad fails,
+    // so use the local stubs there instead.
+    if (cg.environment === 'disabled') return;
     sdk = cg;
   } catch (e) {
     console.warn('[sdk] CrazyGames SDK unavailable, using stubs', e);
