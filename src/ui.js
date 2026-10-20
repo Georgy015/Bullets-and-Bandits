@@ -92,7 +92,13 @@ export function floatText(scene, x, y, str, color = '#ffffff', size = 30) {
 
 // Big centered announcement that stamps in and fades out.
 export function banner(scene, str, color = '#ffe48a', size = 84, hold = 600) {
+  // Only one banner at a time: a new one replaces whatever is still fading out.
+  if (scene.lastBanner?.scene) {
+    scene.tweens.killTweensOf(scene.lastBanner);
+    scene.lastBanner.destroy();
+  }
   const t = text(scene, 640, 300, str, size, { color, strokeThickness: 10 });
+  scene.lastBanner = t;
   t.setDepth(60).setScale(2.2).setAlpha(0);
   scene.tweens.add({ targets: t, scale: 1, alpha: 1, duration: 180, ease: 'Back.easeOut' });
   scene.tweens.add({

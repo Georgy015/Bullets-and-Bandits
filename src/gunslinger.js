@@ -1,15 +1,23 @@
-// A cowboy drawn from simple shapes, with a rotating gun arm and hit zones.
+// A cowboy drawn from simple shapes, with walking legs, a rotating gun arm and hit zones.
 // Local space faces right with its origin at the feet; `facing = -1` mirrors it.
 
 const SHOULDER = { x: 4, y: -80 };
 const HEAD = { x: 2, y: -104, r: 19 };
+const HIP_Y = -44;
 const HOLSTER_ANGLE = 1.35;
 
 const MUZZLE = {
   revolver: { x: 68, y: -5 },
   shotgun: { x: 86, y: -5 },
   rifle: { x: 96, y: -4 },
-  dynamite: { x: 38, y: -16 },
+};
+
+// The sheriff: a weathered old gunslinger with a poncho and a cigarillo.
+export const SHERIFF_LOOK = {
+  shirt: 0x5b4a33, pants: 0x4a3b2c, hat: 0x6b5238, skin: 0xe2ad85,
+  poncho: 0x7d6a45, ponchoStripe: 0xd9c08a, ponchoStripe2: 0x8c3b2a,
+  hatStyle: 'flat', squint: true, stubble: true, grayHair: true, cigar: true, star: true,
+  vest: null, bandana: null, mustache: false,
 };
 
 function drawGun(g, type, sleeve, skin) {
@@ -29,11 +37,15 @@ function drawGun(g, type, sleeve, skin) {
     g.fillStyle(0x6f6f78); g.fillRect(34, -7, 20, 8);
     g.fillStyle(0x4a4a52); g.fillRect(52, -6, 45, 4);
     g.fillStyle(0x2d2d33); g.fillRect(40, -12, 14, 4);
-  } else if (type === 'dynamite') {
-    g.fillStyle(0xc0392b); g.fillRoundedRect(30, -16, 11, 28, 3);
-    g.lineStyle(2, 0xf5d76e); g.lineBetween(35, -16, 38, -22);
   }
   g.fillStyle(skin); g.fillCircle(36, 0, 7);
+}
+
+function drawLeg(g, pants) {
+  g.fillStyle(pants);
+  g.fillRoundedRect(-6.5, 0, 13, 44, 4);
+  g.fillStyle(0x3b2414);
+  g.fillRoundedRect(-8, 33, 19, 11, 3);
 }
 
 export class Gunslinger {
@@ -52,9 +64,20 @@ export class Gunslinger {
     const c = scene.add.container(x, y);
     this.container = c;
 
+    this.legBack = scene.add.graphics({ x: 6, y: HIP_Y });
+    this.legFront = scene.add.graphics({ x: -6, y: HIP_Y });
+    drawLeg(this.legBack, this.look.pants);
+    drawLeg(this.legFront, this.look.pants);
+    c.add([this.legBack, this.legFront]);
+
     const body = scene.add.graphics();
     this.drawBody(body);
     c.add(body);
+
+    this.vestG = scene.add.graphics();
+    this.drawArmor(this.vestG);
+    this.vestG.setVisible(false);
+    c.add(this.vestG);
 
     this.arm = scene.add.container(SHOULDER.x, SHOULDER.y);
     this.armG = scene.add.graphics();
@@ -69,7 +92,6 @@ export class Gunslinger {
     c.setScale(this.scale * this.facing, this.scale);
     this.armAngle = HOLSTER_ANGLE;
     this.holster();
-
     this.breathe();
   }
 
@@ -79,21 +101,8 @@ export class Gunslinger {
     });
   }
 
-  revive(x, y) {
-    this.alive = true;
-    this.scene.tweens.killTweensOf(this.container);
-    this.container.setAngle(0).setPosition(x, y).setScale(this.scale * this.facing, this.scale);
-    this.breathe();
-  }
-
   drawBody(g) {
     const L = this.look;
-    g.fillStyle(L.pants);
-    g.fillRoundedRect(-15, -46, 13, 44, 4);
-    g.fillRoundedRect(2, -46, 13, 44, 4);
-    g.fillStyle(0x3b2414);
-    g.fillRoundedRect(-18, -11, 18, 11, 3);
-    g.fillRoundedRect(1, -11, 20, 11, 3);
     g.fillStyle(L.shirt);
     g.fillRoundedRect(-19, -92, 38, 50, 10);
     if (L.vest) {
@@ -101,22 +110,57 @@ export class Gunslinger {
       g.fillRect(-19, -88, 12, 44);
       g.fillRect(9, -88, 10, 44);
     }
-    if (L.star) {
-      g.fillStyle(0xf8d24a);
-      g.fillCircle(-12, -72, 5);
-    }
     g.fillStyle(0x2b1a10); g.fillRect(-19, -48, 38, 7);
     g.fillStyle(0xd9b44a); g.fillRect(-4, -48, 8, 7);
     g.fillStyle(0x4a2c17); g.fillRoundedRect(9, -46, 10, 20, 3);
+    if (L.poncho) {
+      // Poncho draped from the shoulders, with woven stripes
+      g.fillStyle(L.poncho);
+      g.fillPoints([{ x: -22, y: -92 }, { x: 22, y: -92 }, { x: 30, y: -52 }, { x: 0, y: -44 }, { x: -30, y: -52 }], true);
+      g.fillStyle(L.ponchoStripe);
+      g.fillRect(-26, -66, 52, 4);
+      g.fillStyle(L.ponchoStripe2);
+      g.fillRect(-27, -61, 54, 3);
+      g.fillStyle(L.ponchoStripe);
+      g.fillRect(-28, -57, 56, 2);
+    }
+    if (L.star) {
+      g.fillStyle(0xf8d24a);
+      g.fillCircle(-11, -78, 5);
+      g.fillStyle(0xb8860b);
+      g.fillCircle(-11, -78, 2);
+    }
     // Head
     g.fillStyle(L.skin); g.fillCircle(HEAD.x, HEAD.y, HEAD.r);
     g.fillCircle(HEAD.x + 18, HEAD.y + 2, 4);
-    g.fillStyle(0x1e1414);
-    g.fillCircle(HEAD.x + 5, HEAD.y - 3, 2.6);
-    g.fillCircle(HEAD.x + 13, HEAD.y - 3, 2.6);
+    if (L.grayHair) {
+      g.fillStyle(0xbfbfbf);
+      g.fillEllipse(HEAD.x - 15, HEAD.y - 4, 10, 20);
+    }
     g.lineStyle(2.5, 0x1e1414);
-    g.lineBetween(HEAD.x + 1, HEAD.y - 9, HEAD.x + 8, HEAD.y - 8);
-    g.lineBetween(HEAD.x + 11, HEAD.y - 8, HEAD.x + 17, HEAD.y - 10);
+    if (L.squint) {
+      g.lineBetween(HEAD.x + 3, HEAD.y - 3, HEAD.x + 9, HEAD.y - 4);
+      g.lineBetween(HEAD.x + 11, HEAD.y - 4, HEAD.x + 17, HEAD.y - 3);
+      g.lineStyle(3.5, 0x8a8a8a);
+      g.lineBetween(HEAD.x + 1, HEAD.y - 9, HEAD.x + 9, HEAD.y - 7);
+      g.lineBetween(HEAD.x + 11, HEAD.y - 7, HEAD.x + 18, HEAD.y - 9);
+      g.lineStyle(1.5, 0xa8775a);
+      g.lineBetween(HEAD.x - 2, HEAD.y - 13, HEAD.x + 10, HEAD.y - 13);
+    } else {
+      g.fillStyle(0x1e1414);
+      g.fillCircle(HEAD.x + 5, HEAD.y - 3, 2.6);
+      g.fillCircle(HEAD.x + 13, HEAD.y - 3, 2.6);
+      g.lineBetween(HEAD.x + 1, HEAD.y - 9, HEAD.x + 8, HEAD.y - 8);
+      g.lineBetween(HEAD.x + 11, HEAD.y - 8, HEAD.x + 17, HEAD.y - 10);
+    }
+    if (L.stubble) {
+      g.fillStyle(0x8f8f8f, 0.55);
+      g.fillEllipse(HEAD.x + 5, HEAD.y + 10, 30, 14);
+    }
+    if (L.cigar) {
+      g.fillStyle(0x6b4423); g.fillRect(HEAD.x + 13, HEAD.y + 8, 13, 3);
+      g.fillStyle(0xff7b25); g.fillRect(HEAD.x + 25, HEAD.y + 8, 2, 3);
+    }
     if (L.mustache) {
       g.fillStyle(0x3a2412);
       g.fillEllipse(HEAD.x + 11, HEAD.y + 8, 18, 6);
@@ -128,13 +172,33 @@ export class Gunslinger {
     }
   }
 
+  drawArmor(g) {
+    g.fillStyle(0x9aa4ae);
+    g.fillRoundedRect(-21, -90, 42, 44, 8);
+    g.fillStyle(0xc9d2dc);
+    g.fillRoundedRect(-17, -86, 34, 14, 5);
+    g.fillStyle(0x5d6670);
+    [[-15, -54], [15, -54], [-15, -80], [15, -80]].forEach(([x, y]) => g.fillCircle(x, y, 2.5));
+  }
+
   drawHat(g, ox, oy) {
     const L = this.look;
+    const x = ox + HEAD.x;
+    const y = oy + HEAD.y;
     g.fillStyle(L.hat);
-    g.fillEllipse(ox + HEAD.x, oy + HEAD.y - 17, 62, 12);
-    g.fillRoundedRect(ox + HEAD.x - 16, oy + HEAD.y - 42, 32, 26, { tl: 10, tr: 10, bl: 2, br: 2 });
-    g.fillStyle(0x1a0f08);
-    g.fillRect(ox + HEAD.x - 16, oy + HEAD.y - 23, 32, 5);
+    if (L.hatStyle === 'flat') {
+      g.fillEllipse(x, y - 16, 74, 11);
+      g.fillRoundedRect(x - 16, y - 36, 32, 21, { tl: 5, tr: 5, bl: 2, br: 2 });
+      g.fillStyle(0x3a2a1a);
+      g.fillRect(x - 16, y - 21, 32, 4);
+      g.lineStyle(2, 0x4d3a26);
+      g.lineBetween(x - 6, y - 35, x + 6, y - 35);
+    } else {
+      g.fillEllipse(x, y - 17, 62, 12);
+      g.fillRoundedRect(x - 16, y - 42, 32, 26, { tl: 10, tr: 10, bl: 2, br: 2 });
+      g.fillStyle(0x1a0f08);
+      g.fillRect(x - 16, y - 23, 32, 5);
+    }
   }
 
   get x() { return this.container.x; }
@@ -143,6 +207,17 @@ export class Gunslinger {
   setWeapon(type) {
     this.weapon = type;
     drawGun(this.armG, type, this.look.shirt, this.look.skin);
+  }
+
+  setArmor(on) {
+    this.vestG.setVisible(on);
+  }
+
+  // Swing the legs; `t` in seconds. Pass null to stand still.
+  walk(t) {
+    const a = t == null ? 0 : Math.sin(t * 9) * 0.4;
+    this.legFront.rotation = a;
+    this.legBack.rotation = -a;
   }
 
   // World-space aim angle (y down, 0 = right).
@@ -209,8 +284,8 @@ export class Gunslinger {
     });
   }
 
-  knockHatOff(dir) {
-    if (!this.hat.visible) return;
+  knockHatOff(dir, groundY) {
+    if (!this.hat.visible) return null;
     this.hat.setVisible(false);
     const h = this.headWorld();
     const g = this.scene.add.graphics({ x: h.x, y: h.y });
@@ -225,23 +300,30 @@ export class Gunslinger {
       ease: 'Quad.easeOut',
       onComplete: () => {
         this.scene.tweens.add({
-          targets: g, y: this.y - 6, angle: dir * 540, duration: 420, ease: 'Bounce.easeOut',
+          targets: g, y: groundY - 6, angle: dir * 540, duration: 420, ease: 'Bounce.easeOut',
         });
       },
     });
     this.flyingHat = g;
+    return g;
   }
 
-  die(dir) {
+  // Topple over; anyone standing above `groundY` falls off their perch.
+  die(dir, groundY) {
     this.alive = false;
     this.breath.stop();
-    this.scene.tweens.add({
-      targets: this.container,
-      angle: 90 * dir,
-      x: this.container.x + dir * 30,
-      duration: 520,
-      ease: 'Quad.easeIn',
-    });
+    this.walk(null);
+    this.scene.tweens.add({ targets: this.container, angle: 90 * dir, duration: 520, ease: 'Quad.easeIn' });
+    if (groundY > this.y + 4) {
+      this.scene.tweens.add({ targets: this.container, y: groundY, delay: 200, duration: 450, ease: 'Quad.easeIn' });
+    }
+  }
+
+  revive(x, y) {
+    this.alive = true;
+    this.scene.tweens.killTweensOf(this.container);
+    this.container.setAngle(0).setPosition(x, y).setScale(this.scale * this.facing, this.scale);
+    this.breathe();
   }
 
   destroy() {

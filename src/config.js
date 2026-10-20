@@ -8,6 +8,11 @@ export const GRAVITY = 900; // px/s², applied to every projectile
 export const FONT = 'Rye, Georgia, serif';
 export const FONT_UI = 'Arial Black, Arial, sans-serif';
 
+// The trail
+export const PX_PER_M = 20; // world pixels per meter of distance
+export const WALK_SPEED = 190; // px/s while the sheriff walks
+export const CHECKPOINT_M = 200; // a checkpoint (guarded by a boss) every N meters
+
 export const PLAYER_BASE_HP = 100;
 export const BASE_SWAY = 0.11; // radians of aim wobble at Steady Hand level 0
 
@@ -24,12 +29,8 @@ export const WEAPONS = {
     name: 'Rifle', price: 900, damage: 64, pellets: 1, spread: 0,
     cooldown: 1150, speed: 2000, preview: 22, desc: 'Heavy hit, long sight',
   },
-  dynamite: {
-    name: 'Dynamite', price: 1500, damage: 75, pellets: 1, spread: 0,
-    cooldown: 1700, speed: 950, preview: 10, explosive: 95, desc: 'Lob it. Boom.',
-  },
 };
-export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle', 'dynamite'];
+export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle'];
 
 export const UPGRADES = [
   { key: 'damage', label: 'DAMAGE', per: 0.08, color: 0xff6b5b, text: '+8%' },
@@ -39,10 +40,21 @@ export const UPGRADES = [
 export const MAX_UPGRADE = 10;
 export const upgradeCost = (lvl) => 120 + lvl * 80;
 
+// Perks the sheriff picks up along the trail. `ms` = how long a timed perk lasts.
+export const PERKS = {
+  whiskey: { name: 'SHOT OF WHISKEY', desc: '+35% health', color: '#f3b35c' },
+  vest: { name: 'BULLETPROOF VEST', desc: 'Bullets bounce off', ms: 30000, color: '#c9d2dc' },
+  powder: { name: 'GUNPOWDER', desc: '+50% damage', ms: 30000, color: '#ff7a5c' },
+  coffee: { name: 'HOT COFFEE', desc: 'Fast reload', ms: 30000, color: '#d9a066' },
+  horseshoe: { name: 'LUCKY HORSESHOE', desc: 'Double coins', ms: 45000, color: '#ffe48a' },
+};
+export const PERK_ORDER = ['whiskey', 'vest', 'powder', 'coffee', 'horseshoe'];
+export const PERK_WEIGHTS = { whiskey: 3, vest: 1.5, powder: 2, coffee: 2, horseshoe: 1.5 };
+export const PERK_SPAWN_CHANCE = 0.45; // chance of a perk on the road before an encounter
+export const PERK_DROP_CHANCE = 0.25; // chance a killed outlaw drops one
+
 export const GIFT_INTERVAL_MS = 4 * 60 * 1000;
 export const GIFT_COINS = 60;
-
-export const FOES_PER_DAY = 3;
 
 const NAMES = [
   'Dusty Pete', 'Rattlesnake Ray', 'Two-Bit Tom', 'Cactus Carl', 'Slim Jim',
@@ -55,28 +67,35 @@ const SHIRTS = [0xc0392b, 0x8e44ad, 0x2c3e50, 0x16a085, 0x7f8c8d, 0xd35400, 0x34
 const HATS = [0x2b1d14, 0x4a3426, 0x1d1d1d, 0x6b4b2a, 0x3d2b4f];
 const BANDANAS = [0xb03a2e, 0x1f618d, 0x111111, 0x7d3c98];
 
-// Difficulty grows with `level` (the day in Duel mode, scaled kills in Endless).
-export function makeFoe(level, index, boss, rng = Math.random) {
+// Difficulty level grows with distance walked.
+export const levelAt = (meters) => 1 + meters / 90;
+
+// How many outlaws an encounter has at this distance.
+export const groupSize = (meters) => (meters > 120 && Math.random() < Math.min(0.55, meters / 800) ? 2 : 1);
+
+export function makeFoe(level, { boss = false, elevated = false } = {}, rng = Math.random) {
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
-  const name = boss ? pick(BOSSES) : pick(NAMES);
+  const perches = elevated ? ['balcony', 'rooftop', 'tower'] : ['street', 'street', 'crates', 'balcony'];
   return {
-    name,
+    name: boss ? pick(BOSSES) : pick(NAMES),
     boss,
-    hp: Math.round(60 + level * 18 + (boss ? 70 : 0)),
+    hp: Math.round(60 + level * 18 + (boss ? 80 : 0)),
     damage: Math.round(10 + level * 2.5 + (boss ? 4 : 0)),
     aimError: Math.max(0.035, 0.2 - level * 0.014 - (boss ? 0.03 : 0)),
     fireMin: Math.max(0.9, 1.7 - level * 0.07),
     fireMax: Math.max(1.6, 2.7 - level * 0.08),
-    reactMs: Math.max(300, 760 - level * 35 - (boss ? 60 : 0)),
-    coins: 15 + Math.round(level * 4) + (boss ? 40 : 0),
+    reactMs: Math.max(300, 700 - level * 35),
+    coins: 15 + Math.round(level * 4) + (boss ? 50 : 0),
+    weapon: boss ? 'rifle' : rng() < Math.min(0.35, level * 0.05) ? 'shotgun' : 'revolver',
     look: {
       shirt: pick(SHIRTS),
       hat: pick(HATS),
       bandana: rng() < 0.6 ? pick(BANDANAS) : null,
       vest: rng() < 0.5 ? 0x3b2a1e : null,
       mustache: rng() < 0.7,
+      pants: 0x3d3346,
       scale: boss ? 1.18 : 1.05,
     },
-    perch: pick(index === 0 ? ['street', 'crates'] : ['street', 'balcony', 'rooftop', 'tower', 'crates']),
+    perch: boss ? 'street' : pick(perches),
   };
 }

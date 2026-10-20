@@ -4,7 +4,7 @@ import {
   GIFT_INTERVAL_MS, GIFT_COINS,
 } from '../config.js';
 import { addParallax } from '../art.js';
-import { Gunslinger } from '../gunslinger.js';
+import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, spend, addCoins } from '../save.js';
 import { button, text, panel, coinCounter } from '../ui.js';
 import { sfx, setMuted, unlockAudio } from '../sfx.js';
@@ -36,7 +36,7 @@ export class MenuScene extends Phaser.Scene {
 
     // Hero on the porch, showing the equipped gun
     this.hero = new Gunslinger(this, 600, GROUND_Y, {
-      scale: 1.6, weapon: s.equipped, look: { star: true },
+      scale: 1.6, weapon: WEAPONS[s.equipped] ? s.equipped : 'revolver', look: SHERIFF_LOOK,
     });
     this.hero.aim(-0.25);
 
@@ -46,16 +46,20 @@ export class MenuScene extends Phaser.Scene {
     this.buildWeapons();
     this.buildGift();
 
-    // Modes
-    button(this, 230, 545, 330, 74, `DUEL  ·  DAY ${s.day}`, 'green', () => this.startGame('duel'));
-    button(this, 230, 635, 330, 64, 'ENDLESS TRAIL', 'blue', () => this.startGame('endless'), { size: 26 });
-    text(this, 230, 682, `Best: ${s.bestDistance} m`, 18, { ui: true, color: '#cfe3ff' });
+    // Ride out from the furthest checkpoint, or start the trail over
+    if (s.checkpoint > 0) {
+      button(this, 230, 545, 330, 74, `CONTINUE · ${s.checkpoint} m`, 'green', () => this.startRun(s.checkpoint), { size: 28 });
+      button(this, 230, 632, 330, 58, 'NEW RUN', 'blue', () => this.startRun(0), { size: 24 });
+    } else {
+      button(this, 230, 570, 330, 84, 'RIDE OUT', 'green', () => this.startRun(0), { size: 36 });
+    }
+    text(this, 230, 684, `Best: ${s.bestDistance} m`, 18, { ui: true, color: '#cfe3ff' });
 
     this.input.once('pointerdown', unlockAudio);
   }
 
-  startGame(mode, trial = null) {
-    this.scene.start('Game', { mode, trial });
+  startRun(startM) {
+    this.scene.start('Run', { startM });
   }
 
   refresh() {
@@ -65,7 +69,7 @@ export class MenuScene extends Phaser.Scene {
     this.weaponLayer.removeAll(true);
     this.buildUpgrades();
     this.buildWeapons();
-    this.hero.setWeapon(s.equipped);
+    if (WEAPONS[s.equipped]) this.hero.setWeapon(s.equipped);
   }
 
   buildUpgrades() {
@@ -102,7 +106,7 @@ export class MenuScene extends Phaser.Scene {
   buildWeapons() {
     const s = getSave();
     const L = this.weaponLayer;
-    L.add(panel(this, 890, 100, 370, 405));
+    L.add(panel(this, 890, 100, 370, 320));
     L.add(text(this, 1075, 126, 'GUN BELT', 24, { color: '#ffd76a' }));
     WEAPON_ORDER.forEach((key, i) => {
       const w = WEAPONS[key];
@@ -136,7 +140,7 @@ export class MenuScene extends Phaser.Scene {
         }, { ui: true, size: 17 }));
         L.add(button(this, 1180, y + 22, 110, 26, '▶ TRY FREE', 'blue', async () => {
           const ok = await rewardedAd();
-          if (ok) this.startGame('duel', key);
+          if (ok) this.scene.start('Run', { startM: s.checkpoint, trial: key });
         }, { ui: true, size: 13 }));
       }
     });

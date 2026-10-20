@@ -3,7 +3,7 @@ import '@fontsource/rye/400.css';
 import { W, H } from './config.js';
 import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
-import { GameScene } from './scenes/GameScene.js';
+import { RunScene } from './scenes/RunScene.js';
 
 const game = new Phaser.Game({
   type: Phaser.AUTO,
@@ -16,7 +16,7 @@ const game = new Phaser.Game({
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
   input: { activePointers: 2 },
-  scene: [BootScene, MenuScene, GameScene],
+  scene: [BootScene, MenuScene, RunScene],
 });
 
 // Handy for debugging and automated play-testing in dev builds only.

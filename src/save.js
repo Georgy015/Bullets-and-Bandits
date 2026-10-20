@@ -4,8 +4,8 @@ const KEY = 'fast-gun-save-v1';
 
 const DEFAULTS = () => ({
   coins: 0,
-  day: 1,
   bestDistance: 0,
+  checkpoint: 0, // furthest checkpoint reached, in meters
   upgrades: { damage: 0, health: 0, steady: 0 },
   owned: { revolver: true },
   equipped: 'revolver',

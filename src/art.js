@@ -136,10 +136,6 @@ export function createSpriteTextures(scene) {
 
   make('bullet', 16, 6, (q) => { q.fillStyle(0xffe9a8); q.fillEllipse(8, 3, 16, 6); });
   make('pellet', 8, 8, (q) => { q.fillStyle(0xffe9a8); q.fillCircle(4, 4, 4); });
-  make('stick', 26, 10, (q) => {
-    q.fillStyle(0xc0392b); q.fillRoundedRect(0, 0, 22, 10, 3);
-    q.fillStyle(0xf5d76e); q.fillRect(22, 4, 4, 2);
-  });
   make('spark', 8, 8, (q) => { q.fillStyle(0xffffff); q.fillCircle(4, 4, 4); });
   make('dust', 16, 16, (q) => { q.fillStyle(0xd9b48a); q.fillCircle(8, 8, 8); });
   make('blood', 8, 8, (q) => { q.fillStyle(0xd23a2a); q.fillCircle(4, 4, 4); });
@@ -166,6 +162,44 @@ export function createSpriteTextures(scene) {
       pts.push({ x: 15 + Math.cos(a) * r, y: 15 + Math.sin(a) * r });
     }
     q.fillPoints(pts, true);
+  });
+
+  // Perk pickups
+  make('perk-whiskey', 40, 48, (q) => {
+    q.fillStyle(0x6b3a12); q.fillRoundedRect(8, 14, 24, 32, 6);
+    q.fillRect(15, 2, 10, 14);
+    q.fillStyle(0x2b1a10); q.fillRect(14, 0, 12, 5);
+    q.fillStyle(0xf2e2b6); q.fillRect(10, 24, 20, 12);
+    q.fillStyle(0x8c3b2a); q.fillRect(13, 28, 14, 4);
+    q.fillStyle(0xffffff, 0.3); q.fillRect(11, 16, 4, 26);
+  });
+  make('perk-vest', 44, 44, (q) => {
+    q.fillStyle(0x5d6670); q.fillRoundedRect(4, 4, 36, 38, 8);
+    q.fillStyle(0x9aa4ae); q.fillRoundedRect(7, 7, 30, 32, 6);
+    q.fillStyle(0xc9d2dc); q.fillRoundedRect(10, 10, 24, 10, 4);
+    q.fillStyle(0x12090f); q.fillRect(17, 2, 10, 8);
+    q.fillStyle(0x5d6670); [[12, 34], [32, 34], [12, 24], [32, 24]].forEach(([x, y]) => q.fillCircle(x, y, 2));
+  });
+  make('perk-powder', 44, 44, (q) => {
+    q.fillStyle(0x6e4126); q.fillRoundedRect(6, 6, 32, 36, 8);
+    q.fillStyle(0x3a2212); q.fillRect(6, 12, 32, 4); q.fillRect(6, 32, 32, 4);
+    q.fillStyle(0x1a1a1a); q.fillRoundedRect(16, 0, 12, 8, 3);
+    q.fillStyle(0xf2e2b6); q.fillRect(13, 19, 18, 10);
+    q.fillStyle(0xb03a2e); q.fillRect(16, 22, 3, 4); q.fillRect(21, 22, 3, 4); q.fillRect(26, 22, 3, 4);
+  });
+  make('perk-coffee', 44, 44, (q) => {
+    q.fillStyle(0x4a6b8a); q.fillRoundedRect(6, 12, 26, 28, 5);
+    q.lineStyle(5, 0x4a6b8a); q.strokeCircle(34, 25, 7);
+    q.fillStyle(0x3b2414); q.fillEllipse(19, 14, 22, 6);
+    q.fillStyle(0xffffff, 0.6); q.fillCircle(14, 6, 3); q.fillCircle(20, 3, 3); q.fillCircle(25, 7, 2.5);
+  });
+  make('perk-horseshoe', 44, 44, (q) => {
+    q.lineStyle(8, 0xb8bec4); q.beginPath(); q.arc(22, 20, 14, Math.PI * 0.05, Math.PI * 0.95, true); q.strokePath();
+    q.fillStyle(0xb8bec4); q.fillRect(4, 18, 8, 22); q.fillRect(32, 18, 8, 22);
+    q.fillStyle(0x5d6670); [[8, 26], [8, 34], [36, 26], [36, 34], [16, 9], [28, 9]].forEach(([x, y]) => q.fillCircle(x, y, 1.8));
+  });
+  make('glow', 80, 80, (q) => {
+    for (let r = 40; r > 0; r -= 4) { q.fillStyle(0xfff2c4, 0.05); q.fillCircle(40, 40, r); }
   });
   g.destroy();
 }
@@ -244,4 +278,25 @@ export function drawPerch(scene, type, x) {
     g.fillStyle(WOOD_DARK); g.fillRect(x - 85, top, 170, 14);
   }
   return { g, top };
+}
+
+// Signpost marking a checkpoint; drawn at local x = 0.
+export function drawCheckpoint(scene, meters) {
+  const c = scene.add.container(0, GROUND_Y);
+  const g = scene.add.graphics();
+  g.fillStyle(WOOD_DARK); g.fillRect(-6, -190, 12, 190);
+  g.fillStyle(WOOD); g.fillRect(-70, -180, 140, 50);
+  g.lineStyle(4, WOOD_DARK); g.strokeRect(-70, -180, 140, 50);
+  // Lantern
+  g.fillStyle(0x2b1a10); g.fillRect(-3, -215, 6, 26);
+  g.fillStyle(0xf4c46a); g.fillRoundedRect(-11, -232, 22, 24, 5);
+  g.lineStyle(3, 0x2b1a10); g.strokeRoundedRect(-11, -232, 22, 24, 5);
+  c.add(scene.add.image(0, -220, 'glow').setScale(1.4).setBlendMode('ADD'));
+  c.add(g);
+  const t = scene.add.text(0, -155, `CHECKPOINT\n${meters} m`, {
+    fontFamily: 'Rye, Georgia, serif', fontSize: '17px', color: '#fff1cf', align: 'center',
+    stroke: '#3a2212', strokeThickness: 3,
+  }).setOrigin(0.5);
+  c.add(t);
+  return c;
 }
