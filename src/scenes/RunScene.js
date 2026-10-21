@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import {
-  W, H, GROUND_Y, GRAVITY, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY,
+  W, H, GROUND_Y, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY, ENEMY_BULLET_SPEED, SHERIFF_SCALE,
   PX_PER_M, WALK_SPEED, CHECKPOINT_M, PERKS, PERK_ORDER, PERK_WEIGHTS,
   PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, levelAt, groupSize, makeFoe,
 } from '../config.js';
@@ -15,8 +15,6 @@ const PLAYER_X = 220;
 const ENGAGE_X = 1000; // the sheriff stops when an outlaw walks into this screen x
 const SPAWN_X = W + 160; // new things appear just off the right edge
 const ENEMY_WINDUP_MS = 700; // how long the "!" shows before an outlaw fires
-const MIN_PULL = 18;
-const FULL_PULL = 230;
 const rand = Phaser.Math.FloatBetween;
 
 function randomPerk() {
@@ -86,7 +84,7 @@ export class RunScene extends Phaser.Scene {
     this.hudG = this.add.graphics().setDepth(30);
 
     this.player = new Gunslinger(this, PLAYER_X, GROUND_Y, {
-      scale: 1.12, weapon: this.weaponKey, look: SHERIFF_LOOK,
+      scale: SHERIFF_SCALE, weapon: this.weaponKey, look: SHERIFF_LOOK,
     });
     this.player.container.setDepth(12);
 
@@ -283,7 +281,7 @@ export class RunScene extends Phaser.Scene {
       p.taken = true;
       this.tweens.killTweensOf(p.obj);
       this.tweens.add({
-        targets: p.obj, x: PLAYER_X, y: GROUND_Y - 150, scale: 1.4, alpha: 0, duration: 350,
+        targets: p.obj, x: PLAYER_X, y: GROUND_Y - 200, scale: 1.4, alpha: 0, duration: 350,
         onComplete: () => p.obj.destroy(),
       });
       this.applyPerk(p.key);
@@ -296,13 +294,13 @@ export class RunScene extends Phaser.Scene {
     if (key === 'whiskey') {
       const heal = Math.round(this.maxHp * 0.35);
       this.hp = Math.min(this.maxHp, this.hp + heal);
-      floatText(this, PLAYER_X, GROUND_Y - 170, `+${heal} HP`, '#7dff9a', 28);
+      floatText(this, PLAYER_X, GROUND_Y - 270, `+${heal} HP`, '#7dff9a', 28);
     } else {
       this.perks[key] = this.clock + P.ms;
       if (key === 'vest') this.player.setArmor(true);
     }
-    const t = text(this, PLAYER_X + 40, GROUND_Y - 210, P.name, 24, { color: P.color, ox: 0 }).setDepth(50);
-    const d = text(this, PLAYER_X + 40, GROUND_Y - 184, P.desc, 16, { ui: true, ox: 0 }).setDepth(50);
+    const t = text(this, PLAYER_X + 40, GROUND_Y - 310, P.name, 24, { color: P.color, ox: 0 }).setDepth(50);
+    const d = text(this, PLAYER_X + 40, GROUND_Y - 284, P.desc, 16, { ui: true, ox: 0 }).setDepth(50);
     this.tweens.add({ targets: [t, d], y: '-=40', alpha: 0, delay: 900, duration: 500, onComplete: () => { t.destroy(); d.destroy(); } });
   }
 
@@ -311,7 +309,7 @@ export class RunScene extends Phaser.Scene {
       if (this.perks[k] <= this.clock) {
         delete this.perks[k];
         if (k === 'vest') this.player.setArmor(false);
-        floatText(this, PLAYER_X, GROUND_Y - 170, `${PERKS[k].name} wore off`, '#d9c9ad', 18);
+        floatText(this, PLAYER_X, GROUND_Y - 270, `${PERKS[k].name} wore off`, '#d9c9ad', 18);
       }
     }
     let x = 120;
@@ -342,7 +340,7 @@ export class RunScene extends Phaser.Scene {
     banner(this, 'CHECKPOINT!', '#ffe48a', 76, 700);
     const heal = Math.round(this.maxHp * 0.25);
     this.hp = Math.min(this.maxHp, this.hp + heal);
-    floatText(this, PLAYER_X, GROUND_Y - 170, `+${heal} HP`, '#7dff9a', 24);
+    floatText(this, PLAYER_X, GROUND_Y - 270, `+${heal} HP`, '#7dff9a', 24);
   }
 
   // ---------------------------------------------------------------- Encounters
@@ -360,7 +358,7 @@ export class RunScene extends Phaser.Scene {
     }
     this.state = 'fight';
     this.active.forEach((e, i) => this.scheduleShot(e, 500 + i * 700));
-    this.setHint(this.shotsFired === 0 ? 'Drag back, aim, release to shoot' : '');
+    this.setHint(this.shotsFired === 0 ? 'Hold to aim at an outlaw, release to shoot' : '');
   }
 
   introduceBoss(e) {
@@ -438,7 +436,7 @@ export class RunScene extends Phaser.Scene {
     if (this.state === 'over') return;
     this.state = 'fight';
     this.active.forEach((e) => e.alive && this.scheduleShot(e));
-    this.setHint(this.shotsFired === 0 ? 'Drag back, aim, release to shoot' : '');
+    this.setHint(this.shotsFired === 0 ? 'Hold to aim at an outlaw, release to shoot' : '');
   }
 
   hitscan(from, to, color) {
@@ -462,16 +460,10 @@ export class RunScene extends Phaser.Scene {
     const s = e.g.shoulderWorld();
     e.g.aim(Math.atan2(target.y - s.y, target.x - s.x));
     const m = e.g.muzzleWorld();
-    const dx = target.x - m.x;
-    const dy = target.y - m.y;
-    const speedK = e.g.weapon === 'rifle' ? 1500 : 1050;
-    const T = Phaser.Math.Clamp(Math.abs(dx) / speedK, 0.5, 1.0);
-    let vx = dx / T;
-    let vy = (dy - 0.5 * GRAVITY * T * T) / T;
-    const err = e.foe.aimError;
-    vx *= 1 + rand(-err, err) * 0.5;
-    vy += rand(-err, err) * Math.abs(vx) * 0.55;
-    e.plan = { vx, vy, angle: Math.atan2(vy, vx) };
+    // Straight shot at the sheriff, off by up to `aimError` (scaled to radians)
+    const angle = Math.atan2(target.y - m.y, target.x - m.x) + rand(-1, 1) * e.foe.aimError * 0.45;
+    const speed = ENEMY_BULLET_SPEED[e.g.weapon];
+    e.plan = { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, angle };
   }
 
   enemyFire(e) {
@@ -491,11 +483,11 @@ export class RunScene extends Phaser.Scene {
     this.scheduleShot(e);
   }
 
-  playerFire(angle, power) {
+  playerFire(angle) {
     if (this.clock < this.readyAt) return;
     const w = this.weapon;
     this.readyAt = this.clock + w.cooldown * (this.perk('coffee') ? 0.5 : 1);
-    const speed = w.speed * (0.45 + 0.55 * power);
+    const speed = w.speed;
     const m = this.player.muzzleWorld();
     const dmg = w.damage * this.dmgMult * (this.perk('powder') ? 1.5 : 1);
     for (let i = 0; i < w.pellets; i++) {
@@ -524,7 +516,6 @@ export class RunScene extends Phaser.Scene {
       const steps = Math.max(1, Math.ceil((speed * dt) / 6));
       const h = dt / steps;
       for (let i = 0; i < steps && b.alive; i++) {
-        b.vy += GRAVITY * h;
         b.x += b.vx * h;
         b.y += b.vy * h;
         if (b.owner === 'player') {
@@ -745,7 +736,7 @@ export class RunScene extends Phaser.Scene {
       if (this.paused || over.length) return;
       if (this.state === 'ready') {
         this.early = true;
-        floatText(this, this.player.x, this.player.y - 160, 'TOO EARLY!', '#ff7a5c', 26);
+        floatText(this, this.player.x, this.player.y - 270, 'TOO EARLY!', '#ff7a5c', 26);
         return;
       }
       if (this.state === 'draw') {
@@ -755,37 +746,31 @@ export class RunScene extends Phaser.Scene {
       }
       if (this.state === 'fight' && this.player.alive) {
         this.aiming = true;
-        this.aimStart = { x: p.x, y: p.y };
-        this.aimCur = null;
-        this.aimPull = 0;
+        this.aimAt(p);
       }
     });
     this.input.on('pointermove', (p) => {
-      if (!this.aiming) return;
-      const dx = this.aimStart.x - p.x;
-      const dy = this.aimStart.y - p.y;
-      this.aimPull = Math.hypot(dx, dy);
-      let a = Math.atan2(dy, dx);
-      if (a < -Math.PI / 2) a = -1.5;
-      else if (a > Math.PI / 2) a = 1.0;
-      this.aimBase = Phaser.Math.Clamp(a, -1.5, 1.0);
-      this.aimCur = { x: p.x, y: p.y };
+      if (this.aiming) this.aimAt(p);
     });
     const release = () => {
       if (this.ignoreUntilUp) { this.ignoreUntilUp = false; return; }
       if (!this.aiming) return;
       this.aiming = false;
       this.aimG.clear();
-      if (this.state === 'fight' && this.aimPull >= MIN_PULL) {
-        this.playerFire(this.currentAim(), this.aimPower());
-      }
+      if (this.state === 'fight') this.playerFire(this.currentAim());
     };
     this.input.on('pointerup', release);
     this.input.on('pointerupoutside', release);
   }
 
-  aimPower() {
-    return Phaser.Math.Clamp(this.aimPull / FULL_PULL, 0.15, 1);
+  // The sheriff aims from his shoulder toward the pointer.
+  aimAt(p) {
+    const s = this.player.shoulderWorld();
+    let a = Math.atan2(p.y - s.y, p.x - s.x);
+    if (a < -Math.PI / 2) a = -1.5;
+    else if (a > Math.PI / 2) a = 1.0;
+    this.aimBase = Phaser.Math.Clamp(a, -1.5, 1.0);
+    this.aimCur = { x: p.x, y: p.y };
   }
 
   // Aim wobbles a little; Steady Hand upgrades shrink the wobble.
@@ -798,37 +783,32 @@ export class RunScene extends Phaser.Scene {
   drawAim() {
     const g = this.aimG;
     g.clear();
-    if (!this.aiming || this.aimPull < MIN_PULL || !this.aimCur) return;
+    if (!this.aiming || !this.aimCur) return;
     const angle = this.currentAim();
     this.player.aim(angle);
-
-    g.fillStyle(0xffffff, 0.15);
-    g.fillTriangle(
-      this.aimStart.x, this.aimStart.y,
-      this.aimCur.x + Math.sin(angle) * 18, this.aimCur.y - Math.cos(angle) * 18,
-      this.aimCur.x - Math.sin(angle) * 18, this.aimCur.y + Math.cos(angle) * 18,
-    );
-    g.lineStyle(2, 0xffffff, 0.5);
-    g.strokeCircle(this.aimStart.x, this.aimStart.y, 10);
-
-    // Partial trajectory preview: long enough to help, short enough to need skill
-    const speed = this.weapon.speed * (0.45 + 0.55 * this.aimPower());
-    const m = this.player.muzzleWorld();
-    let x = m.x;
-    let y = m.y;
-    const vx = Math.cos(angle) * speed;
-    let vy = Math.sin(angle) * speed;
-    const dt = 1 / 90;
-    const n = this.weapon.preview;
     const ready = this.clock >= this.readyAt;
-    for (let i = 1; i <= n * 2; i++) {
-      vy += GRAVITY * dt;
-      x += vx * dt;
-      y += vy * dt;
-      if (i % 2 === 0) {
-        const k = 1 - i / (n * 2 + 2);
-        g.fillStyle(ready ? 0xfff2c4 : 0x9a8f80, 0.85 * k);
-        g.fillCircle(x, y, 4.5 * k + 1.5);
+
+    // Crosshair where the player points
+    const { x: cx, y: cy } = this.aimCur;
+    g.lineStyle(2, 0xffffff, 0.55);
+    g.strokeCircle(cx, cy, 14);
+    g.lineBetween(cx - 22, cy, cx - 8, cy);
+    g.lineBetween(cx + 8, cy, cx + 22, cy);
+    g.lineBetween(cx, cy - 22, cx, cy - 8);
+    g.lineBetween(cx, cy + 8, cx, cy + 22);
+
+    // Straight dotted sight from the muzzle; it shows the real aim, wobble included.
+    // Shotguns show their spread instead of a single line.
+    const m = this.player.muzzleWorld();
+    const w = this.weapon;
+    const lines = w.pellets > 1
+      ? [angle - ((w.pellets - 1) / 2) * w.spread, angle + ((w.pellets - 1) / 2) * w.spread]
+      : [angle];
+    for (const a of lines) {
+      for (let d = 18; d < w.sight; d += 16) {
+        const k = 1 - d / w.sight;
+        g.fillStyle(ready ? 0xfff2c4 : 0x9a8f80, 0.8 * k);
+        g.fillCircle(m.x + Math.cos(a) * d, m.y + Math.sin(a) * d, 2 + 2.5 * k);
       }
     }
   }
@@ -900,7 +880,7 @@ export class RunScene extends Phaser.Scene {
       const h = e.g.headWorld();
       e.warn.setPosition(h.x, h.y - 64);
     }
-    this.smoke.setPosition(this.player.x + 30, this.player.y - 108 * 1.12);
+    this.smoke.setPosition(this.player.x + 27 * SHERIFF_SCALE, this.player.y - 96 * SHERIFF_SCALE);
     this.smoke.emitting = this.player.alive;
 
     this.updatePerks();

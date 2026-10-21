@@ -20,7 +20,7 @@ npm run build    # production build in dist/
 
 - **The trail:** the sheriff walks through town while the scenery scrolls past. Distance is the score.
 - **Encounters:** outlaws stand in the street, on crates, saloon balconies, rooftops and water towers. The sheriff stops and fights. From about 120 m, outlaws can come in pairs.
-- **Shooting:** drag back from anywhere, aim and release. A partial trajectory preview helps you aim, bullets drop with gravity, and the aim wobbles a little (Steady Hand reduces it). Headshots do 2× damage and knock the hat off.
+- **Shooting:** hold the mouse or a finger down and the sheriff aims where you point; release to fire. Bullets fly in straight lines. A short dotted sight shows the real aim, which wobbles slightly (Steady Hand reduces it), so time your release. Headshots do 2× damage and knock the hat off.
 - **Enemy "!" warning:** an outlaw shows a warning about 0.7 s before he fires. Hitting him staggers his shot.
 - **Checkpoints every 200 m:** each one is guarded by a **boss** (WANTED poster) you face in a **quick-draw duel**: "Ready… Steady… DRAW!". Tap first to land a big opening hit. Passing a checkpoint saves it and heals the sheriff 25%.
 - **When shot:** restart from the last checkpoint for free, or watch an ad to revive on the spot (once per run). The menu offers **Continue** from the furthest checkpoint ever reached, or **New Run**.

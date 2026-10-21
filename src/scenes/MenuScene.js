@@ -36,7 +36,7 @@ export class MenuScene extends Phaser.Scene {
 
     // Hero on the porch, showing the equipped gun
     this.hero = new Gunslinger(this, 600, GROUND_Y, {
-      scale: 1.6, weapon: WEAPONS[s.equipped] ? s.equipped : 'revolver', look: SHERIFF_LOOK,
+      scale: 2, weapon: WEAPONS[s.equipped] ? s.equipped : 'revolver', look: SHERIFF_LOOK,
     });
     this.hero.aim(-0.25);
 

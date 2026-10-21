@@ -216,9 +216,9 @@ export function addParallax(scene) {
 export const PERCH_TOP = {
   street: GROUND_Y,
   crates: GROUND_Y - 92,
-  balcony: GROUND_Y - 190,
-  rooftop: GROUND_Y - 270,
-  tower: GROUND_Y - 300,
+  balcony: GROUND_Y - 170,
+  rooftop: GROUND_Y - 230,
+  tower: GROUND_Y - 250,
 };
 
 const WOOD = 0x7b4a2a;

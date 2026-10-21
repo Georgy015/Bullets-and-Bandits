@@ -3,7 +3,6 @@
 export const W = 1280;
 export const H = 720;
 export const GROUND_Y = 610;
-export const GRAVITY = 900; // px/s², applied to every projectile
 
 export const FONT = 'Rye, Georgia, serif';
 export const FONT_UI = 'Arial Black, Arial, sans-serif';
@@ -14,23 +13,30 @@ export const WALK_SPEED = 190; // px/s while the sheriff walks
 export const CHECKPOINT_M = 200; // a checkpoint (guarded by a boss) every N meters
 
 export const PLAYER_BASE_HP = 100;
-export const BASE_SWAY = 0.11; // radians of aim wobble at Steady Hand level 0
+export const BASE_SWAY = 0.05; // radians of aim wobble at Steady Hand level 0
 
 export const WEAPONS = {
   revolver: {
     name: 'Revolver', price: 0, damage: 34, pellets: 1, spread: 0,
-    cooldown: 450, speed: 1500, preview: 14, desc: 'Reliable six-shooter',
+    cooldown: 450, speed: 1800, sight: 260, desc: 'Reliable six-shooter',
   },
   shotgun: {
     name: 'Shotgun', price: 400, damage: 15, pellets: 4, spread: 0.09,
-    cooldown: 950, speed: 1300, preview: 8, desc: '4 pellets, short sight',
+    cooldown: 950, speed: 1600, sight: 150, desc: '4 pellets, short sight',
   },
   rifle: {
     name: 'Rifle', price: 900, damage: 64, pellets: 1, spread: 0,
-    cooldown: 1150, speed: 2000, preview: 22, desc: 'Heavy hit, long sight',
+    cooldown: 1150, speed: 2600, sight: 460, desc: 'Heavy hit, long sight',
   },
 };
 export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle'];
+// Bullets fly in straight lines; `sight` is how far the aiming line reaches (px).
+export const ENEMY_BULLET_SPEED = { revolver: 1150, shotgun: 1000, rifle: 1600 };
+
+// Character sizes
+export const SHERIFF_SCALE = 1.55;
+export const OUTLAW_SCALE = 1.45;
+export const BOSS_SCALE = 1.6;
 
 export const UPGRADES = [
   { key: 'damage', label: 'DAMAGE', per: 0.08, color: 0xff6b5b, text: '+8%' },
@@ -94,7 +100,7 @@ export function makeFoe(level, { boss = false, elevated = false } = {}, rng = Ma
       vest: rng() < 0.5 ? 0x3b2a1e : null,
       mustache: rng() < 0.7,
       pants: 0x3d3346,
-      scale: boss ? 1.18 : 1.05,
+      scale: boss ? BOSS_SCALE : OUTLAW_SCALE,
     },
     perch: boss ? 'street' : pick(perches),
   };
