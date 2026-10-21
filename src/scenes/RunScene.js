@@ -505,10 +505,10 @@ export class RunScene extends Phaser.Scene {
       target = Math.random() < 0.2 ? p.headWorld() : p.bodyCenter();
     } else if (Math.random() < 0.55) {
       missDir = -1;
-      target = { x: p.x, y: p.y - 150 * p.scale - rand(25, 90) };
+      target = { x: p.x, y: p.y - 150 * p.scale - rand(60, 130) };
     } else {
       missDir = 1;
-      target = { x: p.x + rand(110, 260), y: GROUND_Y + 4 };
+      target = { x: p.x + rand(180, 340), y: GROUND_Y + 4 };
     }
     const s = e.g.shoulderWorld();
     e.g.aim(Math.atan2(target.y - s.y, target.x - s.x));
@@ -531,7 +531,8 @@ export class RunScene extends Phaser.Scene {
       const sp = Math.hypot(p.vx, p.vy);
       const a = p.angle + spread;
       const dmg = pellets > 1 ? e.foe.damage * 0.45 : e.foe.damage;
-      this.spawnBullet(m.x, m.y, Math.cos(a) * sp, Math.sin(a) * sp, 'enemy', dmg, e.g.weapon);
+      const b = this.spawnBullet(m.x, m.y, Math.cos(a) * sp, Math.sin(a) * sp, 'enemy', dmg, e.g.weapon);
+      if (i === 0 && p.missDir) b.miss = true; // one MISS per shot, not per pellet
     }
     this.sparks.explode(10, m.x, m.y);
     sfx.shot(e.g.weapon);
@@ -568,7 +569,21 @@ export class RunScene extends Phaser.Scene {
     const sprite = this.add.image(x, y, kind === 'shotgun' ? 'pellet' : 'bullet').setDepth(21);
     if (owner === 'enemy') sprite.setTint(0xffb199);
     else if (this.perk('powder')) sprite.setTint(0xff7a3c);
-    this.bullets.push({ x, y, vx, vy, owner, damage, kind, sprite, alive: true });
+    const b = { x, y, vx, vy, owner, damage, kind, sprite, alive: true };
+    this.bullets.push(b);
+    return b;
+  }
+
+  // Make an outlaw's miss obvious, so misses read as clearly as hits.
+  showMiss(x, y) {
+    const t = text(this, this.player.x + 10, this.player.y - 265, 'MISS!', 34, { color: '#f2ead8' }).setDepth(50).setScale(0.4);
+    this.tweens.add({ targets: t, scale: 1, duration: 140, ease: 'Back.easeOut' });
+    this.tweens.add({ targets: t, alpha: 0, y: t.y - 40, delay: 550, duration: 350, onComplete: () => t.destroy() });
+    if (y >= GROUND_Y) {
+      this.dust.explode(20, x, GROUND_Y);
+      this.sparks.explode(10, x, GROUND_Y);
+    }
+    sfx.ricochet();
   }
 
   updateBullets(dt) {
@@ -595,14 +610,19 @@ export class RunScene extends Phaser.Scene {
           if (zone) {
             b.alive = false;
             this.damagePlayer(zone === 'head' ? b.damage * 1.5 : b.damage, b.x, b.y);
-          } else if (!b.whizzed && Math.abs(b.x - this.player.x) < 40) {
-            b.whizzed = true; // near miss: let the player hear it fly past
-            sfx.ricochet();
+          } else if (b.miss && b.x < this.player.x + 40) {
+            b.miss = false; // flew over the hat
+            this.showMiss(b.x, b.y);
           }
         }
         if (!b.alive) break;
         if (b.y >= GROUND_Y + 4) {
-          this.dust.explode(5, b.x, GROUND_Y);
+          if (b.miss) {
+            b.miss = false; // kicked up dirt short of the sheriff
+            this.showMiss(b.x, GROUND_Y);
+          } else {
+            this.dust.explode(5, b.x, GROUND_Y);
+          }
           b.alive = false;
         } else if (b.x < -60 || b.x > W + 60 || b.y > H + 60) {
           b.alive = false;

@@ -82,7 +82,7 @@ export const groupSize = (meters) => (meters > 120 && Math.random() < Math.min(0
 
 // Chance that an outlaw's shot is aimed to hit; the rest are deliberate near misses.
 // Grows with distance so the trail gets more dangerous the further the sheriff goes.
-export const OUTLAW_ACCURACY = { start: 0.3, per100m: 0.045, max: 0.75, bossBonus: 0.1 };
+export const OUTLAW_ACCURACY = { start: 0.2, per100m: 0.045, max: 0.75, bossBonus: 0.1 };
 export const hitChanceAt = (meters, boss = false) => Math.min(
   OUTLAW_ACCURACY.max + (boss ? OUTLAW_ACCURACY.bossBonus : 0),
   OUTLAW_ACCURACY.start + (meters / 100) * OUTLAW_ACCURACY.per100m + (boss ? OUTLAW_ACCURACY.bossBonus : 0),
