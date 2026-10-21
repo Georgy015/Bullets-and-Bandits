@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import {
   W, H, GROUND_Y, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY, ENEMY_BULLET_SPEED, SHERIFF_SCALE,
   PX_PER_M, WALK_SPEED, CHECKPOINT_M, PERKS, PERK_ORDER, PERK_WEIGHTS,
-  PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, levelAt, groupSize, makeFoe,
+  PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, groupSize, makeFoe,
 } from '../config.js';
 import { addParallax, drawPerch, drawCheckpoint } from '../art.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
@@ -249,7 +249,7 @@ export class RunScene extends Phaser.Scene {
 
     if (this.bossSpawnedFor !== cp && bossScreen <= SPAWN_X) {
       this.bossSpawnedFor = cp;
-      const foe = makeFoe(levelAt(cp), { boss: true });
+      const foe = makeFoe(cp, { boss: true });
       this.spawnEnemy(foe, bossScreen, { boss: true, enemies: [] });
       this.nextEventPx = Math.max(this.nextEventPx, 900);
     }
@@ -281,7 +281,7 @@ export class RunScene extends Phaser.Scene {
     const group = { boss: false, enemies: [] };
     const n = groupSize(m);
     for (let i = 0; i < n; i++) {
-      this.spawnEnemy(makeFoe(levelAt(m), { elevated: i === 1 }), x + i * 180, group);
+      this.spawnEnemy(makeFoe(m, { elevated: i === 1 }), x + i * 180, group);
     }
   }
 
@@ -495,16 +495,27 @@ export class RunScene extends Phaser.Scene {
     e.warn.setVisible(false);
   }
 
+  // Each shot is decided up front: a hit (body, sometimes head) or a visible near miss,
+  // either over the sheriff's hat or into the dirt at his feet.
   planShot(e) {
-    const head = Math.random() < 0.2;
-    const target = head ? this.player.headWorld() : this.player.bodyCenter();
+    const p = this.player;
+    let target;
+    let missDir = 0; // -1 = high, +1 = low, 0 = on target
+    if (Math.random() < e.foe.hitChance) {
+      target = Math.random() < 0.2 ? p.headWorld() : p.bodyCenter();
+    } else if (Math.random() < 0.55) {
+      missDir = -1;
+      target = { x: p.x, y: p.y - 150 * p.scale - rand(25, 90) };
+    } else {
+      missDir = 1;
+      target = { x: p.x + rand(110, 260), y: GROUND_Y + 4 };
+    }
     const s = e.g.shoulderWorld();
     e.g.aim(Math.atan2(target.y - s.y, target.x - s.x));
     const m = e.g.muzzleWorld();
-    // Straight shot at the sheriff, off by up to `aimError` (scaled to radians)
-    const angle = Math.atan2(target.y - m.y, target.x - m.x) + rand(-1, 1) * e.foe.aimError * 0.45;
+    const angle = Math.atan2(target.y - m.y, target.x - m.x) + rand(-1, 1) * 0.015;
     const speed = ENEMY_BULLET_SPEED[e.g.weapon];
-    e.plan = { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, angle };
+    e.plan = { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, angle, missDir };
   }
 
   enemyFire(e) {
@@ -513,7 +524,10 @@ export class RunScene extends Phaser.Scene {
     const m = e.g.muzzleWorld();
     const pellets = e.g.weapon === 'shotgun' ? 3 : 1;
     for (let i = 0; i < pellets; i++) {
-      const spread = pellets > 1 ? (i - 1) * 0.07 : 0;
+      // On a miss the shotgun spread fans away from the sheriff so no pellet clips him.
+      // Outlaws face left, so a larger angle points higher.
+      let spread = 0;
+      if (pellets > 1) spread = p.missDir ? -p.missDir * i * 0.05 : (i - 1) * 0.07;
       const sp = Math.hypot(p.vx, p.vy);
       const a = p.angle + spread;
       const dmg = pellets > 1 ? e.foe.damage * 0.45 : e.foe.damage;
@@ -581,6 +595,9 @@ export class RunScene extends Phaser.Scene {
           if (zone) {
             b.alive = false;
             this.damagePlayer(zone === 'head' ? b.damage * 1.5 : b.damage, b.x, b.y);
+          } else if (!b.whizzed && Math.abs(b.x - this.player.x) < 40) {
+            b.whizzed = true; // near miss: let the player hear it fly past
+            sfx.ricochet();
           }
         }
         if (!b.alive) break;

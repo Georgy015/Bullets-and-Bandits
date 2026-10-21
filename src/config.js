@@ -18,15 +18,15 @@ export const BASE_SWAY = 0.08; // radians of aim wobble at Steady Hand level 0
 export const WEAPONS = {
   revolver: {
     name: 'Revolver', price: 0, damage: 34, pellets: 1, spread: 0,
-    cooldown: 450, clip: 6, reload: 2000, speed: 1800, sight: 260, desc: '6 shots, reliable',
+    cooldown: 450, clip: 6, reload: 1500, speed: 1800, sight: 260, desc: '6 shots, reliable',
   },
   shotgun: {
     name: 'Shotgun', price: 400, damage: 15, pellets: 4, spread: 0.09,
-    cooldown: 950, clip: 2, reload: 2000, speed: 1600, sight: 150, desc: '2 shells, 4 pellets each',
+    cooldown: 950, clip: 2, reload: 1500, speed: 1600, sight: 150, desc: '2 shells, 4 pellets each',
   },
   rifle: {
     name: 'Rifle', price: 900, damage: 64, pellets: 1, spread: 0,
-    cooldown: 1150, clip: 1, reload: 2000, speed: 2600, sight: 460, desc: '1 round, heavy hit',
+    cooldown: 1150, clip: 1, reload: 1500, speed: 2600, sight: 460, desc: '1 round, heavy hit',
   },
 };
 export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle'];
@@ -80,7 +80,16 @@ export const levelAt = (meters) => 1 + meters / 90;
 // How many outlaws an encounter has at this distance.
 export const groupSize = (meters) => (meters > 120 && Math.random() < Math.min(0.55, meters / 800) ? 2 : 1);
 
-export function makeFoe(level, { boss = false, elevated = false } = {}, rng = Math.random) {
+// Chance that an outlaw's shot is aimed to hit; the rest are deliberate near misses.
+// Grows with distance so the trail gets more dangerous the further the sheriff goes.
+export const OUTLAW_ACCURACY = { start: 0.3, per100m: 0.045, max: 0.75, bossBonus: 0.1 };
+export const hitChanceAt = (meters, boss = false) => Math.min(
+  OUTLAW_ACCURACY.max + (boss ? OUTLAW_ACCURACY.bossBonus : 0),
+  OUTLAW_ACCURACY.start + (meters / 100) * OUTLAW_ACCURACY.per100m + (boss ? OUTLAW_ACCURACY.bossBonus : 0),
+);
+
+export function makeFoe(meters, { boss = false, elevated = false } = {}, rng = Math.random) {
+  const level = levelAt(meters);
   const pick = (arr) => arr[Math.floor(rng() * arr.length)];
   const perches = elevated ? ['balcony', 'rooftop', 'tower'] : ['street', 'street', 'crates', 'balcony'];
   return {
@@ -88,7 +97,7 @@ export function makeFoe(level, { boss = false, elevated = false } = {}, rng = Ma
     boss,
     hp: Math.round(60 + level * 18 + (boss ? 80 : 0)),
     damage: Math.round(10 + level * 2.5 + (boss ? 4 : 0)),
-    aimError: Math.max(0.035, 0.2 - level * 0.014 - (boss ? 0.03 : 0)),
+    hitChance: hitChanceAt(meters, boss),
     fireMin: Math.max(0.9, 1.7 - level * 0.07),
     fireMax: Math.max(1.6, 2.7 - level * 0.08),
     reactMs: Math.max(300, 700 - level * 35),
