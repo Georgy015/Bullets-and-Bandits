@@ -59,6 +59,8 @@ export class RunScene extends Phaser.Scene {
     this.clock = 0; // scaled game time in ms; stops while paused
     this.timeScale = 1;
     this.readyAt = 0;
+    this.ammo = Object.fromEntries(WEAPON_ORDER.map((k) => [k, WEAPONS[k].clip]));
+    this.reloadEnd = 0; // clock time the current reload finishes, 0 when not reloading
     this.state = 'walk';
     this.bullets = [];
     this.world = []; // display objects that scroll with the trail
@@ -155,6 +157,14 @@ export class RunScene extends Phaser.Scene {
       this.input.keyboard?.on(`keydown-${name}`, () => owned[i] && this.switchWeapon(owned[i]));
     });
 
+    // Ammo in the current gun, with a manual reload (also the R key)
+    // Sits in the bottom row, right after the gun belt buttons
+    this.ammoX = 80 + owned.length * 130 - 40;
+    this.ammoG = this.add.graphics().setDepth(30);
+    this.reloadBtn = button(this, this.ammoX + 190, 680, 100, 40, 'RELOAD', 'wood', () => this.startReload(), { ui: true, size: 14 }).setDepth(35);
+    this.input.keyboard?.on('keydown-R', () => this.startReload());
+    this.reloadText = text(this, PLAYER_X, 0, 'RELOADING', 15, { ui: true, color: '#ffe48a' }).setDepth(30).setVisible(false);
+
     this.hint = text(this, 640, 640, '', 24, { ui: true, color: '#fff4dc' }).setDepth(30);
   }
 
@@ -168,11 +178,40 @@ export class RunScene extends Phaser.Scene {
     this.weapon = WEAPONS[key];
     this.player.setWeapon(key);
     this.readyAt = Math.max(this.readyAt, this.clock + 250);
+    this.reloadEnd = 0;
+    if (this.ammo[key] <= 0) this.startReload();
     if (getSave().owned[key]) {
       getSave().equipped = key;
       save();
     }
     this.refreshSlots();
+  }
+
+  get reloading() {
+    return this.reloadEnd > 0;
+  }
+
+  startReload() {
+    const w = this.weapon;
+    if (this.reloading || this.ammo[this.weaponKey] >= w.clip || this.state === 'over') return;
+    this.reloadTotal = w.reload * (this.perk('coffee') ? 0.5 : 1);
+    this.reloadEnd = this.clock + this.reloadTotal;
+    this.aiming = false;
+    this.aimG.clear();
+    sfx.reload();
+  }
+
+  updateReload() {
+    if (!this.reloading || this.clock < this.reloadEnd) return;
+    this.reloadEnd = 0;
+    this.ammo[this.weaponKey] = this.weapon.clip;
+    sfx.reloaded();
+  }
+
+  // The sheriff reloads every gun while he walks between fights.
+  refillAll() {
+    for (const k of WEAPON_ORDER) this.ammo[k] = WEAPONS[k].clip;
+    this.reloadEnd = 0;
   }
 
   setHint(str) {
@@ -411,6 +450,7 @@ export class RunScene extends Phaser.Scene {
     this.player.aim(Math.atan2(target.y - s.y, target.x - s.x));
     this.hitscan(this.player.muzzleWorld(), target, 0xffe9a8);
     sfx.shot(this.weaponKey);
+    this.ammo[this.weaponKey] -= 1;
     banner(this, 'QUICK DRAW!', '#ffd76a', 64, 500);
     // A fixed share of the boss's health, so no weapon turns the draw into a one-shot.
     const mult = this.perk('powder') ? 1.5 : 1;
@@ -485,8 +525,15 @@ export class RunScene extends Phaser.Scene {
   }
 
   playerFire(angle) {
-    if (this.clock < this.readyAt) return;
     const w = this.weapon;
+    if (this.reloading) return;
+    if (this.ammo[this.weaponKey] <= 0) {
+      sfx.empty();
+      this.startReload();
+      return;
+    }
+    if (this.clock < this.readyAt) return;
+    this.ammo[this.weaponKey] -= 1;
     this.readyAt = this.clock + w.cooldown * (this.perk('coffee') ? 0.5 : 1);
     const speed = w.speed;
     const m = this.player.muzzleWorld();
@@ -500,6 +547,7 @@ export class RunScene extends Phaser.Scene {
     this.cameras.main.shake(70, this.weaponKey === 'shotgun' ? 0.007 : 0.004);
     this.shotsFired++;
     if (this.shotsFired === 1) this.setHint('');
+    if (this.ammo[this.weaponKey] <= 0) this.time.delayedCall(Math.min(300, w.cooldown), () => this.startReload());
   }
 
   spawnBullet(x, y, vx, vy, owner, damage, kind) {
@@ -626,6 +674,7 @@ export class RunScene extends Phaser.Scene {
       this.active = [];
       this.duelist = null;
       this.player.holster();
+      this.refillAll();
       this.state = 'walk';
     });
   }
@@ -653,6 +702,7 @@ export class RunScene extends Phaser.Scene {
     this.player.revive(PLAYER_X, GROUND_Y);
     this.bullets.forEach((b) => b.sprite.destroy());
     this.bullets = [];
+    this.refillAll();
     gameplayStart();
     banner(this, 'BACK IN THE SADDLE', '#7dff9a', 54, 600);
     this.time.delayedCall(900, () => {
@@ -746,6 +796,8 @@ export class RunScene extends Phaser.Scene {
         return;
       }
       if (this.state === 'fight' && this.player.alive) {
+        if (this.reloading) return;
+        if (this.ammo[this.weaponKey] <= 0) { sfx.empty(); this.startReload(); return; }
         this.aiming = true;
         this.aimStart = { x: p.x, y: p.y };
         this.aimCur = null;
@@ -791,7 +843,7 @@ export class RunScene extends Phaser.Scene {
     if (!this.aiming || !this.aimCur || this.aimPull < MIN_PULL) return;
     const angle = this.currentAim();
     this.player.aim(angle);
-    const ready = this.clock >= this.readyAt;
+    const ready = this.clock >= this.readyAt && !this.reloading && this.ammo[this.weaponKey] > 0;
 
     // Pull indicator from where the drag started
     const { x: cx, y: cy } = this.aimCur;
@@ -891,6 +943,7 @@ export class RunScene extends Phaser.Scene {
     this.smoke.emitting = this.player.alive;
 
     this.updatePerks();
+    this.updateReload();
     this.drawAim();
     this.updateBullets(dt);
     this.drawHudDynamic();
@@ -915,10 +968,45 @@ export class RunScene extends Phaser.Scene {
       g.fillStyle(0x120914, 0.85); g.fillRoundedRect(h.x - w / 2, h.y - 42, w, 10, 5);
       g.fillStyle(0x5bd47a); g.fillRoundedRect(h.x - w / 2 + 2, h.y - 40, Math.max(0, (w - 4) * (e.hp / e.foe.hp)), 6, 3);
     }
-    if (this.state === 'fight' && this.clock < this.readyAt) {
-      const r = 1 - (this.readyAt - this.clock) / (this.weapon.cooldown * (this.perk('coffee') ? 0.5 : 1));
-      g.fillStyle(0x120914, 0.8); g.fillRoundedRect(PLAYER_X - 32, GROUND_Y + 14, 64, 8, 4);
-      g.fillStyle(0xf6c343); g.fillRoundedRect(PLAYER_X - 31, GROUND_Y + 15, 62 * Phaser.Math.Clamp(r, 0, 1), 6, 3);
+    // Reload progress above the sheriff's hat
+    const barY = this.player.y - 280;
+    this.reloadText.setVisible(this.reloading && this.player.alive).setY(barY - 14);
+    if (this.reloading && this.player.alive) {
+      const r = 1 - (this.reloadEnd - this.clock) / this.reloadTotal;
+      g.fillStyle(0x120914, 0.85); g.fillRoundedRect(PLAYER_X - 45, barY, 90, 10, 5);
+      g.fillStyle(0xf6c343); g.fillRoundedRect(PLAYER_X - 43, barY + 2, 86 * Phaser.Math.Clamp(r, 0, 1), 6, 3);
     }
+    this.drawAmmo();
+  }
+
+  // Cartridges for the gun in hand: brass = loaded, dark = spent.
+  drawAmmo() {
+    const g = this.ammoG;
+    g.clear();
+    const w = this.weapon;
+    const left = this.ammo[this.weaponKey];
+    const shell = this.weaponKey === 'shotgun';
+    const rifle = this.weaponKey === 'rifle';
+    const cw = shell ? 18 : 13;
+    const ch = shell ? 32 : rifle ? 42 : 30;
+    for (let i = 0; i < w.clip; i++) {
+      const x = this.ammoX + i * (cw + 5);
+      const y = 680 + ch / 2 - ch;
+      const full = i < left;
+      g.fillStyle(0x120914, 0.6); g.fillRoundedRect(x - 2, y - 2, cw + 4, ch + 4, 4);
+      if (!full) {
+        g.fillStyle(0x3a2c44, 1); g.fillRoundedRect(x, y, cw, ch, 3);
+        continue;
+      }
+      if (shell) {
+        g.fillStyle(0xc0392b); g.fillRoundedRect(x, y, cw, ch - 7, 3);
+        g.fillStyle(0xd9b44a); g.fillRect(x, y + ch - 8, cw, 8);
+      } else {
+        g.fillStyle(0xd9b44a); g.fillRoundedRect(x, y + ch * 0.3, cw, ch * 0.7, 2);
+        g.fillStyle(0x9a6b3a); g.fillRoundedRect(x + 1, y, cw - 2, ch * 0.34, { tl: 5, tr: 5, bl: 0, br: 0 });
+      }
+    }
+    const full = left >= w.clip;
+    this.reloadBtn.setAlpha(full || this.reloading ? 0.45 : 1);
   }
 }

@@ -24,7 +24,7 @@ npm run build    # production build in dist/
 - **Enemy "!" warning:** an outlaw shows a warning about 0.7 s before he fires. Hitting him staggers his shot.
 - **Checkpoints every 200 m:** each one is guarded by a **boss** (WANTED poster) you face in a **quick-draw duel**: "Ready… Steady… DRAW!". Tap first to land a big opening hit. Passing a checkpoint saves it and heals the sheriff 25%.
 - **When shot:** restart from the last checkpoint for free, or watch an ad to revive on the spot (once per run). The menu offers **Continue** from the furthest checkpoint ever reached, or **New Run**.
-- **Weapons:** Revolver, Shotgun, Rifle. Switch mid-run with the belt buttons or keys 1–3.
+- **Weapons:** Revolver (6 rounds), Shotgun (2 shells), Rifle (1 round), each with a 2 s reload. Reloading starts automatically on an empty gun, or early with **R** / the RELOAD button, and all guns are reloaded while walking between fights. Switch guns mid-run with the belt buttons or keys 1–3.
 
 ### Perks picked up along the trail
 
@@ -33,7 +33,7 @@ npm run build    # production build in dist/
 | Shot of Whiskey | +35% health |
 | Bulletproof Vest | Bullets bounce off for 30 s |
 | Gunpowder | +50% damage for 30 s |
-| Hot Coffee | Reload twice as fast for 30 s |
+| Hot Coffee | Fire and reload twice as fast for 30 s |
 | Lucky Horseshoe | Double coins for 45 s |
 
 Perks lie on the road ahead of some encounters, and outlaws sometimes drop one (bosses always do). Durations, weights and drop chances are in `src/config.js`.

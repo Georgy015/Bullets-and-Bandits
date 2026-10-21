@@ -18,18 +18,19 @@ export const BASE_SWAY = 0.08; // radians of aim wobble at Steady Hand level 0
 export const WEAPONS = {
   revolver: {
     name: 'Revolver', price: 0, damage: 34, pellets: 1, spread: 0,
-    cooldown: 450, speed: 1800, sight: 260, desc: 'Reliable six-shooter',
+    cooldown: 450, clip: 6, reload: 2000, speed: 1800, sight: 260, desc: '6 shots, reliable',
   },
   shotgun: {
     name: 'Shotgun', price: 400, damage: 15, pellets: 4, spread: 0.09,
-    cooldown: 950, speed: 1600, sight: 150, desc: '4 pellets, short sight',
+    cooldown: 950, clip: 2, reload: 2000, speed: 1600, sight: 150, desc: '2 shells, 4 pellets each',
   },
   rifle: {
     name: 'Rifle', price: 900, damage: 64, pellets: 1, spread: 0,
-    cooldown: 1150, speed: 2600, sight: 460, desc: 'Heavy hit, long sight',
+    cooldown: 1150, clip: 1, reload: 2000, speed: 2600, sight: 460, desc: '1 round, heavy hit',
   },
 };
 export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle'];
+// `cooldown` = ms between shots, `clip` = rounds per load, `reload` = ms to reload.
 // Bullets fly in straight lines; `sight` is how far the aiming line reaches (px).
 export const ENEMY_BULLET_SPEED = { revolver: 1150, shotgun: 1000, rifle: 1600 };
 
@@ -51,7 +52,7 @@ export const PERKS = {
   whiskey: { name: 'SHOT OF WHISKEY', desc: '+35% health', color: '#f3b35c' },
   vest: { name: 'BULLETPROOF VEST', desc: 'Bullets bounce off', ms: 30000, color: '#c9d2dc' },
   powder: { name: 'GUNPOWDER', desc: '+50% damage', ms: 30000, color: '#ff7a5c' },
-  coffee: { name: 'HOT COFFEE', desc: 'Fast reload', ms: 30000, color: '#d9a066' },
+  coffee: { name: 'HOT COFFEE', desc: 'Reload twice as fast', ms: 30000, color: '#d9a066' },
   horseshoe: { name: 'LUCKY HORSESHOE', desc: 'Double coins', ms: 45000, color: '#ffe48a' },
 };
 export const PERK_ORDER = ['whiskey', 'vest', 'powder', 'coffee', 'horseshoe'];
