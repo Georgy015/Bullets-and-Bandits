@@ -15,6 +15,7 @@ const PLAYER_X = 220;
 const ENGAGE_X = 1000; // the sheriff stops when an outlaw walks into this screen x
 const SPAWN_X = W + 160; // new things appear just off the right edge
 const ENEMY_WINDUP_MS = 700; // how long the "!" shows before an outlaw fires
+const MIN_PULL = 18; // px of drag before the sheriff starts aiming
 const rand = Phaser.Math.FloatBetween;
 
 function randomPerk() {
@@ -358,7 +359,7 @@ export class RunScene extends Phaser.Scene {
     }
     this.state = 'fight';
     this.active.forEach((e, i) => this.scheduleShot(e, 500 + i * 700));
-    this.setHint(this.shotsFired === 0 ? 'Hold to aim at an outlaw, release to shoot' : '');
+    this.setHint(this.shotsFired === 0 ? 'Drag back to aim, release to shoot' : '');
   }
 
   introduceBoss(e) {
@@ -436,7 +437,7 @@ export class RunScene extends Phaser.Scene {
     if (this.state === 'over') return;
     this.state = 'fight';
     this.active.forEach((e) => e.alive && this.scheduleShot(e));
-    this.setHint(this.shotsFired === 0 ? 'Hold to aim at an outlaw, release to shoot' : '');
+    this.setHint(this.shotsFired === 0 ? 'Drag back to aim, release to shoot' : '');
   }
 
   hitscan(from, to, color) {
@@ -746,7 +747,9 @@ export class RunScene extends Phaser.Scene {
       }
       if (this.state === 'fight' && this.player.alive) {
         this.aiming = true;
-        this.aimAt(p);
+        this.aimStart = { x: p.x, y: p.y };
+        this.aimCur = null;
+        this.aimPull = 0;
       }
     });
     this.input.on('pointermove', (p) => {
@@ -757,16 +760,18 @@ export class RunScene extends Phaser.Scene {
       if (!this.aiming) return;
       this.aiming = false;
       this.aimG.clear();
-      if (this.state === 'fight') this.playerFire(this.currentAim());
+      if (this.state === 'fight' && this.aimPull >= MIN_PULL) this.playerFire(this.currentAim());
     };
     this.input.on('pointerup', release);
     this.input.on('pointerupoutside', release);
   }
 
-  // The sheriff aims from his shoulder toward the pointer.
+  // Drag back like a slingshot: the sheriff aims opposite the drag.
   aimAt(p) {
-    const s = this.player.shoulderWorld();
-    let a = Math.atan2(p.y - s.y, p.x - s.x);
+    const dx = this.aimStart.x - p.x;
+    const dy = this.aimStart.y - p.y;
+    this.aimPull = Math.hypot(dx, dy);
+    let a = Math.atan2(dy, dx);
     if (a < -Math.PI / 2) a = -1.5;
     else if (a > Math.PI / 2) a = 1.0;
     this.aimBase = Phaser.Math.Clamp(a, -1.5, 1.0);
@@ -783,19 +788,21 @@ export class RunScene extends Phaser.Scene {
   drawAim() {
     const g = this.aimG;
     g.clear();
-    if (!this.aiming || !this.aimCur) return;
+    if (!this.aiming || !this.aimCur || this.aimPull < MIN_PULL) return;
     const angle = this.currentAim();
     this.player.aim(angle);
     const ready = this.clock >= this.readyAt;
 
-    // Crosshair where the player points
+    // Pull indicator from where the drag started
     const { x: cx, y: cy } = this.aimCur;
-    g.lineStyle(2, 0xffffff, 0.55);
-    g.strokeCircle(cx, cy, 14);
-    g.lineBetween(cx - 22, cy, cx - 8, cy);
-    g.lineBetween(cx + 8, cy, cx + 22, cy);
-    g.lineBetween(cx, cy - 22, cx, cy - 8);
-    g.lineBetween(cx, cy + 8, cx, cy + 22);
+    g.fillStyle(0xffffff, 0.15);
+    g.fillTriangle(
+      this.aimStart.x, this.aimStart.y,
+      cx + Math.sin(angle) * 18, cy - Math.cos(angle) * 18,
+      cx - Math.sin(angle) * 18, cy + Math.cos(angle) * 18,
+    );
+    g.lineStyle(2, 0xffffff, 0.5);
+    g.strokeCircle(this.aimStart.x, this.aimStart.y, 10);
 
     // Straight dotted sight from the muzzle; it shows the real aim, wobble included.
     // Shotguns show their spread instead of a single line.

@@ -13,7 +13,7 @@ export const WALK_SPEED = 190; // px/s while the sheriff walks
 export const CHECKPOINT_M = 200; // a checkpoint (guarded by a boss) every N meters
 
 export const PLAYER_BASE_HP = 100;
-export const BASE_SWAY = 0.05; // radians of aim wobble at Steady Hand level 0
+export const BASE_SWAY = 0.08; // radians of aim wobble at Steady Hand level 0
 
 export const WEAPONS = {
   revolver: {
