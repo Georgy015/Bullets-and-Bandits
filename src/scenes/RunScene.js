@@ -147,13 +147,13 @@ export class RunScene extends Phaser.Scene {
     this.slots = [];
     const owned = WEAPON_ORDER.filter((k) => getSave().owned[k] || k === this.trial);
     owned.forEach((k, i) => {
-      const b = button(this, 80 + i * 130, 680, 120, 44, `${i + 1} ${WEAPONS[k].name.toUpperCase()}`, 'wood',
+      const b = button(this, 80 + i * 130, 680, 120, 44, `${i + 1} ${(WEAPONS[k].short ?? WEAPONS[k].name).toUpperCase()}`, 'wood',
         () => this.switchWeapon(k), { ui: true, size: 15 }).setDepth(35);
       b.key = k;
       this.slots.push(b);
     });
     this.refreshSlots();
-    ['ONE', 'TWO', 'THREE'].forEach((name, i) => {
+    ['ONE', 'TWO', 'THREE', 'FOUR'].forEach((name, i) => {
       this.input.keyboard?.on(`keydown-${name}`, () => owned[i] && this.switchWeapon(owned[i]));
     });
 
@@ -161,7 +161,7 @@ export class RunScene extends Phaser.Scene {
     // Sits in the bottom row, right after the gun belt buttons
     this.ammoX = 80 + owned.length * 130 - 40;
     this.ammoG = this.add.graphics().setDepth(30);
-    this.reloadBtn = button(this, this.ammoX + 190, 680, 100, 40, 'RELOAD', 'wood', () => this.startReload(), { ui: true, size: 14 }).setDepth(35);
+    this.reloadBtn = button(this, this.ammoX + 215, 680, 100, 40, 'RELOAD', 'wood', () => this.startReload(), { ui: true, size: 14 }).setDepth(35);
     this.input.keyboard?.on('keydown-R', () => this.startReload());
     this.reloadText = text(this, PLAYER_X, 0, 'RELOADING', 15, { ui: true, color: '#ffe48a' }).setDepth(30).setVisible(false);
 
@@ -551,7 +551,9 @@ export class RunScene extends Phaser.Scene {
     this.ammo[this.weaponKey] -= 1;
     this.readyAt = this.clock + w.cooldown * (this.perk('coffee') ? 0.5 : 1);
     const speed = w.speed;
-    const m = this.player.muzzleWorld();
+    // Twin revolvers alternate between the gun hand and the off hand
+    this.hand = this.weaponKey === 'dual' && this.hand !== 'back' ? 'back' : 'front';
+    const m = this.player.muzzleWorld(this.hand);
     const dmg = w.damage * this.dmgMult * (this.perk('powder') ? 1.5 : 1);
     for (let i = 0; i < w.pellets; i++) {
       const a = w.pellets > 1 ? angle + (i - (w.pellets - 1) / 2) * w.spread + rand(-0.02, 0.02) : angle;
@@ -870,7 +872,7 @@ export class RunScene extends Phaser.Scene {
   // Aim wobbles a little; Steady Hand upgrades shrink the wobble.
   currentAim() {
     const t = this.clock / 1000;
-    const wobble = this.sway * (Math.sin(t * Math.PI * 2 * 0.9) + 0.45 * Math.sin(t * Math.PI * 2 * 2.3));
+    const wobble = this.sway * (this.weapon.swayMult ?? 1) * (Math.sin(t * Math.PI * 2 * 0.9) + 0.45 * Math.sin(t * Math.PI * 2 * 2.3));
     return Phaser.Math.Clamp(this.aimBase + wobble, -1.55, 1.05);
   }
 
@@ -1024,10 +1026,12 @@ export class RunScene extends Phaser.Scene {
     const left = this.ammo[this.weaponKey];
     const shell = this.weaponKey === 'shotgun';
     const rifle = this.weaponKey === 'rifle';
-    const cw = shell ? 18 : 13;
+    const dual = this.weaponKey === 'dual';
+    const cw = shell ? 18 : dual ? 10 : 13;
+    const gap = dual ? 3 : 5;
     const ch = shell ? 32 : rifle ? 42 : 30;
     for (let i = 0; i < w.clip; i++) {
-      const x = this.ammoX + i * (cw + 5);
+      const x = this.ammoX + i * (cw + gap);
       const y = 680 + ch / 2 - ch;
       const full = i < left;
       g.fillStyle(0x120914, 0.6); g.fillRoundedRect(x - 2, y - 2, cw + 4, ch + 4, 4);

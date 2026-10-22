@@ -2,12 +2,14 @@
 // Local space faces right with its origin at the feet; `facing = -1` mirrors it.
 
 const SHOULDER = { x: 4, y: -80 };
+const BACK_SHOULDER = { x: -6, y: -92 }; // off hand, drawn behind the body
 const HEAD = { x: 2, y: -104, r: 19 };
 const HIP_Y = -44;
 const HOLSTER_ANGLE = 1.35;
 
 const MUZZLE = {
   revolver: { x: 68, y: -5 },
+  dual: { x: 68, y: -5 },
   shotgun: { x: 86, y: -5 },
   rifle: { x: 96, y: -4 },
 };
@@ -20,7 +22,11 @@ export const SHERIFF_LOOK = {
   vest: null, bandana: null, mustache: false,
 };
 
+// Darken a 0xRRGGBB color by factor f, used for the off-hand arm so it reads as further away.
+const shade = (c, f) => (Math.round(((c >> 16) & 255) * f) << 16) | (Math.round(((c >> 8) & 255) * f) << 8) | Math.round((c & 255) * f);
+
 function drawGun(g, type, sleeve, skin) {
+  if (type === 'dual') type = 'revolver';
   g.clear();
   g.fillStyle(sleeve); g.fillRoundedRect(-6, -6, 40, 12, 6);
   if (type === 'shotgun' || type === 'rifle') {
@@ -70,6 +76,13 @@ export class Gunslinger {
     drawLeg(this.legFront, this.look.pants);
     c.add([this.legBack, this.legFront]);
 
+    // Off-hand arm for twin revolvers; hidden for every other gun
+    this.armBack = scene.add.container(BACK_SHOULDER.x, BACK_SHOULDER.y);
+    this.armBackG = scene.add.graphics();
+    this.armBack.add(this.armBackG);
+    drawGun(this.armBackG, 'revolver', shade(this.look.shirt, 0.75), shade(this.look.skin, 0.85));
+    c.add(this.armBack);
+
     const body = scene.add.graphics();
     this.drawBody(body);
     c.add(body);
@@ -90,6 +103,7 @@ export class Gunslinger {
     c.add(this.hat);
 
     c.setScale(this.scale * this.facing, this.scale);
+    this.armBack.setVisible(this.weapon === 'dual');
     this.armAngle = HOLSTER_ANGLE;
     this.holster();
     this.breathe();
@@ -207,6 +221,7 @@ export class Gunslinger {
   setWeapon(type) {
     this.weapon = type;
     drawGun(this.armG, type, this.look.shirt, this.look.skin);
+    this.armBack.setVisible(type === 'dual');
   }
 
   setArmor(on) {
@@ -224,23 +239,27 @@ export class Gunslinger {
   aim(angle) {
     this.armAngle = angle;
     this.arm.rotation = this.facing === 1 ? angle : Math.PI - angle;
+    this.armBack.rotation = this.arm.rotation;
   }
 
   holster() {
     this.arm.rotation = HOLSTER_ANGLE;
+    this.armBack.rotation = HOLSTER_ANGLE + 0.2;
     this.armAngle = this.facing === 1 ? HOLSTER_ANGLE : Math.PI - HOLSTER_ANGLE;
   }
 
-  shoulderWorld() {
+  // `hand` is 'front' (gun hand) or 'back' (off hand, twin revolvers only).
+  shoulderWorld(hand = 'front') {
+    const sh = hand === 'back' ? BACK_SHOULDER : SHOULDER;
     return {
-      x: this.x + SHOULDER.x * this.scale * this.facing,
-      y: this.y + SHOULDER.y * this.scale,
+      x: this.x + sh.x * this.scale * this.facing,
+      y: this.y + sh.y * this.scale,
     };
   }
 
-  muzzleWorld() {
+  muzzleWorld(hand = 'front') {
     const m = MUZZLE[this.weapon];
-    const s = this.shoulderWorld();
+    const s = this.shoulderWorld(hand);
     const a = this.armAngle;
     const mx = m.x * this.scale;
     const my = m.y * this.scale;

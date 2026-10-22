@@ -28,8 +28,13 @@ export const WEAPONS = {
     name: 'Rifle', price: 900, damage: 64, pellets: 1, spread: 0,
     cooldown: 1150, clip: 1, reload: 1500, speed: 2600, sight: 460, desc: '1 round, heavy hit',
   },
+  // Two revolvers firing alternately: lots of lead, but a shakier aim (swayMult).
+  dual: {
+    name: 'Twin Revolvers', short: 'TWINS', price: 1400, damage: 28, pellets: 1, spread: 0,
+    cooldown: 230, clip: 12, reload: 1500, speed: 1800, sight: 240, swayMult: 1.35, desc: '12 shots, fast, shaky aim',
+  },
 };
-export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle'];
+export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle', 'dual'];
 // `cooldown` = ms between shots, `clip` = rounds per load, `reload` = ms to reload.
 // Bullets fly in straight lines; `sight` is how far the aiming line reaches (px).
 export const ENEMY_BULLET_SPEED = { revolver: 1150, shotgun: 1000, rifle: 1600 };

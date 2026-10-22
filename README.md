@@ -25,7 +25,7 @@ npm run build    # production build in dist/
 - **Enemy "!" warning:** an outlaw shows a warning about 0.7 s before he fires. Hitting him staggers his shot.
 - **Checkpoints every 200 m:** each one is guarded by a **boss** (WANTED poster) you face in a **quick-draw duel**: "Ready… Steady… DRAW!". Tap first to land a big opening hit. Passing a checkpoint saves it and heals the sheriff 25%.
 - **When shot:** restart from the last checkpoint for free, or watch an ad to revive on the spot (once per run). The menu offers **Continue** from the furthest checkpoint ever reached, or **New Run**.
-- **Weapons:** Revolver (6 rounds), Shotgun (2 shells), Rifle (1 round), each with a 1.5 s reload. Reloading starts automatically on an empty gun, or early with **R** / the RELOAD button, and all guns are reloaded while walking between fights. Switch guns mid-run with the belt buttons or keys 1–3.
+- **Weapons:** Revolver (6 rounds), Shotgun (2 shells), Rifle (1 round), Twin Revolvers (12 rounds fired alternately from both hands, fast but with a shakier aim), each with a 1.5 s reload. Reloading starts automatically on an empty gun, or early with **R** / the RELOAD button, and all guns are reloaded while walking between fights. Switch guns mid-run with the belt buttons or keys 1–4.
 
 ### Perks picked up along the trail
 
@@ -43,7 +43,7 @@ Perks lie on the road ahead of some encounters, and outlaws sometimes drop one (
 
 - Coins from every outlaw (bosses pay more).
 - 3 permanent upgrades, 10 levels each: Damage, Health, Steady Hand.
-- Buy the Shotgun and Rifle, or **Try Free** for a run with a rewarded ad.
+- Buy the Shotgun, Rifle and Twin Revolvers, or **Try Free** for a run with a rewarded ad.
 - Strongbox gift every 4 minutes.
 
 ## Code map

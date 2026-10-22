@@ -106,7 +106,7 @@ export class MenuScene extends Phaser.Scene {
   buildWeapons() {
     const s = getSave();
     const L = this.weaponLayer;
-    L.add(panel(this, 890, 100, 370, 320));
+    L.add(panel(this, 890, 100, 370, 405));
     L.add(text(this, 1075, 126, 'GUN BELT', 24, { color: '#ffd76a' }));
     WEAPON_ORDER.forEach((key, i) => {
       const w = WEAPONS[key];
