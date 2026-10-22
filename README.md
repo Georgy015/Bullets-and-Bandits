@@ -20,10 +20,10 @@ npm run build    # production build in dist/
 
 - **The trail:** the sheriff walks through town while the scenery scrolls past. Distance is the score.
 - **Encounters:** outlaws stand in the street, on crates, saloon balconies, rooftops and water towers. The sheriff stops and fights. From about 120 m, outlaws can come in pairs.
-- **Shooting:** drag back from anywhere like a slingshot, aim and release. Bullets fly in straight lines. A short dotted sight shows the real aim, which wobbles slightly (Steady Hand reduces it), so time your release. Headshots do 2× damage and knock the hat off.
+- **Shooting:** drag back from anywhere like a slingshot, aim and release. Bullets fly in straight lines. A short dotted sight shows the real aim, which wobbles slightly (Steady Hand reduces it), so time your release. Headshots do 3× damage (an early outlaw drops to one revolver headshot) and knock the hat off.
 - **Outlaw accuracy grows with distance:** at the start about 20% of their shots hit, rising by about 4.5% per 100 m to 75% around 1200 m (bosses +10%). Misses fly well over the sheriff's hat or kick up dirt short of him, with a ricochet and a "MISS!" label. Tunable via `OUTLAW_ACCURACY` in `src/config.js`.
 - **Enemy "!" warning:** an outlaw shows a warning about 0.7 s before he fires. Hitting him staggers his shot.
-- **Checkpoints every 200 m:** each one is guarded by a **boss** (WANTED poster) you face in a **quick-draw duel**: "Ready… Steady… DRAW!". Tap first to land a big opening hit. Passing a checkpoint saves it and heals the sheriff 25%.
+- **Checkpoints every 200 m:** each one is guarded by a **boss** (WANTED poster, carrying a rifle or twin revolvers that fire two quick shots per warning) you face in a **quick-draw duel**: "Ready… Steady… DRAW!". Tap first to land a big opening hit. Passing a checkpoint saves it and heals the sheriff 25%.
 - **When shot:** restart from the last checkpoint for free, or watch an ad to revive on the spot (once per run). The menu offers **Continue** from the furthest checkpoint ever reached, or **New Run**.
 - **Weapons:** Revolver (6 rounds), Shotgun (2 shells), Rifle (1 round), Twin Revolvers (12 rounds fired alternately from both hands, fast but with a shakier aim), each with a 1.5 s reload. Reloading starts automatically on an empty gun, or early with **R** / the RELOAD button, and all guns are reloaded while walking between fights. Switch guns mid-run with the belt buttons or keys 1–4.
 

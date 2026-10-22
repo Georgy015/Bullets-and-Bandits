@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import {
-  W, H, GROUND_Y, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY, ENEMY_BULLET_SPEED, SHERIFF_SCALE,
+  W, H, GROUND_Y, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY, ENEMY_BULLET_SPEED, SHERIFF_SCALE, HEADSHOT_MULT,
   PX_PER_M, WALK_SPEED, CHECKPOINT_M, PERKS, PERK_ORDER, PERK_WEIGHTS,
   PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, groupSize, makeFoe,
 } from '../config.js';
@@ -497,7 +497,7 @@ export class RunScene extends Phaser.Scene {
 
   // Each shot is decided up front: a hit (body, sometimes head) or a visible near miss,
   // either over the sheriff's hat or into the dirt at his feet.
-  planShot(e) {
+  planShot(e, hand = 'front') {
     const p = this.player;
     let target;
     let missDir = 0; // -1 = high, +1 = low, 0 = on target
@@ -510,18 +510,24 @@ export class RunScene extends Phaser.Scene {
       missDir = 1;
       target = { x: p.x + rand(180, 340), y: GROUND_Y + 4 };
     }
-    const s = e.g.shoulderWorld();
+    const s = e.g.shoulderWorld(hand);
     e.g.aim(Math.atan2(target.y - s.y, target.x - s.x));
-    const m = e.g.muzzleWorld();
+    const m = e.g.muzzleWorld(hand);
     const angle = Math.atan2(target.y - m.y, target.x - m.x) + rand(-1, 1) * 0.015;
     const speed = ENEMY_BULLET_SPEED[e.g.weapon];
-    e.plan = { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, angle, missDir };
+    return { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, angle, missDir };
   }
 
   enemyFire(e) {
-    const p = e.plan;
+    this.fireShot(e, e.plan, 'front');
+    this.scheduleShot(e);
+    // Twin revolvers: a second shot from the off hand right after, with its own hit roll
+    if (e.g.weapon === 'dual') e.followUp = { at: this.clock + 180, plan: this.planShot(e, 'back') };
+  }
+
+  fireShot(e, p, hand) {
     e.g.aim(p.angle);
-    const m = e.g.muzzleWorld();
+    const m = e.g.muzzleWorld(hand);
     const pellets = e.g.weapon === 'shotgun' ? 3 : 1;
     for (let i = 0; i < pellets; i++) {
       // On a miss the shotgun spread fans away from the sheriff so no pellet clips him.
@@ -530,13 +536,12 @@ export class RunScene extends Phaser.Scene {
       if (pellets > 1) spread = p.missDir ? -p.missDir * i * 0.05 : (i - 1) * 0.07;
       const sp = Math.hypot(p.vx, p.vy);
       const a = p.angle + spread;
-      const dmg = pellets > 1 ? e.foe.damage * 0.45 : e.foe.damage;
+      const dmg = e.foe.damage * (pellets > 1 ? 0.45 : e.g.weapon === 'dual' ? 0.75 : 1);
       const b = this.spawnBullet(m.x, m.y, Math.cos(a) * sp, Math.sin(a) * sp, 'enemy', dmg, e.g.weapon);
       if (i === 0 && p.missDir) b.miss = true; // one MISS per shot, not per pellet
     }
     this.sparks.explode(10, m.x, m.y);
     sfx.shot(e.g.weapon);
-    this.scheduleShot(e);
   }
 
   playerFire(angle) {
@@ -603,7 +608,7 @@ export class RunScene extends Phaser.Scene {
             const zone = e.alive && e.g.hitTest(b.x, b.y);
             if (zone) {
               b.alive = false;
-              this.damageEnemy(e, zone === 'head' ? b.damage * 2 : b.damage, zone, b.x, b.y);
+              this.damageEnemy(e, zone === 'head' ? b.damage * HEADSHOT_MULT : b.damage, zone, b.x, b.y);
               break;
             }
           }
@@ -747,7 +752,7 @@ export class RunScene extends Phaser.Scene {
     this.time.delayedCall(900, () => {
       if (this.active.some((e) => e.alive)) {
         this.state = 'fight';
-        this.active.forEach((e) => e.alive && this.scheduleShot(e, 800));
+        this.active.forEach((e) => { e.followUp = null; if (e.alive) this.scheduleShot(e, 800); });
       } else {
         this.state = 'walk';
       }
@@ -959,11 +964,15 @@ export class RunScene extends Phaser.Scene {
         if (!e.alive) continue;
         const toShot = e.shotAt - this.clock;
         if (toShot <= ENEMY_WINDUP_MS && !e.plan) {
-          this.planShot(e);
+          e.plan = this.planShot(e);
           e.warn.setVisible(true);
         }
         if (toShot <= 0 && e.plan) this.enemyFire(e);
-        if (!e.plan) e.g.aim(Math.PI - 0.55);
+        if (e.followUp && this.clock >= e.followUp.at) {
+          this.fireShot(e, e.followUp.plan, 'back');
+          e.followUp = null;
+        }
+        if (!e.plan && !e.followUp) e.g.aim(Math.PI - 0.55);
       }
       if (this.player.alive && !this.aiming) {
         const target = this.active.find((e) => e.alive);

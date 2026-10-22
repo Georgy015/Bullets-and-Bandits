@@ -37,7 +37,10 @@ export const WEAPONS = {
 export const WEAPON_ORDER = ['revolver', 'shotgun', 'rifle', 'dual'];
 // `cooldown` = ms between shots, `clip` = rounds per load, `reload` = ms to reload.
 // Bullets fly in straight lines; `sight` is how far the aiming line reaches (px).
-export const ENEMY_BULLET_SPEED = { revolver: 1150, shotgun: 1000, rifle: 1600 };
+export const ENEMY_BULLET_SPEED = { revolver: 1150, shotgun: 1000, rifle: 1600, dual: 1150 };
+
+// Damage multiplier when the sheriff's bullet hits an outlaw in the head.
+export const HEADSHOT_MULT = 3;
 
 // Character sizes
 export const SHERIFF_SCALE = 1.55;
@@ -107,7 +110,8 @@ export function makeFoe(meters, { boss = false, elevated = false } = {}, rng = M
     fireMax: Math.max(1.6, 2.7 - level * 0.08),
     reactMs: Math.max(300, 700 - level * 35),
     coins: 15 + Math.round(level * 4) + (boss ? 50 : 0),
-    weapon: boss ? 'rifle' : rng() < Math.min(0.35, level * 0.05) ? 'shotgun' : 'revolver',
+    // Bosses carry a rifle or twin revolvers (two quick shots per warning)
+    weapon: boss ? (rng() < 0.5 ? 'dual' : 'rifle') : rng() < Math.min(0.35, level * 0.05) ? 'shotgun' : 'revolver',
     look: {
       shirt: pick(SHIRTS),
       hat: pick(HATS),
