@@ -10,6 +10,7 @@ const HOLSTER_ANGLE = 1.35;
 const MUZZLE = {
   revolver: { x: 68, y: -5 },
   dual: { x: 68, y: -5 },
+  dynamite: { x: 38, y: -18 },
   shotgun: { x: 86, y: -5 },
   rifle: { x: 96, y: -4 },
 };
@@ -43,6 +44,12 @@ function drawGun(g, type, sleeve, skin) {
     g.fillStyle(0x6f6f78); g.fillRect(34, -7, 20, 8);
     g.fillStyle(0x4a4a52); g.fillRect(52, -6, 45, 4);
     g.fillStyle(0x2d2d33); g.fillRect(40, -12, 14, 4);
+  } else if (type === 'dynamite') {
+    // A lit stick held upright, ready to throw
+    g.fillStyle(0xc0392b); g.fillRoundedRect(31, -18, 11, 26, 3);
+    g.fillStyle(0xf2e2b6); g.fillRect(31, -8, 11, 4);
+    g.lineStyle(2, 0x3a2a1a); g.lineBetween(36, -18, 39, -25);
+    g.fillStyle(0xffd166); g.fillCircle(39, -26, 3);
   }
   g.fillStyle(skin); g.fillCircle(36, 0, 7);
 }
@@ -80,7 +87,7 @@ export class Gunslinger {
     this.armBack = scene.add.container(BACK_SHOULDER.x, BACK_SHOULDER.y);
     this.armBackG = scene.add.graphics();
     this.armBack.add(this.armBackG);
-    drawGun(this.armBackG, 'revolver', shade(this.look.shirt, 0.75), shade(this.look.skin, 0.85));
+    drawGun(this.armBackG, 'revolver', shade(this.look.sleeve ?? this.look.shirt, 0.75), shade(this.look.skin, 0.85));
     c.add(this.armBack);
 
     const body = scene.add.graphics();
@@ -95,7 +102,7 @@ export class Gunslinger {
     this.arm = scene.add.container(SHOULDER.x, SHOULDER.y);
     this.armG = scene.add.graphics();
     this.arm.add(this.armG);
-    drawGun(this.armG, this.weapon, this.look.shirt, this.look.skin);
+    drawGun(this.armG, this.weapon, this.look.sleeve ?? this.look.shirt, this.look.skin);
     c.add(this.arm);
 
     this.hat = scene.add.graphics();
@@ -104,6 +111,7 @@ export class Gunslinger {
 
     c.setScale(this.scale * this.facing, this.scale);
     this.armBack.setVisible(this.weapon === 'dual');
+    if (this.look.armor) this.setArmor(true); // the Undertaker's steel plate is always on
     this.armAngle = HOLSTER_ANGLE;
     this.holster();
     this.breathe();
@@ -121,12 +129,23 @@ export class Gunslinger {
     g.fillRoundedRect(-19, -92, 38, 50, 10);
     if (L.vest) {
       g.fillStyle(L.vest);
-      g.fillRect(-19, -88, 12, 44);
-      g.fillRect(9, -88, 10, 44);
+      if (L.coat) {
+        // Under a coat only the inner edge of the vest shows
+        g.fillRect(-9, -88, 7, 44);
+        g.fillRect(2, -88, 7, 44);
+      } else {
+        g.fillRect(-19, -88, 12, 44);
+        g.fillRect(9, -88, 10, 44);
+      }
     }
     g.fillStyle(0x2b1a10); g.fillRect(-19, -48, 38, 7);
     g.fillStyle(0xd9b44a); g.fillRect(-4, -48, 8, 7);
     g.fillStyle(0x4a2c17); g.fillRoundedRect(9, -46, 10, 20, 3);
+    if (L.coat) {
+      g.fillStyle(L.coat);
+      g.fillRoundedRect(-22, -92, 13, 78, { tl: 8, tr: 2, bl: 3, br: 3 });
+      g.fillRoundedRect(9, -92, 13, 78, { tl: 2, tr: 8, bl: 3, br: 3 });
+    }
     if (L.poncho) {
       // Poncho draped from the shoulders, with woven stripes
       g.fillStyle(L.poncho);
@@ -176,7 +195,7 @@ export class Gunslinger {
       g.fillStyle(0xff7b25); g.fillRect(HEAD.x + 25, HEAD.y + 8, 2, 3);
     }
     if (L.mustache) {
-      g.fillStyle(0x3a2412);
+      g.fillStyle(L.mustacheColor ?? 0x3a2412);
       g.fillEllipse(HEAD.x + 11, HEAD.y + 8, 18, 6);
     }
     if (L.bandana) {
@@ -200,7 +219,18 @@ export class Gunslinger {
     const x = ox + HEAD.x;
     const y = oy + HEAD.y;
     g.fillStyle(L.hat);
-    if (L.hatStyle === 'flat') {
+    if (L.hatStyle === 'top') {
+      g.fillEllipse(x, y - 16, 52, 9);
+      g.fillRect(x - 13, y - 56, 26, 42);
+      g.fillStyle(L.hatBand ?? 0x3a3a42);
+      g.fillRect(x - 13, y - 24, 26, 6);
+    } else if (L.hatStyle === 'bowler') {
+      g.fillEllipse(x, y - 15, 50, 9);
+      g.fillCircle(x, y - 22, 15);
+      g.fillRect(x - 15, y - 22, 30, 7);
+      g.fillStyle(0x111111);
+      g.fillRect(x - 15, y - 19, 30, 4);
+    } else if (L.hatStyle === 'flat') {
       g.fillEllipse(x, y - 16, 74, 11);
       g.fillRoundedRect(x - 16, y - 36, 32, 21, { tl: 5, tr: 5, bl: 2, br: 2 });
       g.fillStyle(0x3a2a1a);
@@ -220,7 +250,7 @@ export class Gunslinger {
 
   setWeapon(type) {
     this.weapon = type;
-    drawGun(this.armG, type, this.look.shirt, this.look.skin);
+    drawGun(this.armG, type, this.look.sleeve ?? this.look.shirt, this.look.skin);
     this.armBack.setVisible(type === 'dual');
   }
 

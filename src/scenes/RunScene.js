@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
 import {
-  W, H, GROUND_Y, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY, ENEMY_BULLET_SPEED, SHERIFF_SCALE, HEADSHOT_MULT,
+  W, H, GROUND_Y, GRAVITY, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY, ENEMY_BULLET_SPEED, SHERIFF_SCALE, HEADSHOT_MULT,
   PX_PER_M, WALK_SPEED, CHECKPOINT_M, PERKS, PERK_ORDER, PERK_WEIGHTS,
   PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, groupSize, makeFoe,
 } from '../config.js';
-import { addParallax, drawPerch, drawCheckpoint } from '../art.js';
+import { addParallax, drawPerch, drawCheckpoint, drawBarrel, BARREL } from '../art.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, addCoins } from '../save.js';
 import { button, text, panel, coinCounter, floatText, banner, bar } from '../ui.js';
@@ -14,7 +14,10 @@ import { gameplayStart, gameplayStop, happytime, midgameAd, rewardedAd } from '.
 const PLAYER_X = 220;
 const ENGAGE_X = 1000; // the sheriff stops when an outlaw walks into this screen x
 const SPAWN_X = W + 160; // new things appear just off the right edge
-const ENEMY_WINDUP_MS = 700; // how long the "!" shows before an outlaw fires
+const ENEMY_WINDUP_MS = 700; // how long the "!" shows before an outlaw fires (types can override)
+const HIDE_DROP = 88; // how far a Hider sinks behind his barrel
+const DYNAMITE_FLIGHT_S = 1.0;
+const DYNAMITE_RADIUS = 95; // px either side of the blast that hurts the sheriff
 const MIN_PULL = 18; // px of drag before the sheriff starts aiming
 const rand = Phaser.Math.FloatBetween;
 
@@ -102,6 +105,14 @@ export class RunScene extends Phaser.Scene {
       speed: { min: 20, max: 120 }, angle: { min: 200, max: 340 }, lifespan: 500,
       scale: { start: 0.6, end: 1.4 }, alpha: { start: 0.6, end: 0 }, emitting: false,
     }).setDepth(19);
+    this.fire = this.add.particles(0, 0, 'dust', {
+      speed: { min: 80, max: 420 }, lifespan: 650, scale: { start: 1.6, end: 3 },
+      alpha: { start: 0.9, end: 0 }, tint: [0xffd166, 0xff7b25, 0x6b4a3a], emitting: false,
+    }).setDepth(22);
+    this.splinters = this.add.particles(0, 0, 'dust', {
+      speed: { min: 60, max: 220 }, lifespan: 400, gravityY: 600, scale: { start: 0.45, end: 0.1 },
+      tint: 0x8c5632, emitting: false,
+    }).setDepth(22);
     this.smoke = this.add.particles(0, 0, 'dust', {
       speed: { min: 8, max: 25 }, angle: { min: 250, max: 290 }, lifespan: 1400, frequency: 260,
       scale: { start: 0.2, end: 0.8 }, alpha: { start: 0.35, end: 0 }, tint: 0xcfcfcf, emitting: true,
@@ -237,6 +248,9 @@ export class RunScene extends Phaser.Scene {
       if (e.g.container.scene) return true;
       this.tweens.killTweensOf(e.warn);
       e.warn.destroy();
+      e.tag?.destroy();
+      e.glint?.destroy();
+      e.maskG?.destroy();
       return false;
     });
     this.pickups = this.pickups.filter((p) => p.obj.scene);
@@ -296,7 +310,21 @@ export class RunScene extends Phaser.Scene {
     this.world.push(g.container);
     const warn = this.add.image(0, 0, 'warn').setDepth(26).setVisible(false);
     this.tweens.add({ targets: warn, scale: 1.25, duration: 140, yoyo: true, repeat: -1 });
-    const e = { g, foe, hp: foe.hp, alive: true, engaged: false, group, shotAt: 0, plan: null, warn };
+    const e = { g, foe, hp: foe.hp, alive: true, engaged: false, group, shotAt: 0, plan: null, warn, top: perch.top };
+    e.headroom = foe.look.hatStyle === 'top' ? 40 * foe.look.scale / 1.45 : 0; // lift HUD above tall hats
+    if (foe.label) e.tag = text(this, 0, 0, foe.label, 14, { ui: true, color: '#ffe48a' }).setDepth(30).setVisible(false);
+    if (foe.type === 'hider') {
+      // Barrel in front of him; anything below the street is masked off while he crouches
+      e.cover = drawBarrel(this).setDepth(11);
+      e.cover.x = x - 14;
+      this.world.push(e.cover);
+      e.maskG = this.make.graphics({}, false);
+      e.maskG.fillStyle(0xffffff).fillRect(-5000, -5000, 10000, 5000 + GROUND_Y);
+      g.container.setMask(e.maskG.createGeometryMask());
+      g.container.y = perch.top + HIDE_DROP;
+      e.up = false;
+    }
+    if (foe.type === 'rifleman') e.glint = this.add.image(0, 0, 'star').setDepth(27).setBlendMode('ADD').setVisible(false);
     group.enemies.push(e);
     this.enemies.push(e);
     return e;
@@ -399,6 +427,20 @@ export class RunScene extends Phaser.Scene {
     this.state = 'fight';
     this.active.forEach((e, i) => this.scheduleShot(e, 500 + i * 700));
     this.setHint(this.shotsFired === 0 ? 'Drag back to aim, release to shoot' : '');
+    this.showTips();
+  }
+
+  // The first time the player meets an outlaw type, explain how to beat him.
+  showTips() {
+    const s = getSave();
+    s.seenOutlaws ??= {};
+    const fresh = this.active.find((e) => e.alive && e.foe.tip && !s.seenOutlaws[e.foe.type]);
+    if (!fresh) return;
+    s.seenOutlaws[fresh.foe.type] = true;
+    save();
+    const tip = fresh.foe.tip;
+    this.setHint(tip);
+    this.time.delayedCall(4500, () => { if (this.hint.text === tip) this.setHint(''); });
   }
 
   introduceBoss(e) {
@@ -478,6 +520,7 @@ export class RunScene extends Phaser.Scene {
     this.state = 'fight';
     this.active.forEach((e) => e.alive && this.scheduleShot(e));
     this.setHint(this.shotsFired === 0 ? 'Drag back to aim, release to shoot' : '');
+    this.showTips();
   }
 
   hitscan(from, to, color) {
@@ -510,24 +553,38 @@ export class RunScene extends Phaser.Scene {
       missDir = 1;
       target = { x: p.x + rand(180, 340), y: GROUND_Y + 4 };
     }
+    if (e.g.weapon === 'dynamite') {
+      // Lobbed: a hit lands at his boots; a miss lands well short or well behind him
+      target = missDir === 0
+        ? { x: p.x + rand(-15, 15), y: GROUND_Y }
+        : { x: missDir > 0 ? p.x + rand(220, 320) : p.x - rand(170, 220), y: GROUND_Y };
+    }
     const s = e.g.shoulderWorld(hand);
     e.g.aim(Math.atan2(target.y - s.y, target.x - s.x));
-    const m = e.g.muzzleWorld(hand);
-    const angle = Math.atan2(target.y - m.y, target.x - m.x) + rand(-1, 1) * 0.015;
-    const speed = ENEMY_BULLET_SPEED[e.g.weapon];
-    return { vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, angle, missDir };
+    return { target, missDir, jitter: rand(-1, 1) * 0.015 };
   }
 
   enemyFire(e) {
     this.fireShot(e, e.plan, 'front');
     this.scheduleShot(e);
+    e.upUntil = this.clock + 450; // a Hider stays up a moment after firing
     // Twin revolvers: a second shot from the off hand right after, with its own hit roll
     if (e.g.weapon === 'dual') e.followUp = { at: this.clock + 180, plan: this.planShot(e, 'back') };
   }
 
   fireShot(e, p, hand) {
+    if (e.g.weapon === 'dynamite') {
+      this.throwDynamite(e, p);
+      return;
+    }
+    // Aim from wherever the gun is now (a Hider may have just popped up)
+    let m = e.g.muzzleWorld(hand);
+    p.angle = Math.atan2(p.target.y - m.y, p.target.x - m.x) + p.jitter;
     e.g.aim(p.angle);
-    const m = e.g.muzzleWorld(hand);
+    m = e.g.muzzleWorld(hand);
+    const speed = ENEMY_BULLET_SPEED[e.g.weapon];
+    p.vx = Math.cos(p.angle) * speed;
+    p.vy = Math.sin(p.angle) * speed;
     const pellets = e.g.weapon === 'shotgun' ? 3 : 1;
     for (let i = 0; i < pellets; i++) {
       // On a miss the shotgun spread fans away from the sheriff so no pellet clips him.
@@ -542,6 +599,34 @@ export class RunScene extends Phaser.Scene {
     }
     this.sparks.explode(10, m.x, m.y);
     sfx.shot(e.g.weapon);
+  }
+
+  throwDynamite(e, p) {
+    const m = e.g.muzzleWorld();
+    const T = DYNAMITE_FLIGHT_S;
+    const vx = (p.target.x - m.x) / T;
+    const vy = (p.target.y - m.y - 0.5 * GRAVITY * T * T) / T;
+    const b = this.spawnBullet(m.x, m.y, vx, vy, 'enemy', e.foe.damage, 'dynamite');
+    b.gravity = GRAVITY;
+    b.miss = p.missDir !== 0;
+    sfx.shot('dynamite');
+  }
+
+  // Blast from a thrown stick. `harmless` when the sheriff shot it out of the air.
+  explodeDynamite(b, harmless = false) {
+    b.alive = false;
+    this.fire.explode(26, b.x, b.y);
+    this.sparks.explode(20, b.x, b.y);
+    const ring = this.add.circle(b.x, b.y, 10, 0xffe9a8, 0.8).setDepth(23);
+    this.tweens.add({ targets: ring, radius: DYNAMITE_RADIUS, alpha: 0, duration: 260, onComplete: () => ring.destroy() });
+    this.cameras.main.shake(260, harmless ? 0.008 : 0.014);
+    sfx.explosion();
+    if (harmless) return;
+    if (Math.abs(b.x - this.player.x) < DYNAMITE_RADIUS && b.y > this.player.y - 260) {
+      this.damagePlayer(b.damage, this.player.x, this.player.y - 60);
+    } else {
+      this.showMiss(b.x, GROUND_Y);
+    }
   }
 
   playerFire(angle) {
@@ -573,7 +658,8 @@ export class RunScene extends Phaser.Scene {
   }
 
   spawnBullet(x, y, vx, vy, owner, damage, kind) {
-    const sprite = this.add.image(x, y, kind === 'shotgun' ? 'pellet' : 'bullet').setDepth(21);
+    const tex = kind === 'dynamite' ? 'stick' : kind === 'shotgun' ? 'pellet' : 'bullet';
+    const sprite = this.add.image(x, y, tex).setDepth(21);
     if (owner === 'enemy') sprite.setTint(0xffb199);
     else if (this.perk('powder')) sprite.setTint(0xff7a3c);
     const b = { x, y, vx, vy, owner, damage, kind, sprite, alive: true };
@@ -601,9 +687,33 @@ export class RunScene extends Phaser.Scene {
       const steps = Math.max(1, Math.ceil((speed * dt) / 6));
       const h = dt / steps;
       for (let i = 0; i < steps && b.alive; i++) {
+        if (b.gravity) b.vy += b.gravity * h;
         b.x += b.vx * h;
         b.y += b.vy * h;
         if (b.owner === 'player') {
+          // Barrels stop bullets
+          const cover = this.active.find((e) => e.cover && Math.abs(b.x - e.cover.x) < BARREL.w / 2
+            && b.y > GROUND_Y - BARREL.h && b.y < GROUND_Y);
+          if (cover) {
+            b.alive = false;
+            this.splinters.explode(10, b.x, b.y);
+            sfx.hit();
+            floatText(this, b.x, b.y - 20, 'COVER', '#d9c9ad', 18);
+            break;
+          }
+          // Shooting a stick of dynamite out of the air
+          const stick = this.bullets.find((d) => d.alive && d.kind === 'dynamite' && Math.hypot(d.x - b.x, d.y - b.y) < 26);
+          if (stick) {
+            b.alive = false;
+            stick.sprite.destroy();
+            this.explodeDynamite(stick, true);
+            const bonus = 5 * (this.perk('horseshoe') ? 2 : 1);
+            this.earned += bonus;
+            addCoins(bonus);
+            this.coinUi.set(getSave().coins);
+            floatText(this, stick.x, stick.y - 40, `NICE SHOT! +${bonus}`, '#ffd76a', 26);
+            break;
+          }
           for (const e of this.active) {
             const zone = e.alive && e.g.hitTest(b.x, b.y);
             if (zone) {
@@ -611,6 +721,12 @@ export class RunScene extends Phaser.Scene {
               this.damageEnemy(e, zone === 'head' ? b.damage * HEADSHOT_MULT : b.damage, zone, b.x, b.y);
               break;
             }
+          }
+        } else if (b.kind === 'dynamite') {
+          if ((!b.miss && this.player.hitTest(b.x, b.y)) || b.y >= GROUND_Y) {
+            b.sprite.destroy();
+            this.explodeDynamite(b);
+            break;
           }
         } else {
           const zone = this.player.hitTest(b.x, b.y);
@@ -635,9 +751,14 @@ export class RunScene extends Phaser.Scene {
           b.alive = false;
         }
       }
+      if (!b.sprite.scene) continue; // already cleaned up (dynamite blast)
       b.sprite.setPosition(b.x, b.y);
-      b.sprite.rotation = Math.atan2(b.vy, b.vx);
-      if (b.alive) {
+      b.sprite.rotation = b.kind === 'dynamite' ? b.sprite.rotation + dt * 12 : Math.atan2(b.vy, b.vx);
+      if (b.alive && b.kind === 'dynamite') {
+        // Fizzing fuse
+        this.tracerG.fillStyle(Math.random() < 0.5 ? 0xffd166 : 0xff7b25, 1);
+        this.tracerG.fillCircle(b.x + Math.cos(b.sprite.rotation) * 15, b.y + Math.sin(b.sprite.rotation) * 15, 3 + Math.random() * 2);
+      } else if (b.alive) {
         this.tracerG.lineStyle(3, b.owner === 'player' ? 0xffe9a8 : 0xff9a7a, 0.45);
         this.tracerG.lineBetween(b.x - b.vx * 0.03, b.y - b.vy * 0.03, b.x, b.y);
       } else {
@@ -649,11 +770,17 @@ export class RunScene extends Phaser.Scene {
 
   damageEnemy(e, raw, zone, x, y) {
     if (!e?.alive) return;
-    const dmg = Math.max(1, Math.round(raw));
+    const armored = zone === 'body' && e.foe.armor < 1;
+    const dmg = Math.max(1, Math.round(raw * (armored ? e.foe.armor : 1)));
     e.hp -= dmg;
-    this.blood.explode(zone === 'head' ? 14 : 8, x, y);
+    this.blood.explode(zone === 'head' ? 14 : armored ? 0 : 8, x, y);
     e.g.flinch();
-    if (zone === 'head') {
+    if (armored) {
+      // The Undertaker's chest plate: sparks and a clang instead of blood
+      this.sparks.explode(14, x, y);
+      sfx.ricochet();
+      floatText(this, x, y - 20, `ARMOR ${dmg}`, '#c9d2dc', 24);
+    } else if (zone === 'head') {
       sfx.headshot();
       const hat = e.g.knockHatOff(1, GROUND_Y);
       if (hat) this.world.push(hat);
@@ -690,6 +817,11 @@ export class RunScene extends Phaser.Scene {
   killEnemy(e) {
     e.alive = false;
     e.warn.setVisible(false);
+    e.glint?.setVisible(false);
+    if (e.cover) {
+      this.tweens.killTweensOf(e.g.container);
+      e.g.container.y = e.top;
+    }
     e.g.die(1, GROUND_Y);
     this.kills++;
     const coins = e.foe.coins * (this.perk('horseshoe') ? 2 : 1);
@@ -916,6 +1048,12 @@ export class RunScene extends Phaser.Scene {
     }
   }
 
+  setHiderUp(e, up) {
+    if (e.up === up || !e.alive) return;
+    e.up = up;
+    this.tweens.add({ targets: e.g.container, y: up ? e.top : e.top + HIDE_DROP, duration: 160, ease: 'Quad.easeOut' });
+  }
+
   // ---------------------------------------------------------------- Pause
 
   pause() {
@@ -963,7 +1101,7 @@ export class RunScene extends Phaser.Scene {
       for (const e of this.active) {
         if (!e.alive) continue;
         const toShot = e.shotAt - this.clock;
-        if (toShot <= ENEMY_WINDUP_MS && !e.plan) {
+        if (toShot <= (e.foe.windup ?? ENEMY_WINDUP_MS) && !e.plan) {
           e.plan = this.planShot(e);
           e.warn.setVisible(true);
         }
@@ -973,6 +1111,11 @@ export class RunScene extends Phaser.Scene {
           e.followUp = null;
         }
         if (!e.plan && !e.followUp) e.g.aim(Math.PI - 0.55);
+        if (e.cover) this.setHiderUp(e, !!e.plan || this.clock < (e.upUntil ?? 0));
+        if (e.glint) {
+          const m = e.g.muzzleWorld();
+          e.glint.setVisible(!!e.plan).setPosition(m.x, m.y).setScale(0.8 + 0.5 * Math.abs(Math.sin(this.clock / 90)));
+        }
       }
       if (this.player.alive && !this.aiming) {
         const target = this.active.find((e) => e.alive);
@@ -985,7 +1128,8 @@ export class RunScene extends Phaser.Scene {
     }
     for (const e of this.enemies) {
       const h = e.g.headWorld();
-      e.warn.setPosition(h.x, h.y - 64);
+      e.warn.setPosition(h.x, h.y - 92 - e.headroom);
+      e.tag?.setPosition(h.x, h.y - 56 - e.headroom).setVisible(e.alive && e.g.x < W);
     }
     this.smoke.setPosition(this.player.x + 27 * SHERIFF_SCALE, this.player.y - 96 * SHERIFF_SCALE);
     this.smoke.emitting = this.player.alive;
@@ -1013,8 +1157,9 @@ export class RunScene extends Phaser.Scene {
       if (!e.alive) continue;
       const h = e.g.headWorld();
       const w = 76;
-      g.fillStyle(0x120914, 0.85); g.fillRoundedRect(h.x - w / 2, h.y - 42, w, 10, 5);
-      g.fillStyle(0x5bd47a); g.fillRoundedRect(h.x - w / 2 + 2, h.y - 40, Math.max(0, (w - 4) * (e.hp / e.foe.hp)), 6, 3);
+      const y = h.y - 42 - e.headroom;
+      g.fillStyle(0x120914, 0.85); g.fillRoundedRect(h.x - w / 2, y, w, 10, 5);
+      g.fillStyle(0x5bd47a); g.fillRoundedRect(h.x - w / 2 + 2, y + 2, Math.max(0, (w - 4) * Math.min(1, e.hp / e.foe.hp)), 6, 3);
     }
     // Reload progress above the sheriff's hat
     const barY = this.player.y - 280;

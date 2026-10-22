@@ -27,6 +27,20 @@ npm run build    # production build in dist/
 - **When shot:** restart from the last checkpoint for free, or watch an ad to revive on the spot (once per run). The menu offers **Continue** from the furthest checkpoint ever reached, or **New Run**.
 - **Weapons:** Revolver (6 rounds), Shotgun (2 shells), Rifle (1 round), Twin Revolvers (12 rounds fired alternately from both hands, fast but with a shakier aim), each with a 1.5 s reload. Reloading starts automatically on an empty gun, or early with **R** / the RELOAD button, and all guns are reloaded while walking between fights. Switch guns mid-run with the belt buttons or keys 1–4.
 
+### Outlaws
+
+| Outlaw | From | How he fights | How to beat him |
+|---|---|---|---|
+| Drifter | 0 m | Stands, warns "!", shoots | Baseline |
+| Hider | 40 m | Crouches behind a barrel (it stops bullets), pops up only to shoot | Shoot when he's up |
+| Gambler | 80 m | Very short warning, fires often, low health | Drop him first |
+| Rifleman | 120 m | On rooftops/towers, long warning with a scope glint, heavy hits | Watch for the glint |
+| Dynamite Dan | 160 m | Lobs dynamite that explodes where it lands | Shoot the stick mid-air (+5 coins) |
+
+Checkpoint bosses are either a gunslinger (rifle or twin revolvers) or **The Undertaker**, whose armored chest takes only 25% damage from body shots, so aim for the head. Each type shows a tip the first time you meet it. Types, unlock distances and stats live in `OUTLAWS` / `BOSS_TYPES` in `src/config.js`.
+
+**Testing a type:** add `?outlaw=hider` (or `gambler`, `rifleman`, `dynamite`) or `?boss=undertaker` to the page URL to force it, e.g. https://georgy015.github.io/Fast-Gun/?outlaw=dynamite
+
 ### Perks picked up along the trail
 
 | Perk | Effect |

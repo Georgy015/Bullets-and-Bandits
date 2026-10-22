@@ -6,6 +6,7 @@ const DEFAULTS = () => ({
   coins: 0,
   bestDistance: 0,
   checkpoint: 0, // furthest checkpoint reached, in meters
+  seenOutlaws: {}, // outlaw types already introduced with a tip
   upgrades: { damage: 0, health: 0, steady: 0 },
   owned: { revolver: true },
   equipped: 'revolver',

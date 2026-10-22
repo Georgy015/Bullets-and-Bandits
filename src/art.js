@@ -136,6 +136,11 @@ export function createSpriteTextures(scene) {
 
   make('bullet', 16, 6, (q) => { q.fillStyle(0xffe9a8); q.fillEllipse(8, 3, 16, 6); });
   make('pellet', 8, 8, (q) => { q.fillStyle(0xffe9a8); q.fillCircle(4, 4, 4); });
+  make('stick', 30, 12, (q) => {
+    q.fillStyle(0xc0392b); q.fillRoundedRect(0, 1, 24, 10, 3);
+    q.fillStyle(0xf2e2b6); q.fillRect(9, 1, 4, 10);
+    q.lineStyle(2, 0x3a2a1a); q.lineBetween(24, 6, 30, 3);
+  });
   make('spark', 8, 8, (q) => { q.fillStyle(0xffffff); q.fillCircle(4, 4, 4); });
   make('dust', 16, 16, (q) => { q.fillStyle(0xd9b48a); q.fillCircle(8, 8, 8); });
   make('blood', 8, 8, (q) => { q.fillStyle(0xd23a2a); q.fillCircle(4, 4, 4); });
@@ -299,4 +304,18 @@ export function drawCheckpoint(scene, meters) {
   }).setOrigin(0.5);
   c.add(t);
   return c;
+}
+
+// Barrel the Hider crouches behind; drawn at local (0, GROUND_Y) and placed in front of him.
+export const BARREL = { w: 84, h: 112 };
+export function drawBarrel(scene) {
+  const g = scene.add.graphics();
+  const { w, h } = BARREL;
+  g.fillStyle(0x6e4126); g.fillRoundedRect(-w / 2, GROUND_Y - h, w, h, 14);
+  g.fillStyle(0x8c5632);
+  for (let i = 0; i < 4; i++) g.fillRect(-w / 2 + 8 + i * 19, GROUND_Y - h + 6, 10, h - 12);
+  g.fillStyle(0x3a3a42);
+  [GROUND_Y - h + 14, GROUND_Y - h / 2 - 4, GROUND_Y - 22].forEach((y) => g.fillRect(-w / 2, y, w, 8));
+  g.fillStyle(0x2b1a10); g.fillEllipse(0, GROUND_Y - h + 4, w - 10, 12);
+  return g;
 }
