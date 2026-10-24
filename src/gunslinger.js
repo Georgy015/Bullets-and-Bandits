@@ -25,7 +25,8 @@ export const SHERIFF_LOOK = {
   vest: null, bandana: null, mustache: false,
 };
 
-function drawGun(g, type, sleeve, skin) {
+// Gun arm: sleeve, hand and weapon, drawn with its pivot (the shoulder) at 0,0.
+export function drawGun(g, type, sleeve, skin) {
   if (type === 'dual') type = 'revolver';
   g.clear();
   const wood = 0x8a5a2b;
@@ -68,7 +69,8 @@ function drawGun(g, type, sleeve, skin) {
   ellipse(g, shade(skin, 0.9), 39, -5, 6, 4, 1.2); // thumb
 }
 
-function drawLeg(g, pants, spurs) {
+// One leg with boot, drawn with its pivot (the hip) at 0,0.
+export function drawLeg(g, pants, spurs) {
   rrect(g, pants, -6.5, 0, 13, 40, 4);
   rect(g, shade(pants, 0.8), -6, 2, 4, 34, 0);
   poly(g, 0x3b2414, [{ x: -8, y: 30 }, { x: 6, y: 30 }, { x: 6, y: 35 }, { x: 13, y: 37 }, { x: 13, y: 44 }, { x: -8, y: 44 }]);
@@ -114,7 +116,8 @@ export class Gunslinger {
     this.upper.add(this.armBack);
 
     const body = scene.add.graphics();
-    this.drawBody(body);
+    this.drawTorso(body);
+    this.drawHead(body);
     this.upper.add(body);
 
     this.eyesG = scene.add.graphics();
@@ -151,9 +154,9 @@ export class Gunslinger {
     });
   }
 
-  drawBody(g) {
+  // Torso, clothes and belt (no head).
+  drawTorso(g) {
     const L = this.look;
-    const H = HEAD;
     // Torso with a shaded back edge and shirt buttons
     rrect(g, L.shirt, -19, -92, 38, 50, 10);
     g.fillStyle(shade(L.shirt, 0.8)); g.fillRoundedRect(-18, -91, 10, 48, { tl: 9, tr: 0, bl: 9, br: 0 });
@@ -195,6 +198,13 @@ export class Gunslinger {
       star(g, 0xf8d24a, -11, -78, 6.5, 1.4);
       circle(g, 0xb8860b, -11, -78, 1.6, 0);
     }
+  }
+
+  // Head with face (eyes are a separate layer, see drawEyes). Kept apart from the torso so
+  // it can be swapped for a drawn head image later.
+  drawHead(g) {
+    const L = this.look;
+    const H = HEAD;
     // Head: shaded rim on the back, ear, nose
     rect(g, shade(L.skin, 0.82), -5, -90, 10, 6, 0);
     circle(g, L.skin, H.x - 9, H.y + 1, 5);

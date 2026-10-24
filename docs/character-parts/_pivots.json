@@ -1,0 +1,202 @@
+{
+ "sheriff_leg_front": {
+  "size": [
+   120,
+   208
+  ],
+  "pivot_px": [
+   56,
+   16
+  ]
+ },
+ "outlaw_leg_front": {
+  "size": [
+   120,
+   208
+  ],
+  "pivot_px": [
+   56,
+   16
+  ]
+ },
+ "sheriff_torso": {
+  "size": [
+   272,
+   240
+  ],
+  "pivot_px": [
+   136,
+   384
+  ]
+ },
+ "outlaw_torso_vest": {
+  "size": [
+   272,
+   240
+  ],
+  "pivot_px": [
+   136,
+   384
+  ]
+ },
+ "outlaw_torso_plain": {
+  "size": [
+   272,
+   240
+  ],
+  "pivot_px": [
+   136,
+   384
+  ]
+ },
+ "sheriff_head": {
+  "size": [
+   224,
+   200
+  ],
+  "pivot_px": [
+   96,
+   504
+  ]
+ },
+ "outlaw_head": {
+  "size": [
+   224,
+   200
+  ],
+  "pivot_px": [
+   96,
+   504
+  ]
+ },
+ "outlaw_head_bandana": {
+  "size": [
+   224,
+   200
+  ],
+  "pivot_px": [
+   96,
+   504
+  ]
+ },
+ "outlaw_head_dead": {
+  "size": [
+   224,
+   200
+  ],
+  "pivot_px": [
+   96,
+   504
+  ]
+ },
+ "hat_cowboy": {
+  "size": [
+   320,
+   232
+  ],
+  "pivot_px": [
+   160,
+   656
+  ]
+ },
+ "hat_flat": {
+  "size": [
+   320,
+   232
+  ],
+  "pivot_px": [
+   160,
+   656
+  ]
+ },
+ "hat_top": {
+  "size": [
+   320,
+   232
+  ],
+  "pivot_px": [
+   160,
+   656
+  ]
+ },
+ "hat_bowler": {
+  "size": [
+   320,
+   232
+  ],
+  "pivot_px": [
+   160,
+   656
+  ]
+ },
+ "sheriff_arm_revolver": {
+  "size": [
+   448,
+   208
+  ],
+  "pivot_px": [
+   40,
+   128
+  ]
+ },
+ "sheriff_arm_shotgun": {
+  "size": [
+   448,
+   208
+  ],
+  "pivot_px": [
+   40,
+   128
+  ]
+ },
+ "sheriff_arm_rifle": {
+  "size": [
+   448,
+   208
+  ],
+  "pivot_px": [
+   40,
+   128
+  ]
+ },
+ "sheriff_arm_dynamite": {
+  "size": [
+   448,
+   208
+  ],
+  "pivot_px": [
+   40,
+   128
+  ]
+ },
+ "outlaw_arm_revolver": {
+  "size": [
+   448,
+   208
+  ],
+  "pivot_px": [
+   40,
+   128
+  ]
+ },
+ "offhand_arm_revolver": {
+  "size": [
+   448,
+   208
+  ],
+  "pivot_px": [
+   40,
+   128
+  ]
+ },
+ "armor_plate": {
+  "size": [
+   200,
+   212
+  ],
+  "pivot_px": [
+   100,
+   380
+  ]
+ }
+}
