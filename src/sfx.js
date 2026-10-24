@@ -93,6 +93,10 @@ export const sfx = {
   reload() { [0, 0.12, 0.24].forEach((d) => tone({ freq: 900, to: 700, dur: 0.04, gain: 0.1, type: 'square', delay: d })); },
   reloaded() { tone({ freq: 500, to: 300, dur: 0.06, gain: 0.18, type: 'square' }); tone({ freq: 1200, dur: 0.05, gain: 0.1, type: 'square', delay: 0.08 }); },
   empty() { tone({ freq: 1400, to: 1100, dur: 0.03, gain: 0.12, type: 'square' }); },
+  glass() {
+    burst({ dur: 0.25, freq: 5200, q: 2, gain: 0.5, type: 'bandpass', decay: 0.22 });
+    [2400, 3100, 3900].forEach((f, i) => tone({ freq: f, to: f * 0.9, dur: 0.12, gain: 0.05, type: 'sine', delay: 0.02 + i * 0.04 }));
+  },
   tick() { tone({ freq: 300, dur: 0.05, gain: 0.08, type: 'square' }); },
   hurt() { tone({ freq: 220, to: 90, dur: 0.25, gain: 0.35, type: 'sawtooth' }); },
   win() { [523, 659, 784, 1047].forEach((f, i) => tone({ freq: f, dur: 0.18, gain: 0.15, type: 'triangle', delay: i * 0.1 })); },

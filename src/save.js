@@ -7,6 +7,7 @@ const DEFAULTS = () => ({
   bestDistance: 0,
   checkpoint: 0, // furthest checkpoint reached, in meters
   seenOutlaws: {}, // outlaw types already introduced with a tip
+  dynamite: 0, // sticks earned in bonus rounds, kept between runs
   upgrades: { damage: 0, health: 0, steady: 0 },
   owned: { revolver: true },
   equipped: 'revolver',

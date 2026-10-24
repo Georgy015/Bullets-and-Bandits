@@ -141,6 +141,13 @@ export function createSpriteTextures(scene) {
     q.fillStyle(0xf2e2b6); q.fillRect(9, 1, 4, 10);
     q.lineStyle(2, 0x3a2a1a); q.lineBetween(24, 6, 30, 3);
   });
+  make('bottle', 16, 46, (q) => {
+    q.fillStyle(0x2f7d4a); q.fillRoundedRect(1, 16, 14, 30, 4);
+    q.fillRect(5, 4, 6, 14);
+    q.fillStyle(0x7a4a26); q.fillRect(4, 0, 8, 5);
+    q.fillStyle(0xf2e2b6); q.fillRect(2, 26, 12, 10);
+    q.fillStyle(0xffffff, 0.35); q.fillRect(3, 18, 3, 24);
+  });
   make('spark', 8, 8, (q) => { q.fillStyle(0xffffff); q.fillCircle(4, 4, 4); });
   make('dust', 16, 16, (q) => { q.fillStyle(0xd9b48a); q.fillCircle(8, 8, 8); });
   make('blood', 8, 8, (q) => { q.fillStyle(0xd23a2a); q.fillCircle(4, 4, 4); });
@@ -317,5 +324,39 @@ export function drawBarrel(scene) {
   g.fillStyle(0x3a3a42);
   [GROUND_Y - h + 14, GROUND_Y - h / 2 - 4, GROUND_Y - 22].forEach((y) => g.fillRect(-w / 2, y, w, 8));
   g.fillStyle(0x2b1a10); g.fillEllipse(0, GROUND_Y - h + 4, w - 10, 12);
+  return g;
+}
+
+// Props for the bonus shooting gallery, drawn at local x = 0 standing on the street.
+// `top` = y the bottles stand on, `width` = usable surface, `cap` = max bottles.
+export const PROPS = {
+  barrel: { top: GROUND_Y - 112, width: 60, cap: 2 },
+  crate: { top: GROUND_Y - 70, width: 60, cap: 2 },
+  stack: { top: GROUND_Y - 140, width: 60, cap: 2 },
+  fence: { top: GROUND_Y - 96, width: 150, cap: 3 },
+  table: { top: GROUND_Y - 78, width: 110, cap: 3 },
+  tower: { top: GROUND_Y - 192, width: 50, cap: 2 },
+};
+
+export function drawProp(scene, type) {
+  if (type === 'barrel') return drawBarrel(scene);
+  const g = scene.add.graphics();
+  const crate = (cx, bottom, s) => {
+    g.fillStyle(WOOD); g.fillRect(cx - s / 2, bottom - s, s, s);
+    g.lineStyle(4, WOOD_DARK); g.strokeRect(cx - s / 2, bottom - s, s, s);
+    g.lineBetween(cx - s / 2, bottom - s, cx + s / 2, bottom);
+  };
+  if (type === 'crate') crate(0, GROUND_Y, 70);
+  else if (type === 'stack') { crate(0, GROUND_Y, 70); crate(0, GROUND_Y - 70, 70); }
+  else if (type === 'tower') { crate(0, GROUND_Y, 64); crate(0, GROUND_Y - 64, 64); crate(0, GROUND_Y - 128, 64); }
+  else if (type === 'fence') {
+    g.fillStyle(WOOD_DARK);
+    g.fillRect(-72, GROUND_Y - 110, 12, 110); g.fillRect(60, GROUND_Y - 110, 12, 110);
+    g.fillStyle(WOOD); g.fillRect(-82, GROUND_Y - 96, 164, 12); g.fillRect(-82, GROUND_Y - 56, 164, 10);
+  } else if (type === 'table') {
+    g.fillStyle(WOOD_DARK); g.fillRect(-8, GROUND_Y - 74, 16, 74); g.fillRect(-36, GROUND_Y - 8, 72, 8);
+    g.fillStyle(WOOD_LIGHT); g.fillEllipse(0, GROUND_Y - 78, 130, 18);
+    g.fillStyle(WOOD); g.fillRect(-65, GROUND_Y - 78, 130, 6);
+  }
   return g;
 }

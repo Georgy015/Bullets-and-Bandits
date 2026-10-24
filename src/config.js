@@ -69,6 +69,18 @@ export const PERK_WEIGHTS = { whiskey: 3, vest: 1.5, powder: 2, coffee: 2, horse
 export const PERK_SPAWN_CHANCE = 0.45; // chance of a perk on the road before an encounter
 export const PERK_DROP_CHANCE = 0.25; // chance a killed outlaw drops one
 
+// Bottle-shooting bonus round, right after every Nth checkpoint
+export const BONUS = {
+  everyM: 400, // at 400 m, 800 m, ...
+  bottles: 10,
+  seconds: 30,
+  rewardDynamite: 5,
+  coinsPerBottle: 2,
+};
+
+// The sheriff's dynamite (earned in bonus rounds): lobbed at the nearest outlaw.
+export const PLAYER_DYNAMITE = { damage: 160, radius: 125, flightS: 0.9, cooldown: 900 };
+
 export const GIFT_INTERVAL_MS = 4 * 60 * 1000;
 export const GIFT_COINS = 60;
 
@@ -130,6 +142,8 @@ export const BOSS_TYPES = {
 const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
 const FORCE_OUTLAW = OUTLAWS[params.get('outlaw')] ? params.get('outlaw') : null;
 const FORCE_BOSS = BOSS_TYPES[params.get('boss')] ? params.get('boss') : null;
+// ?bonus starts a bonus round a few seconds into the run.
+export const FORCE_BONUS = params.has('bonus');
 
 function pickType(table, meters, rng) {
   const options = Object.entries(table).filter(([, t]) => (t.from ?? 0) <= meters);

@@ -41,6 +41,12 @@ Checkpoint bosses are either a gunslinger (rifle or twin revolvers) or **The Und
 
 **Testing a type:** add `?outlaw=hider` (or `gambler`, `rifleman`, `dynamite`) or `?boss=undertaker` to the page URL to force it, e.g. https://georgy015.github.io/Fast-Gun/?outlaw=dynamite
 
+### Bonus round
+
+Right after the 400 m checkpoint (and every 400 m after that) the sheriff stops at a shooting gallery: **10 bottles** on barrels, crates, a fence, a saloon table and a crate tower, randomly laid out. Shoot them all within **30 seconds** (normal ammo and reloads apply) to win **5 sticks of dynamite**; every bottle also pays 2 coins.
+
+Dynamite is kept between runs. In a fight, press the red **DYNAMITE** button (or **D**) and the sheriff lobs a stick at the nearest outlaw; the blast hurts everyone nearby and ignores barrels and armor. Settings: `BONUS` and `PLAYER_DYNAMITE` in `src/config.js`. Add `?bonus` to the URL to start a bonus round right away.
+
 ### Perks picked up along the trail
 
 | Perk | Effect |

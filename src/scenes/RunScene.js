@@ -2,9 +2,9 @@ import Phaser from 'phaser';
 import {
   W, H, GROUND_Y, GRAVITY, WEAPONS, WEAPON_ORDER, PLAYER_BASE_HP, BASE_SWAY, ENEMY_BULLET_SPEED, SHERIFF_SCALE, HEADSHOT_MULT,
   PX_PER_M, WALK_SPEED, CHECKPOINT_M, PERKS, PERK_ORDER, PERK_WEIGHTS,
-  PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, groupSize, makeFoe,
+  PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, groupSize, makeFoe, BONUS, PLAYER_DYNAMITE, FORCE_BONUS,
 } from '../config.js';
-import { addParallax, drawPerch, drawCheckpoint, drawBarrel, BARREL } from '../art.js';
+import { addParallax, drawPerch, drawCheckpoint, drawBarrel, BARREL, drawProp, PROPS } from '../art.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, addCoins } from '../save.js';
 import { button, text, panel, coinCounter, floatText, banner, bar } from '../ui.js';
@@ -84,6 +84,9 @@ export class RunScene extends Phaser.Scene {
     this.enemyReact = null;
     this.duelist = null;
     this.walkTime = 0;
+    this.bonus = null;
+    this.nextBonusM = (Math.floor(this.startM / BONUS.everyM) + 1) * BONUS.everyM;
+    this.dynamiteReadyAt = 0;
 
     this.tracerG = this.add.graphics().setDepth(20);
     this.aimG = this.add.graphics().setDepth(25);
@@ -113,6 +116,10 @@ export class RunScene extends Phaser.Scene {
       speed: { min: 60, max: 220 }, lifespan: 400, gravityY: 600, scale: { start: 0.45, end: 0.1 },
       tint: 0x8c5632, emitting: false,
     }).setDepth(22);
+    this.glass = this.add.particles(0, 0, 'spark', {
+      speed: { min: 80, max: 320 }, lifespan: 500, gravityY: 900, scale: { start: 0.7, end: 0.2 },
+      tint: [0xbfe8c8, 0xffffff, 0x2f7d4a], emitting: false,
+    }).setDepth(22);
     this.smoke = this.add.particles(0, 0, 'dust', {
       speed: { min: 8, max: 25 }, angle: { min: 250, max: 290 }, lifespan: 1400, frequency: 260,
       scale: { start: 0.2, end: 0.8 }, alpha: { start: 0.35, end: 0 }, tint: 0xcfcfcf, emitting: true,
@@ -126,6 +133,7 @@ export class RunScene extends Phaser.Scene {
     this.events.once('shutdown', () => gameplayStop());
     this.setHint(this.startM > 0 ? '' : 'The sheriff walks the trail...');
     if (this.startM > 0) banner(this, `CHECKPOINT ${this.startM} m`, '#ffe48a', 56, 700);
+    if (FORCE_BONUS) this.time.delayedCall(2500, () => this.state === 'walk' && this.startBonus());
   }
 
   get meters() {
@@ -174,6 +182,11 @@ export class RunScene extends Phaser.Scene {
     this.ammoG = this.add.graphics().setDepth(30);
     this.reloadBtn = button(this, this.ammoX + 215, 680, 100, 40, 'RELOAD', 'wood', () => this.startReload(), { ui: true, size: 14 }).setDepth(35);
     this.input.keyboard?.on('keydown-R', () => this.startReload());
+    // Dynamite earned in bonus rounds (also the D key)
+    this.dynamiteBtn = button(this, this.ammoX + 345, 680, 150, 40, '', 'red', () => this.throwPlayerDynamite(), { ui: true, size: 14 }).setDepth(35);
+    this.input.keyboard?.on('keydown-D', () => this.throwPlayerDynamite());
+    this.refreshDynamite();
+    this.bonusText = text(this, 640, 122, '', 26, { ui: true, color: '#ffe48a' }).setDepth(30).setVisible(false);
     this.reloadText = text(this, PLAYER_X, 0, 'RELOADING', 15, { ui: true, color: '#ffe48a' }).setDepth(30).setVisible(false);
 
     this.hint = text(this, 640, 640, '', 24, { ui: true, color: '#fff4dc' }).setDepth(30);
@@ -409,6 +422,158 @@ export class RunScene extends Phaser.Scene {
     const heal = Math.round(this.maxHp * 0.25);
     this.hp = Math.min(this.maxHp, this.hp + heal);
     floatText(this, PLAYER_X, GROUND_Y - 270, `+${heal} HP`, '#7dff9a', 24);
+    if (m >= this.nextBonusM) {
+      this.nextBonusM = m + BONUS.everyM;
+      this.state = 'bonus-intro';
+      this.player.walk(null);
+      this.time.delayedCall(1300, () => this.startBonus());
+    }
+  }
+
+  // ---------------------------------------------------------------- Bonus round
+
+  // A shooting gallery: bottles on barrels, crates, a fence, a table... shoot them all in time.
+  startBonus() {
+    if (this.state === 'over') return;
+    this.state = 'bonus-intro';
+    this.player.walk(null);
+    this.player.holster();
+    this.refillAll();
+    const types = Phaser.Utils.Array.Shuffle(Object.keys(PROPS)).slice(0, 5);
+    // Spread exactly BONUS.bottles bottles over the props, at least one each
+    const counts = types.map((t) => PROPS[t].cap);
+    let total = counts.reduce((a, b) => a + b, 0);
+    while (total > BONUS.bottles) {
+      const i = Phaser.Math.Between(0, counts.length - 1);
+      if (counts[i] > 1) { counts[i]--; total--; }
+    }
+    const slide = 700;
+    const moving = [];
+    const bottles = [];
+    types.forEach((type, i) => {
+      const x = 580 + i * 140 + rand(-15, 15);
+      const prop = drawProp(this, type).setDepth(6);
+      prop.x = x + slide;
+      moving.push(prop);
+      this.world.push(prop);
+      const P = PROPS[type];
+      for (let k = 0; k < counts[i]; k++) {
+        const bx = x + (counts[i] === 1 ? 0 : -P.width / 2 + (P.width * k) / (counts[i] - 1));
+        const img = this.add.image(bx + slide, P.top, 'bottle').setOrigin(0.5, 1).setScale(1.2).setDepth(7);
+        if (Math.random() < 0.35) img.setTint(0xc9a66b); // some brown whiskey bottles
+        moving.push(img);
+        this.world.push(img);
+        bottles.push({ img, broken: false });
+      }
+    });
+    this.tweens.add({ targets: moving, x: `-=${slide}`, duration: 800, ease: 'Cubic.easeOut' });
+    banner(this, 'BONUS ROUND!', '#ffd76a', 80, 900);
+    this.setHint(`Shoot all ${BONUS.bottles} bottles in ${BONUS.seconds} seconds to win ${BONUS.rewardDynamite} dynamite!`);
+    this.time.delayedCall(1500, () => {
+      if (this.state !== 'bonus-intro') return;
+      this.bonus = { endAt: this.clock + BONUS.seconds * 1000, hits: 0, bottles };
+      this.state = 'bonus';
+      sfx.bell();
+    });
+  }
+
+  breakBottle(bt) {
+    bt.broken = true;
+    const { x, y } = bt.img;
+    this.glass.explode(16, x, y - 30);
+    sfx.glass();
+    bt.img.destroy();
+    this.bonus.hits++;
+    floatText(this, x, y - 60, `${this.bonus.hits}/${BONUS.bottles}`, '#ffe48a', 24);
+  }
+
+  updateBonus() {
+    const B = this.bonus;
+    const left = Math.max(0, B.endAt - this.clock);
+    this.bonusText.setVisible(true)
+      .setText(`BONUS  ${(left / 1000).toFixed(1)} s   ·   ${B.hits}/${BONUS.bottles}`)
+      .setColor(left < 5000 ? '#ff7a5c' : '#ffe48a');
+    if (B.hits >= BONUS.bottles) this.endBonus(true);
+    else if (left <= 0) this.endBonus(false);
+  }
+
+  endBonus(won) {
+    const hits = this.bonus.hits;
+    this.bonus = null;
+    this.state = 'bonus-end';
+    this.aiming = false;
+    this.aimG.clear();
+    this.bonusText.setVisible(false);
+    this.setHint('');
+    const coins = hits * BONUS.coinsPerBottle * (this.perk('horseshoe') ? 2 : 1);
+    if (coins) {
+      this.earned += coins;
+      addCoins(coins);
+      this.coinUi.set(getSave().coins);
+    }
+    if (won) {
+      const s = getSave();
+      s.dynamite = (s.dynamite ?? 0) + BONUS.rewardDynamite;
+      save();
+      this.refreshDynamite();
+      sfx.win();
+      happytime();
+      banner(this, 'SHARPSHOOTER!', '#ffd76a', 80, 900);
+      floatText(this, PLAYER_X + 60, GROUND_Y - 300, `+${BONUS.rewardDynamite} DYNAMITE`, '#ff7a5c', 32);
+    } else {
+      sfx.lose();
+      banner(this, "TIME'S UP!", '#ff7a5c', 76, 800);
+      floatText(this, PLAYER_X + 60, GROUND_Y - 300, `${hits}/${BONUS.bottles} bottles  +${coins} coins`, '#ffe48a', 24);
+    }
+    this.time.delayedCall(1800, () => {
+      if (this.state !== 'bonus-end') return;
+      this.player.holster();
+      this.state = 'walk';
+    });
+  }
+
+  // ---------------------------------------------------------------- Dynamite
+
+  refreshDynamite() {
+    const n = getSave().dynamite ?? 0;
+    this.dynamiteBtn.setVisible(n > 0).setLabel(`DYNAMITE ×${n}`);
+  }
+
+  // Lob a stick at the nearest outlaw; the blast hurts everyone near it.
+  throwPlayerDynamite() {
+    const s = getSave();
+    if (this.state !== 'fight' || !this.player.alive || (s.dynamite ?? 0) <= 0 || this.clock < this.dynamiteReadyAt) return;
+    const target = this.active.filter((e) => e.alive).sort((a, b) => a.g.x - b.g.x)[0];
+    if (!target) return;
+    s.dynamite -= 1;
+    save();
+    this.refreshDynamite();
+    this.dynamiteReadyAt = this.clock + PLAYER_DYNAMITE.cooldown;
+    const m = this.player.muzzleWorld();
+    const tx = target.g.x;
+    const ty = target.g.y - 10;
+    const T = PLAYER_DYNAMITE.flightS;
+    const b = this.spawnBullet(m.x, m.y, (tx - m.x) / T, (ty - m.y - 0.5 * GRAVITY * T * T) / T, 'player', PLAYER_DYNAMITE.damage, 'dynamite');
+    b.gravity = GRAVITY;
+    b.targetY = ty;
+    sfx.shot('dynamite');
+  }
+
+  explodePlayerDynamite(b) {
+    b.alive = false;
+    const R = PLAYER_DYNAMITE.radius;
+    this.fire.explode(34, b.x, b.y);
+    this.sparks.explode(24, b.x, b.y);
+    const ring = this.add.circle(b.x, b.y, 10, 0xffe9a8, 0.8).setDepth(23);
+    this.tweens.add({ targets: ring, radius: R, alpha: 0, duration: 280, onComplete: () => ring.destroy() });
+    this.cameras.main.shake(300, 0.016);
+    sfx.explosion();
+    for (const e of this.active) {
+      if (!e.alive) continue;
+      const c = e.g.bodyCenter();
+      const d = Phaser.Math.Distance.Between(b.x, b.y, c.x, c.y);
+      if (d < R) this.damageEnemy(e, b.damage * (1 - (0.4 * d) / R), 'blast', c.x, c.y);
+    }
   }
 
   // ---------------------------------------------------------------- Encounters
@@ -690,7 +855,21 @@ export class RunScene extends Phaser.Scene {
         if (b.gravity) b.vy += b.gravity * h;
         b.x += b.vx * h;
         b.y += b.vy * h;
-        if (b.owner === 'player') {
+        if (b.owner === 'player' && b.kind === 'dynamite') {
+          if ((b.vy > 0 && b.y >= b.targetY) || b.y >= GROUND_Y) {
+            b.sprite.destroy();
+            this.explodePlayerDynamite(b);
+            break;
+          }
+        } else if (b.owner === 'player') {
+          // Bonus round bottles
+          const bottle = this.bonus?.bottles.find((bt) => !bt.broken && Math.abs(b.x - bt.img.x) < 10
+            && b.y < bt.img.y && b.y > bt.img.y - 55);
+          if (bottle) {
+            b.alive = false;
+            this.breakBottle(bottle);
+            break;
+          }
           // Barrels stop bullets
           const cover = this.active.find((e) => e.cover && Math.abs(b.x - e.cover.x) < BARREL.w / 2
             && b.y > GROUND_Y - BARREL.h && b.y < GROUND_Y);
@@ -702,7 +881,7 @@ export class RunScene extends Phaser.Scene {
             break;
           }
           // Shooting a stick of dynamite out of the air
-          const stick = this.bullets.find((d) => d.alive && d.kind === 'dynamite' && Math.hypot(d.x - b.x, d.y - b.y) < 26);
+          const stick = this.bullets.find((d) => d.alive && d.owner === 'enemy' && d.kind === 'dynamite' && Math.hypot(d.x - b.x, d.y - b.y) < 26);
           if (stick) {
             b.alive = false;
             stick.sprite.destroy();
@@ -971,7 +1150,7 @@ export class RunScene extends Phaser.Scene {
         if (!this.early) this.playerQuickShot();
         return;
       }
-      if (this.state === 'fight' && this.player.alive) {
+      if ((this.state === 'fight' || this.state === 'bonus') && this.player.alive) {
         if (this.reloading) return;
         if (this.ammo[this.weaponKey] <= 0) { sfx.empty(); this.startReload(); return; }
         this.aiming = true;
@@ -988,7 +1167,7 @@ export class RunScene extends Phaser.Scene {
       if (!this.aiming) return;
       this.aiming = false;
       this.aimG.clear();
-      if (this.state === 'fight' && this.aimPull >= MIN_PULL) this.playerFire(this.currentAim());
+      if ((this.state === 'fight' || this.state === 'bonus') && this.aimPull >= MIN_PULL) this.playerFire(this.currentAim());
     };
     this.input.on('pointerup', release);
     this.input.on('pointerupoutside', release);
@@ -1124,6 +1303,14 @@ export class RunScene extends Phaser.Scene {
           const s = this.player.shoulderWorld();
           this.player.aim(Phaser.Math.Clamp(Math.atan2(h.y - s.y, h.x - s.x) + 0.35, -1.5, 1.0));
         }
+      }
+    }
+    if (this.state === 'bonus') {
+      this.updateBonus();
+      const bt = this.bonus?.bottles.find((x) => !x.broken);
+      if (bt && !this.aiming) {
+        const s = this.player.shoulderWorld();
+        this.player.aim(Phaser.Math.Clamp(Math.atan2(bt.img.y - 30 - s.y, bt.img.x - s.x) + 0.3, -1.5, 1.0));
       }
     }
     for (const e of this.enemies) {
