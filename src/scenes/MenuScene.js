@@ -3,7 +3,7 @@ import {
   W, GROUND_Y, WEAPONS, WEAPON_ORDER, UPGRADES, MAX_UPGRADE, upgradeCost,
   GIFT_INTERVAL_MS, GIFT_COINS,
 } from '../config.js';
-import { addParallax } from '../art.js';
+import { addParallax, biomeAt } from '../biomes.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, spend, addCoins } from '../save.js';
 import { button, text, panel, coinCounter } from '../ui.js';
@@ -17,7 +17,7 @@ export class MenuScene extends Phaser.Scene {
 
   create() {
     const s = getSave();
-    addParallax(this);
+    addParallax(this, biomeAt(s.checkpoint)); // show the area of the saved checkpoint
     this.add.rectangle(0, 0, W, 720, 0x0d0614, 0.25).setOrigin(0);
 
     const title = text(this, 640, 58, 'FAST GUN', 84, { color: '#ffd76a', strokeThickness: 10 });

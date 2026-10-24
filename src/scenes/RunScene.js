@@ -4,7 +4,8 @@ import {
   PX_PER_M, WALK_SPEED, CHECKPOINT_M, PERKS, PERK_ORDER, PERK_WEIGHTS,
   PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, groupSize, makeFoe, BONUS, PLAYER_DYNAMITE, FORCE_BONUS,
 } from '../config.js';
-import { addParallax, drawPerch, drawCheckpoint, drawBarrel, BARREL, drawProp, PROPS } from '../art.js';
+import { drawPerch, drawCheckpoint, drawBarrel, BARREL, drawProp, PROPS } from '../art.js';
+import { addParallax, biomeAt, loopAt, BIOME_INFO } from '../biomes.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, addCoins } from '../save.js';
 import { button, text, panel, coinCounter, floatText, banner, bar } from '../ui.js';
@@ -43,7 +44,11 @@ export class RunScene extends Phaser.Scene {
 
   create() {
     const s = getSave();
-    this.layers = addParallax(this);
+    // Scenery: the area depends on distance; each full loop of areas darkens the sky a bit
+    this.biome = biomeAt(this.startM);
+    this.layers = addParallax(this, this.biome);
+    this.fadingFrom = null;
+    this.nightShade = this.add.rectangle(0, 0, W, H, 0x05030c, this.shadeFor(this.startM)).setOrigin(0).setDepth(-20);
 
     this.weaponKey = this.trial ?? (WEAPONS[s.equipped] ? s.equipped : 'revolver');
     this.weapon = WEAPONS[this.weaponKey];
@@ -246,10 +251,8 @@ export class RunScene extends Phaser.Scene {
 
   scroll(dx) {
     this.worldX += dx;
-    const L = this.layers;
-    L.ground.tilePositionX += dx;
-    L.town.tilePositionX += dx * 0.45;
-    L.mesas.tilePositionX += dx * 0.12;
+    this.layers.scroll(dx);
+    this.fadingFrom?.scroll(dx);
     for (const o of this.world) o.x -= dx;
     // Drop whatever has scrolled far off the left edge
     this.world = this.world.filter((o) => {
@@ -267,6 +270,35 @@ export class RunScene extends Phaser.Scene {
       return false;
     });
     this.pickups = this.pickups.filter((p) => p.obj.scene);
+  }
+
+  shadeFor(meters) {
+    return Math.min(0.3, loopAt(meters) * 0.1);
+  }
+
+  // Cross-fade the background into a new area and announce it.
+  switchBiome(biome) {
+    this.biome = biome;
+    this.fadingFrom?.destroy();
+    const old = this.layers;
+    const next = addParallax(this, biome, -36);
+    next.setAlpha(0);
+    this.layers = next;
+    this.fadingFrom = old;
+    this.tweens.add({
+      targets: next.all, alpha: 1, duration: 2000,
+      onComplete: () => {
+        old.destroy();
+        if (this.fadingFrom === old) this.fadingFrom = null;
+        next.all.forEach((o, i) => o.setDepth(-40 + i));
+      },
+    });
+    this.tweens.add({ targets: this.nightShade, fillAlpha: this.shadeFor(this.meters), duration: 2000 });
+    const info = BIOME_INFO[biome];
+    const t = text(this, 640, 200, info.name, 50, { color: '#ffe48a' }).setDepth(55).setAlpha(0);
+    const sub = text(this, 640, 248, info.sub, 20, { ui: true }).setDepth(55).setAlpha(0);
+    this.tweens.add({ targets: [t, sub], alpha: 1, duration: 500, delay: 1200 });
+    this.tweens.add({ targets: [t, sub], alpha: 0, duration: 500, delay: 3400, onComplete: () => { t.destroy(); sub.destroy(); } });
   }
 
   spawnAhead(dx) {
@@ -313,7 +345,8 @@ export class RunScene extends Phaser.Scene {
   }
 
   spawnEnemy(foe, x, group) {
-    const perch = drawPerch(this, foe.perch, 0);
+    // Perch style follows the area at the spot where the outlaw stands
+    const perch = drawPerch(this, foe.perch, 0, biomeAt(this.meters + (x - PLAYER_X) / PX_PER_M));
     perch.g.setDepth(5).x = x;
     this.world.push(perch.g);
     const g = new Gunslinger(this, x, perch.top, {
@@ -1270,6 +1303,7 @@ export class RunScene extends Phaser.Scene {
       this.player.walk(this.walkTime);
       this.player.holster();
       this.scroll(WALK_SPEED * dt);
+      if (biomeAt(this.meters) !== this.biome) this.switchBiome(biomeAt(this.meters));
       this.spawnAhead(WALK_SPEED * dt);
       this.checkPickups();
       this.checkCheckpoint();

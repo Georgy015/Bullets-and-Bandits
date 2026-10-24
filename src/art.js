@@ -2,128 +2,7 @@
 // so the prototype needs no image files. Swap any of these for real art later by loading
 // a texture under the same key.
 
-import { W, H, GROUND_Y } from './config.js';
-
-function rng(seed) {
-  return () => {
-    seed |= 0;
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-function canvasTexture(scene, key, w, h, draw) {
-  if (scene.textures.exists(key)) return;
-  const tex = scene.textures.createCanvas(key, w, h);
-  draw(tex.context, w, h);
-  tex.refresh();
-}
-
-export function createBackgroundTextures(scene) {
-  canvasTexture(scene, 'sky', W, H, (c, w, h) => {
-    const g = c.createLinearGradient(0, 0, 0, GROUND_Y);
-    g.addColorStop(0, '#140b2b');
-    g.addColorStop(0.45, '#35204f');
-    g.addColorStop(0.8, '#8a3f4f');
-    g.addColorStop(1, '#e0794a');
-    c.fillStyle = g;
-    c.fillRect(0, 0, w, h);
-    const r = rng(7);
-    for (let i = 0; i < 140; i++) {
-      c.globalAlpha = 0.3 + r() * 0.7;
-      c.fillStyle = '#fff6dd';
-      const s = r() < 0.1 ? 2.5 : 1.4;
-      c.fillRect(r() * w, r() * GROUND_Y * 0.55, s, s);
-    }
-    c.globalAlpha = 1;
-    const mx = 1030, my = 120;
-    const glow = c.createRadialGradient(mx, my, 30, mx, my, 140);
-    glow.addColorStop(0, 'rgba(255,240,200,0.35)');
-    glow.addColorStop(1, 'rgba(255,240,200,0)');
-    c.fillStyle = glow;
-    c.fillRect(mx - 150, my - 150, 300, 300);
-    c.fillStyle = '#fbefc9';
-    c.beginPath();
-    c.arc(mx, my, 44, 0, Math.PI * 2);
-    c.fill();
-    c.fillStyle = 'rgba(200,180,140,0.35)';
-    [[-12, -8, 9], [14, 10, 6], [4, 22, 5]].forEach(([dx, dy, rr]) => {
-      c.beginPath();
-      c.arc(mx + dx, my + dy, rr, 0, Math.PI * 2);
-      c.fill();
-    });
-  });
-
-  // Far mesas, tileable horizontally.
-  canvasTexture(scene, 'mesas', W, 240, (c, w, h) => {
-    c.fillStyle = '#3a1d3f';
-    c.beginPath();
-    c.moveTo(0, h);
-    const pts = [[0, 150], [90, 150], [120, 70], [260, 70], [290, 150], [430, 160], [470, 110], [560, 110], [590, 165], [760, 170], [800, 40], [960, 40], [1000, 160], [1130, 150], [1160, 95], [1240, 95], [1280, 150]];
-    pts.forEach(([x, y]) => c.lineTo(x, y));
-    c.lineTo(w, h);
-    c.fill();
-    c.fillStyle = 'rgba(255,140,90,0.12)';
-    c.fillRect(0, 0, w, h);
-  });
-
-  // Town silhouette, tileable: every building sits fully inside the strip.
-  canvasTexture(scene, 'town', W, 300, (c, w, h) => {
-    const r = rng(42);
-    let x = 10;
-    while (x < w - 120) {
-      const bw = 90 + Math.floor(r() * 90);
-      const bh = 110 + Math.floor(r() * 150);
-      const top = h - bh;
-      c.fillStyle = r() < 0.5 ? '#24152f' : '#2b1a36';
-      c.fillRect(x, top, bw, bh);
-      // False-front facade step
-      if (r() < 0.7) c.fillRect(x + 10, top - 22, bw - 20, 24);
-      c.fillStyle = '#f4c46a';
-      const cols = Math.max(1, Math.floor(bw / 36));
-      for (let i = 0; i < cols; i++) {
-        for (let j = 0; j < 3; j++) {
-          if (r() < 0.45) {
-            c.globalAlpha = 0.5 + r() * 0.5;
-            c.fillRect(x + 12 + i * 34, top + 20 + j * 40, 14, 20);
-          }
-        }
-      }
-      c.globalAlpha = 1;
-      x += bw + 14 + Math.floor(r() * 40);
-    }
-    // Telegraph poles
-    c.strokeStyle = '#1a0f22';
-    c.lineWidth = 4;
-    [200, 840].forEach((px) => {
-      c.beginPath(); c.moveTo(px, h); c.lineTo(px, 20); c.stroke();
-      c.beginPath(); c.moveTo(px - 20, 34); c.lineTo(px + 20, 34); c.stroke();
-    });
-  });
-
-  canvasTexture(scene, 'ground', W, H - GROUND_Y, (c, w, h) => {
-    const g = c.createLinearGradient(0, 0, 0, h);
-    g.addColorStop(0, '#8a5d3b');
-    g.addColorStop(1, '#5a3a24');
-    c.fillStyle = g;
-    c.fillRect(0, 0, w, h);
-    c.fillStyle = '#a7744b';
-    c.fillRect(0, 0, w, 5);
-    const r = rng(3);
-    for (let i = 0; i < 260; i++) {
-      c.fillStyle = r() < 0.5 ? 'rgba(60,35,20,0.45)' : 'rgba(190,140,95,0.4)';
-      const s = 2 + r() * 5;
-      c.fillRect(r() * (w - s), 8 + r() * (h - 12), s, s * 0.6);
-    }
-    c.strokeStyle = 'rgba(60,35,20,0.35)';
-    c.lineWidth = 3;
-    [30, 70].forEach((y) => {
-      c.beginPath(); c.moveTo(0, y); c.lineTo(w, y); c.stroke();
-    });
-  });
-}
+import { GROUND_Y } from './config.js';
 
 export function createSpriteTextures(scene) {
   const g = scene.make.graphics({ x: 0, y: 0 }, false);
@@ -216,14 +95,6 @@ export function createSpriteTextures(scene) {
   g.destroy();
 }
 
-export function addParallax(scene) {
-  scene.add.image(0, 0, 'sky').setOrigin(0);
-  const mesas = scene.add.tileSprite(0, GROUND_Y - 240 + 20, W, 240, 'mesas').setOrigin(0);
-  const town = scene.add.tileSprite(0, GROUND_Y - 300, W, 300, 'town').setOrigin(0);
-  const ground = scene.add.tileSprite(0, GROUND_Y, W, H - GROUND_Y, 'ground').setOrigin(0);
-  return { mesas, town, ground };
-}
-
 // Where a gunslinger can stand. Returns the Graphics and the standing height.
 export const PERCH_TOP = {
   street: GROUND_Y,
@@ -237,9 +108,48 @@ const WOOD = 0x7b4a2a;
 const WOOD_DARK = 0x4e2d17;
 const WOOD_LIGHT = 0xa0683d;
 
-export function drawPerch(scene, type, x) {
+// Rock pillar or ledge for the desert and canyon, standing in for buildings.
+function drawRock(g, x, top, light, dark) {
+  const half = top < GROUND_Y - 200 ? 70 : 85;
+  g.fillStyle(dark);
+  g.fillPoints([
+    { x: x - half - 40, y: GROUND_Y }, { x: x - half - 10, y: top + 60 }, { x: x - half, y: top + 8 },
+    { x: x + half, y: top + 4 }, { x: x + half + 14, y: top + 70 }, { x: x + half + 44, y: GROUND_Y },
+  ], true);
+  g.fillStyle(light);
+  g.fillPoints([
+    { x: x - half - 20, y: GROUND_Y }, { x: x - half + 4, y: top + 40 }, { x: x - half + 10, y: top + 14 },
+    { x: x + half - 10, y: top + 10 }, { x: x + half, y: top + 60 }, { x: x + half + 24, y: GROUND_Y },
+  ], true);
+  g.fillStyle(dark, 0.45);
+  for (let yy = top + 50; yy < GROUND_Y - 10; yy += 46) g.fillRect(x - half, yy, half * 2 + 10, 8);
+  g.fillStyle(dark); g.fillRect(x - half - 4, top, half * 2 + 8, 12);
+}
+
+// Red boxcar whose roof is the standing spot (station area).
+function drawBoxcar(g, x, top) {
+  g.fillStyle(0x6e2e24); g.fillRect(x - 120, top + 8, 240, GROUND_Y - top - 36);
+  g.fillStyle(0x5a241c);
+  for (let xx = x - 112; xx < x + 120; xx += 24) g.fillRect(xx, top + 14, 4, GROUND_Y - top - 48);
+  g.fillStyle(0x3a1812); g.fillRect(x - 34, top + 30, 68, GROUND_Y - top - 70);
+  g.fillStyle(0x2b2b33); g.fillRect(x - 128, top, 256, 12);
+  g.fillRect(x - 110, GROUND_Y - 30, 220, 8);
+  g.fillStyle(0x1c1c22);
+  [x - 90, x - 55, x + 55, x + 90].forEach((wx) => g.fillCircle(wx, GROUND_Y - 14, 14));
+}
+
+export function drawPerch(scene, type, x, biome = 'town') {
   const top = PERCH_TOP[type];
   const g = scene.add.graphics();
+  if ((biome === 'desert' || biome === 'canyon') && (type === 'balcony' || type === 'rooftop')) {
+    if (biome === 'desert') drawRock(g, x, top, 0xb8683f, 0x7a3e28);
+    else drawRock(g, x, top, 0x9a4430, 0x5e2a1f);
+    return { g, top };
+  }
+  if (biome === 'station' && type === 'balcony') {
+    drawBoxcar(g, x, top);
+    return { g, top };
+  }
   if (type === 'crates') {
     const crate = (cx, cy, s) => {
       g.fillStyle(WOOD); g.fillRect(cx - s / 2, cy - s, s, s);
@@ -267,8 +177,9 @@ export function drawPerch(scene, type, x) {
     g.fillStyle(WOOD_DARK); g.fillRect(x - 160, top, 320, 14);
     g.fillRect(x - 155, top + 14, 10, GROUND_Y - top - 14); g.fillRect(x + 145, top + 14, 10, GROUND_Y - top - 14);
   } else if (type === 'rooftop') {
-    g.fillStyle(0x5b3a52); g.fillRect(x - 120, top, 240, GROUND_Y - top);
-    g.fillStyle(0x47293f); g.fillRect(x - 130, top - 8, 260, 14);
+    const station = biome === 'station';
+    g.fillStyle(station ? 0x3e4a66 : 0x5b3a52); g.fillRect(x - 120, top, 240, GROUND_Y - top);
+    g.fillStyle(station ? 0x2c3550 : 0x47293f); g.fillRect(x - 130, top - 8, 260, 14);
     g.fillStyle(0xf4c46a);
     for (let j = 0; j < 3; j++) for (let i = 0; i < 3; i++) {
       if ((i + j) % 2 === 0) g.fillRect(x - 90 + i * 70, top + 40 + j * 75, 40, 45);
@@ -283,7 +194,7 @@ export function drawPerch(scene, type, x) {
     g.lineBetween(x - 70, GROUND_Y, x - 55, top + 10);
     g.lineBetween(x + 70, GROUND_Y, x + 55, top + 10);
     g.lineStyle(5, WOOD);
-    for (let yy = top + 60; yy < GROUND_Y; yy += 80) {
+    for (let yy = top + 60; yy + 70 <= GROUND_Y; yy += 80) {
       g.lineBetween(x - 66, yy + 70, x + 60, yy);
       g.lineBetween(x + 66, yy + 70, x - 60, yy);
     }

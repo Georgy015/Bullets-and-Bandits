@@ -27,6 +27,19 @@ npm run build    # production build in dist/
 - **When shot:** restart from the last checkpoint for free, or watch an ad to revive on the spot (once per run). The menu offers **Continue** from the furthest checkpoint ever reached, or **New Run**.
 - **Weapons:** Revolver (6 rounds), Shotgun (2 shells), Rifle (1 round), Twin Revolvers (12 rounds fired alternately from both hands, fast but with a shakier aim), each with a 1.5 s reload. Reloading starts automatically on an empty gun, or early with **R** / the RELOAD button, and all guns are reloaded while walking between fights. Switch guns mid-run with the belt buttons or keys 1–4.
 
+### Scenery
+
+The trail runs through four areas, changing at each checkpoint with a cross-fade and an area title, then repeating with a slightly darker sky each loop:
+
+| Distance | Area |
+|---|---|
+| 0–200 m | Deadwood Town (night) |
+| 200–400 m | The Desert (sunset, mesas, saguaros) |
+| 400–600 m | Red Canyon (dusk, layered rock, spires, an arch) |
+| 600–800 m | Railway Station (blue night, depot, boxcars, rails) |
+
+Outlaws' perches follow the area (rock pillars in the desert and canyon, boxcar roofs and the depot at the station). Backgrounds are drawn in `src/biomes.js`; the menu shows the area of your saved checkpoint.
+
 ### Outlaws
 
 | Outlaw | From | How he fights | How to beat him |
@@ -74,7 +87,8 @@ Perks lie on the road ahead of some encounters, and outlaws sometimes drop one (
 | `src/scenes/RunScene.js` | The trail: walking, spawning, encounters, boss quick draw, perks, checkpoints, results |
 | `src/scenes/MenuScene.js` | Main menu: upgrades, gun belt, gift, continue / new run |
 | `src/gunslinger.js` | Sheriff and outlaw drawing, walking legs, aiming arm, hit zones, death / hat animations |
-| `src/art.js` | Procedural backgrounds, perches, checkpoint signpost, perk icons and other sprites |
+| `src/biomes.js` | The four scenery areas: background drawing, parallax layers, area by distance |
+| `src/art.js` | Perches, checkpoint signpost, perk icons and other sprites |
 | `src/ui.js` | Buttons, panels, bars, floating text, banners |
 | `src/sfx.js` | Synthesized sound effects (WebAudio) |
 | `src/sdk.js` | CrazyGames SDK v3 wrapper: ads, gameplay events, cloud save. Falls back to stubs when the SDK is absent |

@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { createBackgroundTextures, createSpriteTextures } from '../art.js';
+import { createSpriteTextures } from '../art.js';
 import { initSDK, loadingStart, loadingStop, setAdHooks } from '../sdk.js';
 import { loadSave } from '../save.js';
 import { setMuted, setAdMuted } from '../sfx.js';
@@ -25,7 +25,6 @@ export class BootScene extends Phaser.Scene {
     } catch {
       // ignore
     }
-    createBackgroundTextures(this);
     createSpriteTextures(this);
     loadingStop();
     this.scene.start('Menu');
