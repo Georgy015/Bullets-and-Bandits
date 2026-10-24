@@ -89,6 +89,7 @@ Perks lie on the road ahead of some encounters, and outlaws sometimes drop one (
 | `src/gunslinger.js` | Sheriff and outlaw drawing, walking legs, aiming arm, hit zones, death / hat animations |
 | `src/biomes.js` | The four scenery areas: background drawing, parallax layers, area by distance |
 | `src/art.js` | Perches, checkpoint signpost, perk icons and other sprites |
+| `src/ink.js` | Cartoon drawing helpers: filled shapes with dark outlines, color shading |
 | `src/ui.js` | Buttons, panels, bars, floating text, banners |
 | `src/sfx.js` | Synthesized sound effects (WebAudio) |
 | `src/sdk.js` | CrazyGames SDK v3 wrapper: ads, gameplay events, cloud save. Falls back to stubs when the SDK is absent |

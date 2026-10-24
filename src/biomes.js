@@ -316,19 +316,54 @@ function drawStation(scene) {
 
 const DRAW = { town: drawTown, desert: drawDesert, canyon: drawCanyon, station: drawStation };
 
+// Haze color between the far and mid layers, and whether vultures circle overhead.
+const ATMOSPHERE = {
+  town: { haze: 0xc0707a, vultures: false },
+  desert: { haze: 0xffc488, vultures: true },
+  canyon: { haze: 0xff9a70, vultures: true },
+  station: { haze: 0x8a90c8, vultures: false },
+};
+
 export function ensureBiomeTextures(scene, biome) {
   DRAW[biome](scene);
+  canvasTexture(scene, 'haze', W, MID_H, (c, w, h) => {
+    const g = c.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, 'rgba(255,255,255,0)');
+    g.addColorStop(1, 'rgba(255,255,255,0.55)');
+    c.fillStyle = g;
+    c.fillRect(0, 0, w, h);
+  });
 }
 
 // Background layers for an area. `depth` lets a new area fade in above the old one,
 // still below everything in the gameplay (depth >= 0).
 export function addParallax(scene, biome = 'town', depth = -40) {
   ensureBiomeTextures(scene, biome);
+  const A = ATMOSPHERE[biome];
   const sky = scene.add.image(0, 0, `${biome}-sky`).setOrigin(0).setDepth(depth);
   const far = scene.add.tileSprite(0, GROUND_Y - FAR_H + 20, W, FAR_H, `${biome}-far`).setOrigin(0).setDepth(depth + 1);
+  const haze = scene.add.image(0, GROUND_Y - MID_H, 'haze').setOrigin(0).setDepth(depth + 1.5).setTint(A.haze).setAlpha(0.6);
   const mid = scene.add.tileSprite(0, GROUND_Y - MID_H, W, MID_H, `${biome}-mid`).setOrigin(0).setDepth(depth + 2);
   const ground = scene.add.tileSprite(0, GROUND_Y, W, GROUND_H, `${biome}-ground`).setOrigin(0).setDepth(depth + 3);
-  const all = [sky, far, mid, ground];
+  const all = [sky, far, haze, mid, ground];
+  const alphas = new Map(all.map((o) => [o, o.alpha]));
+  // Vultures lazily circling high above the desert and canyon
+  const loops = [];
+  if (A.vultures) {
+    [[380, 150, 120, 30, 9000], [860, 110, 90, 22, 11000]].forEach(([cx, cy, rx, ry, period], i) => {
+      const v = scene.add.image(cx, cy, 'vulture').setDepth(depth + 0.5).setScale(0.9 - i * 0.2);
+      all.push(v);
+      alphas.set(v, 1);
+      loops.push(scene.tweens.addCounter({
+        from: 0, to: Math.PI * 2, duration: period, repeat: -1,
+        onUpdate: (tw) => {
+          const t = tw.getValue() + i;
+          v.setPosition(cx + Math.cos(t) * rx, cy + Math.sin(t) * ry);
+          v.setScale((Math.sin(t) > 0 ? -1 : 1) * (0.9 - i * 0.2), (0.9 - i * 0.2) * (0.8 + 0.2 * Math.abs(Math.cos(t * 3))));
+        },
+      }));
+    });
+  }
   return {
     biome, sky, far, mid, ground, all,
     scroll(dx) {
@@ -336,7 +371,12 @@ export function addParallax(scene, biome = 'town', depth = -40) {
       mid.tilePositionX += dx * 0.45;
       far.tilePositionX += dx * 0.12;
     },
-    setAlpha(a) { all.forEach((o) => o.setAlpha(a)); },
-    destroy() { all.forEach((o) => o.destroy()); },
+    setAlpha(a) { all.forEach((o) => o.setAlpha(a * alphas.get(o))); },
+    // For cross-fading: tween `fade` 0 -> 1 instead of each layer's alpha
+    fadeTo(scene2, duration, onComplete) {
+      const state = { k: 0 };
+      scene2.tweens.add({ targets: state, k: 1, duration, onUpdate: () => this.setAlpha(state.k), onComplete });
+    },
+    destroy() { loops.forEach((t) => t.remove()); all.forEach((o) => o.destroy()); },
   };
 }

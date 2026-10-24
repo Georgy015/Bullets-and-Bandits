@@ -89,6 +89,8 @@ export class RunScene extends Phaser.Scene {
     this.enemyReact = null;
     this.duelist = null;
     this.walkTime = 0;
+    this.tumbleweeds = [];
+    this.nextTumble = 3000;
     this.bonus = null;
     this.nextBonusM = (Math.floor(this.startM / BONUS.everyM) + 1) * BONUS.everyM;
     this.dynamiteReadyAt = 0;
@@ -285,13 +287,10 @@ export class RunScene extends Phaser.Scene {
     next.setAlpha(0);
     this.layers = next;
     this.fadingFrom = old;
-    this.tweens.add({
-      targets: next.all, alpha: 1, duration: 2000,
-      onComplete: () => {
-        old.destroy();
-        if (this.fadingFrom === old) this.fadingFrom = null;
-        next.all.forEach((o, i) => o.setDepth(-40 + i));
-      },
+    next.fadeTo(this, 2000, () => {
+      old.destroy();
+      if (this.fadingFrom === old) this.fadingFrom = null;
+      next.all.forEach((o) => o.setDepth(o.depth - 4)); // settle back to the base depths
     });
     this.tweens.add({ targets: this.nightShade, fillAlpha: this.shadeFor(this.meters), duration: 2000 });
     const info = BIOME_INFO[biome];
@@ -727,6 +726,7 @@ export class RunScene extends Phaser.Scene {
     g.lineBetween(from.x, from.y, to.x, to.y);
     this.tweens.add({ targets: g, alpha: 0, duration: 220, onComplete: () => g.destroy() });
     this.sparks.explode(10, from.x, from.y);
+    this.muzzleFlash(from.x, from.y, Math.atan2(to.y - from.y, to.x - from.x));
     this.cameras.main.shake(90, 0.006);
   }
 
@@ -796,6 +796,8 @@ export class RunScene extends Phaser.Scene {
       if (i === 0 && p.missDir) b.miss = true; // one MISS per shot, not per pellet
     }
     this.sparks.explode(10, m.x, m.y);
+    this.muzzleFlash(m.x, m.y, p.angle);
+    e.g.recoil();
     sfx.shot(e.g.weapon);
   }
 
@@ -848,11 +850,18 @@ export class RunScene extends Phaser.Scene {
       this.spawnBullet(m.x, m.y, Math.cos(a) * speed, Math.sin(a) * speed, 'player', dmg, this.weaponKey);
     }
     this.sparks.explode(12, m.x, m.y);
+    this.muzzleFlash(m.x, m.y, angle);
+    this.player.recoil();
     sfx.shot(this.weaponKey);
     this.cameras.main.shake(70, this.weaponKey === 'shotgun' ? 0.007 : 0.004);
     this.shotsFired++;
     if (this.shotsFired === 1) this.setHint('');
     if (this.ammo[this.weaponKey] <= 0) this.time.delayedCall(Math.min(300, w.cooldown), () => this.startReload());
+  }
+
+  muzzleFlash(x, y, angle) {
+    const f = this.add.image(x, y, 'flash').setOrigin(0.1, 0.5).setRotation(angle).setDepth(23).setBlendMode('ADD');
+    this.tweens.add({ targets: f, scale: 1.4, alpha: 0, duration: 90, onComplete: () => f.destroy() });
   }
 
   spawnBullet(x, y, vx, vy, owner, damage, kind) {
@@ -1034,7 +1043,7 @@ export class RunScene extends Phaser.Scene {
       this.tweens.killTweensOf(e.g.container);
       e.g.container.y = e.top;
     }
-    e.g.die(1, GROUND_Y);
+    e.g.die(1, GROUND_Y, () => this.dust.explode(16, e.g.x + 60 * e.g.scale, GROUND_Y));
     this.kills++;
     const coins = e.foe.coins * (this.perk('horseshoe') ? 2 : 1);
     this.earned += coins;
@@ -1073,7 +1082,7 @@ export class RunScene extends Phaser.Scene {
     this.aimG.clear();
     this.enemyReact?.remove(false);
     this.active.forEach((e) => e.warn.setVisible(false));
-    this.player.die(-1, GROUND_Y);
+    this.player.die(-1, GROUND_Y, () => this.dust.explode(16, this.player.x - 60, GROUND_Y));
     sfx.lose();
     const s = getSave();
     if (this.meters > s.bestDistance) {
@@ -1260,6 +1269,26 @@ export class RunScene extends Phaser.Scene {
     }
   }
 
+  // Ambient tumbleweeds bouncing along the street in town and desert.
+  updateTumbleweeds(dt) {
+    if ((this.biome === 'town' || this.biome === 'desert') && this.clock > this.nextTumble && this.state !== 'over') {
+      this.nextTumble = this.clock + rand(7000, 15000);
+      const t = this.add.image(W + 60, GROUND_Y - 24, 'tumbleweed').setDepth(9).setScale(rand(0.8, 1.2));
+      t.vx = -rand(160, 260);
+      t.phase = 0;
+      this.world.push(t);
+      this.tumbleweeds.push(t);
+    }
+    for (const t of this.tumbleweeds) {
+      if (!t.scene) continue;
+      t.phase += dt;
+      t.x += t.vx * dt;
+      t.y = GROUND_Y - 24 * t.scale - Math.abs(Math.sin(t.phase * 4)) * 22;
+      t.rotation += t.vx * dt / 26;
+    }
+    this.tumbleweeds = this.tumbleweeds.filter((t) => t.scene && t.x > -120);
+  }
+
   setHiderUp(e, up) {
     if (e.up === up || !e.alive) return;
     e.up = up;
@@ -1355,6 +1384,7 @@ export class RunScene extends Phaser.Scene {
     this.smoke.setPosition(this.player.x + 27 * SHERIFF_SCALE, this.player.y - 96 * SHERIFF_SCALE);
     this.smoke.emitting = this.player.alive;
 
+    this.updateTumbleweeds(dt);
     this.updatePerks();
     this.updateReload();
     this.drawAim();
