@@ -117,6 +117,10 @@ export class Gunslinger {
     this.drawBody(body);
     this.upper.add(body);
 
+    this.eyesG = scene.add.graphics();
+    this.drawEyes(this.eyesG);
+    this.upper.add(this.eyesG);
+
     this.vestG = scene.add.graphics();
     this.drawArmor(this.vestG);
     this.vestG.setVisible(false);
@@ -198,23 +202,19 @@ export class Gunslinger {
     g.fillStyle(L.skin); g.fillCircle(H.x + 3, H.y - 1.5, H.r - 3);
     line(g, shade(L.skin, 0.7), H.x - 10, H.y - 1, H.x - 8, H.y + 3, 1.2);
     if (L.grayHair) ellipse(g, 0xc4c4c4, H.x - 14, H.y - 3, 11, 22, 1.4);
-    ellipse(g, shade(L.skin, 0.93), H.x + 19, H.y + 2, 10, 9, 1.6);
+    // Profile nose: bridge, tip and nostril, outlined only on its outer edge
+    const nose = [
+      { x: H.x + 15, y: H.y - 7 }, { x: H.x + 18.5, y: H.y - 2 }, { x: H.x + 22, y: H.y + 3 },
+      { x: H.x + 21.5, y: H.y + 5.5 }, { x: H.x + 18.5, y: H.y + 6.5 }, { x: H.x + 15.5, y: H.y + 5.5 },
+    ];
+    g.fillStyle(L.skin); g.fillPoints(nose, true);
+    g.lineStyle(1.6, INK); g.strokePoints(nose, false);
+    circle(g, shade(L.skin, 0.6), H.x + 18, H.y + 4.5, 1.2, 0);
     if (L.squint) {
-      // Weathered squint: slits, heavy grey brows, crow's feet, forehead lines
-      line(g, INK, H.x + 3, H.y - 3, H.x + 9, H.y - 4, 2.6);
-      line(g, INK, H.x + 11, H.y - 4, H.x + 17, H.y - 3, 2.6);
-      line(g, 0x8a8a8a, H.x + 1, H.y - 9, H.x + 9, H.y - 7, 4);
-      line(g, 0x8a8a8a, H.x + 11, H.y - 7, H.x + 18, H.y - 9, 4);
+      // Weathered face: crow's feet and forehead lines (eyes are drawn by drawEyes)
       line(g, shade(L.skin, 0.72), H.x + 1, H.y - 2, H.x - 2, H.y, 1.2);
       line(g, shade(L.skin, 0.72), H.x - 2, H.y - 13, H.x + 10, H.y - 13, 1.3);
       line(g, shade(L.skin, 0.72), H.x, H.y - 16, H.x + 8, H.y - 16, 1.2);
-    } else {
-      ellipse(g, 0xffffff, H.x + 7, H.y - 3, 7, 9, 1.3);
-      ellipse(g, 0xffffff, H.x + 14.5, H.y - 3, 6.5, 8.5, 1.3);
-      circle(g, 0x1e1414, H.x + 8.5, H.y - 2.5, 2.2, 0);
-      circle(g, 0x1e1414, H.x + 15.8, H.y - 2.5, 2.1, 0);
-      line(g, INK, H.x + 3, H.y - 10, H.x + 10, H.y - 8, 3);
-      line(g, INK, H.x + 12, H.y - 8, H.x + 18, H.y - 11, 3);
     }
     if (!L.bandana) line(g, 0x7a3a2a, H.x + 10, H.y + 11, H.x + 16, H.y + 10, 2);
     if (L.stubble) {
@@ -230,6 +230,34 @@ export class Gunslinger {
       poly(g, L.bandana, [{ x: H.x - 2, y: H.y + 14 }, { x: H.x + 16, y: H.y + 14 }, { x: H.x + 6, y: H.y + 25 }], 1.8);
       line(g, shade(L.bandana, 0.7), H.x - 4, H.y + 9, H.x + 18, H.y + 9, 1.3);
     }
+  }
+
+  // Eyes and brows on their own layer so they can change to X's on death.
+  drawEyes(g, dead = false) {
+    const L = this.look;
+    const H = HEAD;
+    g.clear();
+    if (dead) {
+      [[H.x + 7, H.y - 3], [H.x + 14.5, H.y - 3]].forEach(([x, y]) => {
+        line(g, INK, x - 3, y - 3, x + 3, y + 3, 2.4);
+        line(g, INK, x + 3, y - 3, x - 3, y + 3, 2.4);
+      });
+      return;
+    }
+    if (L.squint) {
+      // Weathered squint: slits under heavy grey brows
+      line(g, INK, H.x + 3, H.y - 3, H.x + 9, H.y - 4, 2.6);
+      line(g, INK, H.x + 11, H.y - 4, H.x + 17, H.y - 3, 2.6);
+      line(g, 0x8a8a8a, H.x + 1, H.y - 9, H.x + 9, H.y - 7, 4);
+      line(g, 0x8a8a8a, H.x + 11, H.y - 7, H.x + 18, H.y - 9, 4);
+      return;
+    }
+    ellipse(g, 0xffffff, H.x + 7, H.y - 3, 7, 9, 1.3);
+    ellipse(g, 0xffffff, H.x + 14.5, H.y - 3, 6.5, 8.5, 1.3);
+    circle(g, 0x1e1414, H.x + 8.5, H.y - 2.5, 2.2, 0);
+    circle(g, 0x1e1414, H.x + 15.8, H.y - 2.5, 2.1, 0);
+    line(g, INK, H.x + 3, H.y - 10, H.x + 10, H.y - 8, 3);
+    line(g, INK, H.x + 12, H.y - 8, H.x + 18, H.y - 11, 3);
   }
 
   drawArmor(g) {
@@ -284,10 +312,15 @@ export class Gunslinger {
 
   // Swing the legs; `t` in seconds. Pass null to stand still.
   walk(t) {
-    const a = t == null ? 0 : Math.sin(t * 9) * 0.4;
+    const a = t == null ? 0 : Math.sin(t * 12) * 0.34;
     this.legFront.rotation = a;
     this.legBack.rotation = -a;
-    this.upper.y = t == null ? 0 : -Math.abs(Math.sin(t * 9)) * 3;
+    // Legs apart -> hips lower, so both feet stay on the ground (no hopping)
+    const drop = 44 * (1 - Math.cos(a));
+    this.legFront.y = HIP_Y + drop;
+    this.legBack.y = HIP_Y + drop;
+    this.upper.y = drop;
+    this.upper.rotation = t == null ? 0 : 0.03; // slight forward lean while walking
   }
 
   // Kick the gun arm up briefly after a shot.
@@ -395,12 +428,21 @@ export class Gunslinger {
     this.breath.stop();
     this.walk(null);
     this.shadow.setVisible(false);
+    this.drawEyes(this.eyesG, true);
+    // Go limp: arms drop along the body, legs splay a little
+    const T = this.scene.tweens;
+    T.add({ targets: this.arm, rotation: 1.75, duration: 300, ease: 'Quad.easeOut' });
+    T.add({ targets: this.armBack, rotation: 1.95, duration: 300, ease: 'Quad.easeOut' });
+    T.add({ targets: this.legFront, rotation: 0.3, duration: 400 });
+    T.add({ targets: this.legBack, rotation: -0.12, duration: 400 });
     const falls = groundY > this.y + 4;
-    this.scene.tweens.add({ targets: this.container, angle: 90 * dir, duration: 520, ease: 'Quad.easeIn' });
+    T.add({
+      targets: this.container, angle: 90 * dir, duration: 520, ease: 'Quad.easeIn',
+      onComplete: () => { if (!falls) onLand?.(); },
+    });
     if (falls) {
-      this.scene.tweens.add({ targets: this.container, y: groundY, delay: 200, duration: 450, ease: 'Quad.easeIn' });
+      T.add({ targets: this.container, y: groundY, delay: 200, duration: 450, ease: 'Quad.easeIn', onComplete: () => onLand?.() });
     }
-    if (onLand) this.scene.time.delayedCall(falls ? 650 : 520, onLand);
   }
 
   revive(x, y) {
@@ -408,6 +450,8 @@ export class Gunslinger {
     this.scene.tweens.killTweensOf(this.container);
     this.container.setAngle(0).setPosition(x, y).setScale(this.scale * this.facing, this.scale);
     this.shadow.setVisible(true);
+    this.drawEyes(this.eyesG);
+    this.walk(null);
     this.breathe();
   }
 

@@ -127,6 +127,10 @@ export class RunScene extends Phaser.Scene {
       speed: { min: 80, max: 320 }, lifespan: 500, gravityY: 900, scale: { start: 0.7, end: 0.2 },
       tint: [0xbfe8c8, 0xffffff, 0x2f7d4a], emitting: false,
     }).setDepth(22);
+    this.deathDust = this.add.particles(0, 0, 'dust', {
+      speed: { min: 30, max: 140 }, angle: { min: 190, max: 350 }, lifespan: 900, gravityY: -20,
+      scale: { start: 0.8, end: 2.4 }, alpha: { start: 0.75, end: 0 }, emitting: false,
+    }).setDepth(19);
     this.smoke = this.add.particles(0, 0, 'dust', {
       speed: { min: 8, max: 25 }, angle: { min: 250, max: 290 }, lifespan: 1400, frequency: 260,
       scale: { start: 0.2, end: 0.8 }, alpha: { start: 0.35, end: 0 }, tint: 0xcfcfcf, emitting: true,
@@ -320,15 +324,16 @@ export class RunScene extends Phaser.Scene {
 
     this.nextEventPx -= dx;
     if (this.nextEventPx > 0) return;
-    if (this.bossSpawnedFor !== cp && bossScreen - SPAWN_X < 700) {
+    if (this.bossSpawnedFor !== cp && bossScreen - SPAWN_X < 1200) {
       // Leave the road clear for the checkpoint boss
       this.nextEventPx = bossScreen - SPAWN_X + 900;
       return;
     }
-    this.spawnEncounter();
-    this.nextEventPx = rand(620, 950);
+    const length = this.spawnEncounter();
+    this.nextEventPx = length + rand(620, 950);
   }
 
+  // Returns how far the encounter stretches past the spawn point (px).
   spawnEncounter() {
     const m = this.meters;
     let x = SPAWN_X;
@@ -341,6 +346,7 @@ export class RunScene extends Phaser.Scene {
     for (let i = 0; i < n; i++) {
       this.spawnEnemy(makeFoe(m, { elevated: i === 1 }), x + i * 180, group);
     }
+    return x - SPAWN_X + (n - 1) * 180;
   }
 
   spawnEnemy(foe, x, group) {
@@ -612,7 +618,8 @@ export class RunScene extends Phaser.Scene {
 
   engage() {
     this.player.walk(null);
-    this.active = this.enemies.filter((e) => e.alive && !e.engaged && e.g.x < W + 60);
+    // Only outlaws fully on screen join; anyone further right waits until he walks into view
+    this.active = this.enemies.filter((e) => e.alive && !e.engaged && e.g.x <= W - 90);
     this.active.forEach((e) => { e.engaged = true; });
     const boss = this.active.find((e) => e.group.boss);
     if (boss) {
@@ -859,6 +866,12 @@ export class RunScene extends Phaser.Scene {
     if (this.ammo[this.weaponKey] <= 0) this.time.delayedCall(Math.min(300, w.cooldown), () => this.startReload());
   }
 
+  // Dust cloud along a body that just hit the ground (feet at x, head towards dir).
+  bodyDust(x, dir, scale) {
+    [0.15, 0.5, 0.85].forEach((k) => this.deathDust.explode(9, x + dir * k * 140 * scale, GROUND_Y - 4));
+    this.cameras.main.shake(90, 0.003);
+  }
+
   muzzleFlash(x, y, angle) {
     const f = this.add.image(x, y, 'flash').setOrigin(0.1, 0.5).setRotation(angle).setDepth(23).setBlendMode('ADD');
     this.tweens.add({ targets: f, scale: 1.4, alpha: 0, duration: 90, onComplete: () => f.destroy() });
@@ -1043,7 +1056,7 @@ export class RunScene extends Phaser.Scene {
       this.tweens.killTweensOf(e.g.container);
       e.g.container.y = e.top;
     }
-    e.g.die(1, GROUND_Y, () => this.dust.explode(16, e.g.x + 60 * e.g.scale, GROUND_Y));
+    e.g.die(1, GROUND_Y, () => this.bodyDust(e.g.x, 1, e.g.scale));
     this.kills++;
     const coins = e.foe.coins * (this.perk('horseshoe') ? 2 : 1);
     this.earned += coins;
@@ -1082,7 +1095,7 @@ export class RunScene extends Phaser.Scene {
     this.aimG.clear();
     this.enemyReact?.remove(false);
     this.active.forEach((e) => e.warn.setVisible(false));
-    this.player.die(-1, GROUND_Y, () => this.dust.explode(16, this.player.x - 60, GROUND_Y));
+    this.player.die(-1, GROUND_Y, () => this.bodyDust(this.player.x, -1, this.player.scale));
     sfx.lose();
     const s = getSave();
     if (this.meters > s.bestDistance) {
