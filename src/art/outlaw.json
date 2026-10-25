@@ -643,5 +643,107 @@
    -113.5
   ],
   "src_ppu": 21.46
+ },
+ "leg_undertaker": {
+  "file": "leg_undertaker.png",
+  "size": [
+   67,
+   142
+  ],
+  "anchor_px": [
+   23.6,
+   8.0
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 26.62,
+  "pants_width_units": 13.5
+ },
+ "torso_undertaker": {
+  "file": "torso_undertaker.png",
+  "size": [
+   139,
+   221
+  ],
+  "anchor_px": [
+   69.7,
+   0.7
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 17.37,
+  "bottom_y_units": -19.7
+ },
+ "head_undertaker": {
+  "file": "head_undertaker.png",
+  "size": [
+   133,
+   121
+  ],
+  "anchor_px": [
+   0.5,
+   0.5
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 22.2
+ },
+ "head_dead_undertaker": {
+  "file": "head_dead_undertaker.png",
+  "size": [
+   131,
+   121
+  ],
+  "anchor_px": [
+   0.5,
+   0.5
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 24.18
+ },
+ "arm_revolver_undertaker": {
+  "file": "arm_revolver_undertaker.png",
+  "size": [
+   274,
+   80
+  ],
+  "anchor_px": [
+   21.7,
+   37.6
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 16.33,
+  "muzzle": [
+   83.6,
+   -6.6
+  ]
+ },
+ "hat_undertaker": {
+  "file": "hat_undertaker.png",
+  "size": [
+   169,
+   118
+  ],
+  "anchor_px": [
+   84.6,
+   117.2
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 21.45
  }
 }

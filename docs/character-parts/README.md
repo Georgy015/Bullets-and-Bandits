@@ -104,6 +104,7 @@ The head, torso, leg, revolver arm and hat have been **fitted** and are used for
 | Rifleman | reference, torso (duster), head and dead head (with bandana), rifle arm, flat hat, leg | `torso_rifleman` (46 units wide, coat down to y = -22), `head_rifleman` / `head_dead_rifleman` (45 units tall: skull 40 plus the bandana knot), `arm_rifle_rifleman` (muzzle (117.5, -6.2), the longest gun), `hat_rifleman` (brim 78 units), `leg_rifleman`. |
 | Dynamite Dan | reference, torso (vest, belt and pouch), head, dead head, dynamite arm, bowler, leg | `torso_dynamite_dan` (46 units wide, belt at the hips, pouch down to y = -31.5), `head_dynamite_dan` / `head_dead_dynamite_dan` (skull 40 units), `arm_dynamite_dynamite_dan` (fuse tip (43.4, -30.1), where a thrown stick starts), `hat_dynamite_dan` (brim 52 units; the crown showing below the brim sits over the forehead), `leg_dynamite_dan`. |
 | Hider | reference, torso (jacket, belt and pouch), head and dead head (with bandana), revolver arm, flat hat, leg | `torso_hider` (46 units wide, pouch down to y = -25), `head_hider` / `head_dead_hider` (45 units tall: skull 40 plus the bandana knot), `arm_revolver_hider` (muzzle (82.3, -7.8)), `hat_hider` (brim 78 units), `leg_hider`. He always carries a revolver; his gun arm is hidden while he crouches behind the barrel. |
+| The Undertaker | reference, torso (long coat with the steel plate), head, dead head, revolver arm, top hat, leg | `torso_undertaker` (46 units wide, coat down to y = -20), `head_undertaker` / `head_dead_undertaker` (skull 40 units), `arm_revolver_undertaker` (muzzle (83.6, -6.6)), `hat_undertaker` (brim 56 units), `leg_undertaker`. The plate is part of his torso image, so the separate armor overlay is off for him (`armor: 'none'` in his parts); his body shots still take 25% damage. |
 
 Fit new outlaw parts with `python3 -I tools/fit_outlaw_parts.py docs/character-parts/refined/<type> <type> public/art/outlaw`, copy the manifest to `src/art/outlaw.json` and map the parts in `lookFor()` (`src/config.js`).
 
@@ -114,7 +115,7 @@ Still missing, so the game falls back to the code-drawn versions: the off-hand (
 `refined/character_set_sheet.webp` is the full refined set on one sheet (1774 × 887, no transparency). As a **rough preview**, its parts were cut out (cream background removed), fitted with the same rules and put in the game:
 
 - **Sheriff extras** (`public/art/sheriff/`): shotgun, rifle, dynamite and off-hand arms, and the armor plate. The sheriff's head, torso, leg, revolver arm and hat stay the high-resolution versions above.
-- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters use them; the Undertaker and the gunslinger boss are still code-drawn.
+- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters use them; the gunslinger boss is still code-drawn.
 
 These cut-outs are low-resolution (each part was only 100–250 px on the sheet), so they're placeholders until the individual high-resolution transparent PNGs arrive. The **rifle** is due to be redrawn (it reads as a pistol and is no longer than the shotgun). On the sheet the sheriff's spurs also seem to be missing.
 

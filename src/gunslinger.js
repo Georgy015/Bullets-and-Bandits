@@ -184,7 +184,8 @@ export class Gunslinger {
 
     c.setScale(this.scale * this.facing, this.scale);
     this.armBack.setVisible(this.weapon === 'dual');
-    if (this.look.armor) this.setArmor(true); // the Undertaker's steel plate is always on
+    // The Undertaker's steel plate is always on (unless his image torso already shows it)
+    if (this.look.armor && !(this.art && this.partName('armor') === 'none')) this.setArmor(true);
     this.armAngle = HOLSTER_ANGLE;
     this.holster();
     this.breathe();

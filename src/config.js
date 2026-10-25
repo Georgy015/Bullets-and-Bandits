@@ -186,7 +186,10 @@ function lookFor(type, boss, rng) {
           hat: 'hat_dynamite_dan', arm_dynamite: 'arm_dynamite_dynamite_dan', leg: 'leg_dynamite_dan' } };
     case 'undertaker':
       return { ...base, shirt: 0x3a3a42, sleeve: 0x15151a, coat: 0x15151a, hat: 0x15151a, hatStyle: 'top',
-        hatBand: 0x5a5a64, skin: 0xd9cfc4, mustache: true, mustacheColor: 0x9a9a9a, bandana: null, vest: null, armor: true };
+        hatBand: 0x5a5a64, skin: 0xd9cfc4, mustache: true, mustacheColor: 0x9a9a9a, bandana: null, vest: null, armor: true,
+        // The steel plate is drawn into his torso image, so no separate armor overlay
+        art: 'outlaw', artParts: { torso: 'torso_undertaker', head: 'head_undertaker', head_dead: 'head_dead_undertaker',
+          hat: 'hat_undertaker', arm_revolver: 'arm_revolver_undertaker', leg: 'leg_undertaker', armor: 'none' } };
     default:
       if (boss) return base;
       return { ...base, ...art(base.vest ? 'torso_vest' : 'torso_plain', base.bandana ? 'head_bandana' : 'head', 'hat_cowboy') };
