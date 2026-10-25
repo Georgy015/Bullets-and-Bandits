@@ -235,5 +235,90 @@
   ],
   "src_ppu": 3.15,
   "from_sheet": true
+ },
+ "torso_gambler": {
+  "file": "torso_gambler.png",
+  "size": [
+   140,
+   236
+  ],
+  "anchor_px": [
+   69.8,
+   0.8
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 16.0,
+  "bottom_y_units": -14.9
+ },
+ "head_gambler": {
+  "file": "head_gambler.png",
+  "size": [
+   133,
+   121
+  ],
+  "anchor_px": [
+   0.5,
+   60.5
+  ],
+  "anchor_game": [
+   -18,
+   -104
+  ],
+  "src_ppu": 23.77
+ },
+ "head_dead_gambler": {
+  "file": "head_dead_gambler.png",
+  "size": [
+   133,
+   121
+  ],
+  "anchor_px": [
+   0.5,
+   60.5
+  ],
+  "anchor_game": [
+   -18,
+   -104
+  ],
+  "src_ppu": 24.7
+ },
+ "arm_revolver_gambler": {
+  "file": "arm_revolver_gambler.png",
+  "size": [
+   257,
+   79
+  ],
+  "anchor_px": [
+   21.6,
+   40.1
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 19.73,
+  "muzzle": [
+   77.8,
+   -8.0
+  ]
+ },
+ "hat_gambler": {
+  "file": "hat_gambler.png",
+  "size": [
+   169,
+   123
+  ],
+  "anchor_px": [
+   84.6,
+   122.2
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 21.66
  }
 }

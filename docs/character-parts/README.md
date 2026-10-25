@@ -96,6 +96,14 @@ The head, torso, leg, revolver arm and hat have been **fitted** and are used for
 | `refined/sheriff_arm_revolver.png` | 1840 × 854 | **Fitted**: sleeve 15 units thick, shoulder pivot 7 units in from the sleeve end. The revolver is longer than the original, so its muzzle is at **(80.3, -7.5)** instead of (68, -5); the game uses the new value. |
 | `refined/sheriff_hat.png` | 1473 × 1068 | **Fitted**: brim 78 units wide, centred at x = 2, brim bottom at y = -113. |
 
+### Special outlaws
+
+| Outlaw | Delivered (`refined/<type>/`) | Fitted as (`public/art/outlaw/`) |
+|---|---|---|
+| Gambler | torso (long coat), head, dead head, revolver arm, top hat | `torso_gambler` (46 units wide, coat down to y = -15), `head_gambler` / `head_dead_gambler` (skull 40 units), `arm_revolver_gambler` (muzzle (77.8, -8)), `hat_gambler` (brim 56 units). He uses the outlaw leg and always carries a revolver. |
+
+Fit new outlaw parts with `python3 -I tools/fit_outlaw_parts.py docs/character-parts/refined/<type> <type> public/art/outlaw`, copy the manifest to `src/art/outlaw.json` and map the parts in `lookFor()` (`src/config.js`).
+
 Still missing, so the game falls back to the code-drawn versions: the off-hand (twin revolvers) arm, the shotgun, rifle and dynamite arms, the armor plate, and all outlaw parts.
 
 ### Preview parts cut from the character sheet
@@ -103,7 +111,7 @@ Still missing, so the game falls back to the code-drawn versions: the off-hand (
 `refined/character_set_sheet.webp` is the full refined set on one sheet (1774 × 887, no transparency). As a **rough preview**, its parts were cut out (cream background removed), fitted with the same rules and put in the game:
 
 - **Sheriff extras** (`public/art/sheriff/`): shotgun, rifle, dynamite and off-hand arms, and the armor plate. The sheriff's head, torso, leg, revolver arm and hat stay the high-resolution versions above.
-- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters and Hiders use them; the Gambler, Rifleman, Dynamite Dan, the Undertaker and the gunslinger boss are still code-drawn.
+- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters and Hiders use them; the Rifleman, Dynamite Dan, the Undertaker and the gunslinger boss are still code-drawn.
 
 These cut-outs are low-resolution (each part was only 100–250 px on the sheet), so they're placeholders until the individual high-resolution transparent PNGs arrive. The **rifle** is due to be redrawn (it reads as a pistol and is no longer than the shotgun). On the sheet the sheriff's spurs also seem to be missing.
 

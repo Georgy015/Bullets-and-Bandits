@@ -116,7 +116,7 @@ export const OUTLAWS = {
     tip: 'HIDER: shoot when he pops up from cover!',
   },
   gambler: {
-    from: 80, weight: 1.5, label: 'GAMBLER', hp: 0.6, damage: 0.9, rate: 0.7, windup: 350, coins: 1.2,
+    from: 80, weight: 1.5, label: 'GAMBLER', weapon: 'revolver', hp: 0.6, damage: 0.9, rate: 0.7, windup: 350, coins: 1.2,
     tip: 'GAMBLER: lightning draw but weak. Drop him first!',
   },
   rifleman: {
@@ -171,7 +171,9 @@ function lookFor(type, boss, rng) {
         ...art('torso_plain', 'head_bandana', 'hat_flat') };
     case 'gambler':
       return { ...base, shirt: 0xf2efe6, sleeve: 0x1c1c22, coat: 0x1c1c22, vest: 0x8c1c1c, hat: 0x1c1c22,
-        hatStyle: 'top', hatBand: 0x8c1c1c, bandana: null, mustache: true };
+        hatStyle: 'top', hatBand: 0x8c1c1c, bandana: null, mustache: true,
+        art: 'outlaw', artParts: { torso: 'torso_gambler', head: 'head_gambler', head_dead: 'head_dead_gambler',
+          hat: 'hat_gambler', arm_revolver: 'arm_revolver_gambler' } };
     case 'rifleman':
       return { ...base, shirt: 0x5a4632, sleeve: 0xb08d57, coat: 0xb08d57, hat: 0x5a4030, hatStyle: 'flat',
         vest: null, bandana: 0x6e6e6e };
