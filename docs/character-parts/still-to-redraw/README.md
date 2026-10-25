@@ -4,17 +4,7 @@ Everything in the game that doesn't use refined high-resolution art yet, as tran
 
 ## Sheriff
 
-The head, torso, leg, revolver arm and hat are done. These came from the character sheet, so they are low resolution (100–300 px), except for the dead head.
-
-| File | Notes |
-|---|---|
-| `sheriff_head_dead_quick_edit.png` | Dead head (X eyes), a quick edit of your refined head on the same 1327 × 1185 canvas. Until it's redrawn, the game paints X's over the living head. |
-| `sheriff_arm_shotgun.png` | Shotgun arm. |
-| `sheriff_arm_rifle.png` | The current rifle (reads as a pistol). `sheriff_arm_rifle_layout_to_aim_for.png` shows the length and layout to aim for: the longest gun, with a stock and a lever under the action, optionally a scope. |
-| `sheriff_arm_dynamite.png` | Dynamite arm, the stick held upright (like Dynamite Dan's). |
-| `sheriff_offhand_arm_revolver.png` | The second arm for twin revolvers; same pose as the revolver arm (the game draws it darker, behind the body). |
-| `sheriff_armor_plate.png` | Bulletproof vest perk: a plate drawn over the poncho. |
-| `_style_base_sheriff_arm_revolver.png` | The refined revolver arm, for the arm pose and style. |
+**Done**: all sheriff parts are refined and in the game. The sheriff files here are kept for reference.
 
 ## Drifters (the ordinary outlaws)
 

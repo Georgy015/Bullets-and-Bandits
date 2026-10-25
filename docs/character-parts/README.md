@@ -90,7 +90,9 @@ The head, torso, leg, revolver arm and hat have been **fitted** and are used for
 | File | Canvas (px) | Status |
 |---|---|---|
 | `refined/sheriff_reference.webp` | 1080 × 1456 | Style reference showing the **intended appearance**. It was generated as a whole image and is not proof that the parts align; `_fit_check.png` is the alignment check. |
-| `refined/sheriff_head.webp` | 1327 × 1185 | **Fitted**: skull height 40 units, centred on the head hit circle. Eyes are baked in; on death the game paints over them and draws X eyes. A proper dead (X-eyes) head would still look better. |
+| `refined/sheriff_head.webp` | 1327 × 1185 | **Fitted**: skull height 40 units, centred on the head hit circle. Eyes are baked in; on death the game swaps in `refined/sheriff_head_dead.webp` (same canvas, same placement). |
+| `refined/sheriff_arm_shotgun.webp`, `sheriff_arm_rifle.webp`, `sheriff_arm_dynamite.png`, `sheriff_offhand_arm_revolver.png` | various | **Fitted** like the revolver arm (sleeve 15 units, shoulder 7 units in). Muzzles: shotgun (101.9, -6.1), rifle (116.9, -6.1, the longest gun), dynamite fuse tip (52.4, -25.7), off-hand revolver (78.9, -7.4). The off-hand art is drawn darker already, so the game doesn't tint it. |
+| `refined/sheriff_armor_plate.webp` | 1312 × 1199 | **Fitted**: 44 units wide, centred on the chest at (0, -68). |
 | `refined/sheriff_torso.webp` | 1335 × 1178 | **Fitted**: poncho shoulder width 46 units, top edge at y = -93. Slightly wider at the fringe than the original (66 vs 62 units). |
 | `refined/sheriff_leg.webp` | 953 × 1651 | **Fitted**: 44.5 units from hip to sole plus 2.5 units of hidden overlap above the hip. Pants about 14 units wide (original 13). The back leg is the same image, tinted darker. |
 | `refined/sheriff_arm_revolver.png` | 1840 × 854 | **Fitted**: sleeve 15 units thick, shoulder pivot 7 units in from the sleeve end. The revolver is longer than the original, so its muzzle is at **(80.3, -7.5)** instead of (68, -5); the game uses the new value. |
@@ -108,15 +110,15 @@ The head, torso, leg, revolver arm and hat have been **fitted** and are used for
 
 Fit new outlaw parts with `python3 -I tools/fit_outlaw_parts.py docs/character-parts/refined/<type> <type> public/art/outlaw`, copy the manifest to `src/art/outlaw.json` and map the parts in `lookFor()` (`src/config.js`).
 
-Still missing, so the game falls back to the code-drawn versions: the off-hand (twin revolvers) arm, the shotgun, rifle and dynamite arms, the armor plate, and all outlaw parts.
+All sheriff parts are now refined. Fit tools: `tools/fit_sheriff_art.py` (head, torso, leg, revolver arm, hat) and `tools/fit_sheriff_extras.py` (dead head, other arms, armor plate).
 
 ### Preview parts cut from the character sheet
 
 `refined/character_set_sheet.webp` is the full refined set on one sheet (1774 × 887, no transparency). As a **rough preview**, its parts were cut out (cream background removed), fitted with the same rules and put in the game:
 
-- **Sheriff extras** (`public/art/sheriff/`): shotgun, rifle, dynamite and off-hand arms, and the armor plate. The sheriff's head, torso, leg, revolver arm and hat stay the high-resolution versions above.
+- **Sheriff extras**: replaced by the refined versions above.
 - **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters use them; the gunslinger boss is still code-drawn.
 
-These cut-outs are low-resolution (each part was only 100–250 px on the sheet), so they're placeholders until the individual high-resolution transparent PNGs arrive. The **rifle** is due to be redrawn (it reads as a pistol and is no longer than the shotgun). On the sheet the sheriff's spurs also seem to be missing.
+These cut-outs are low-resolution (each part was only 100–250 px on the sheet), so they're placeholders until the individual high-resolution transparent PNGs arrive.
 
 **Fitting tools:** `tools/fit_sheriff_art.py` measures, scales and anchors the delivered images; `tools/compose_art_check.py` builds the alignment check sheet; `tools/cut_character_sheet.py` and `tools/fit_sheet_parts.py` cut and fit parts from a character sheet (all need Pillow).
