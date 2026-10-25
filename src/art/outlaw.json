@@ -261,11 +261,11 @@
   ],
   "anchor_px": [
    0.5,
-   60.5
+   0.5
   ],
   "anchor_game": [
    -18,
-   -104
+   -124
   ],
   "src_ppu": 23.77
  },
@@ -277,11 +277,11 @@
   ],
   "anchor_px": [
    0.5,
-   60.5
+   0.5
   ],
   "anchor_game": [
    -18,
-   -104
+   -124
   ],
   "src_ppu": 24.7
  },
@@ -337,5 +337,107 @@
   ],
   "src_ppu": 29.53,
   "pants_width_units": 14.6
+ },
+ "leg_rifleman": {
+  "file": "leg_rifleman.png",
+  "size": [
+   78,
+   142
+  ],
+  "anchor_px": [
+   26.6,
+   7.9
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 27.66,
+  "pants_width_units": 15.0
+ },
+ "torso_rifleman": {
+  "file": "torso_rifleman.png",
+  "size": [
+   139,
+   215
+  ],
+  "anchor_px": [
+   69.7,
+   0.7
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 17.48,
+  "bottom_y_units": -21.9
+ },
+ "head_rifleman": {
+  "file": "head_rifleman.png",
+  "size": [
+   132,
+   136
+  ],
+  "anchor_px": [
+   0.5,
+   0.5
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 23.22
+ },
+ "head_dead_rifleman": {
+  "file": "head_dead_rifleman.png",
+  "size": [
+   127,
+   136
+  ],
+  "anchor_px": [
+   0.5,
+   0.5
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 23.24
+ },
+ "arm_rifle_rifleman": {
+  "file": "arm_rifle_rifleman.png",
+  "size": [
+   376,
+   79
+  ],
+  "anchor_px": [
+   21.8,
+   52.9
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 14.13,
+  "muzzle": [
+   117.5,
+   -6.2
+  ]
+ },
+ "hat_rifleman": {
+  "file": "hat_rifleman.png",
+  "size": [
+   235,
+   77
+  ],
+  "anchor_px": [
+   117.6,
+   76.0
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 21.15
  }
 }
