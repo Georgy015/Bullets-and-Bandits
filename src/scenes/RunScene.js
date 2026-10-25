@@ -362,7 +362,11 @@ export class RunScene extends Phaser.Scene {
     const warn = this.add.image(0, 0, 'warn').setDepth(26).setVisible(false);
     this.tweens.add({ targets: warn, scale: 1.25, duration: 140, yoyo: true, repeat: -1 });
     const e = { g, foe, hp: foe.hp, alive: true, engaged: false, group, shotAt: 0, plan: null, warn, top: perch.top };
-    e.headroom = foe.look.hatStyle === 'top' ? 40 * foe.look.scale / 1.45 : 0; // lift HUD above tall hats
+    // Lift the HUD above tall hats: image hats by their measured top, code-drawn top hats by a fixed amount
+    const hatArt = g.part('hat');
+    const hatTop = hatArt && hatArt.anchor_game[1] - hatArt.anchor_px[1] / g.art.ppu;
+    e.headroom = hatArt ? Math.max(0, -126 - hatTop) * foe.look.scale
+      : foe.look.hatStyle === 'top' ? 40 * foe.look.scale / 1.45 : 0;
     if (foe.label) e.tag = text(this, 0, 0, foe.label, 14, { ui: true, color: '#ffe48a' }).setDepth(30).setVisible(false);
     if (foe.type === 'hider') {
       // Barrel in front of him; anything below the street is masked off while he crouches

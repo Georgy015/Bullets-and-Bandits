@@ -524,5 +524,22 @@
    -113.5
   ],
   "src_ppu": 20.13
+ },
+ "torso_dynamite_dan": {
+  "file": "torso_dynamite_dan.png",
+  "size": [
+   139,
+   186
+  ],
+  "anchor_px": [
+   69.7,
+   0.7
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 17.83,
+  "bottom_y_units": -31.5
  }
 }

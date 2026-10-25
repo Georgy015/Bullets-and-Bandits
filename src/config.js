@@ -180,7 +180,9 @@ function lookFor(type, boss, rng) {
         art: 'outlaw', artParts: { torso: 'torso_rifleman', head: 'head_rifleman', head_dead: 'head_dead_rifleman',
           hat: 'hat_rifleman', arm_rifle: 'arm_rifle_rifleman', leg: 'leg_rifleman' } };
     case 'dynamite':
-      return { ...base, shirt: 0xb03a2e, hat: 0x2b2b2b, hatStyle: 'bowler', vest: 0x2b1a10, bandana: null, mustache: true };
+      return { ...base, shirt: 0xb03a2e, hat: 0x2b2b2b, hatStyle: 'bowler', vest: 0x2b1a10, bandana: null, mustache: true,
+        art: 'outlaw', artParts: { torso: 'torso_dynamite_dan', head: 'head_dynamite_dan', head_dead: 'head_dead_dynamite_dan',
+          hat: 'hat_dynamite_dan', arm_dynamite: 'arm_dynamite_dynamite_dan', leg: 'leg_dynamite_dan' } };
     case 'undertaker':
       return { ...base, shirt: 0x3a3a42, sleeve: 0x15151a, coat: 0x15151a, hat: 0x15151a, hatStyle: 'top',
         hatBand: 0x5a5a64, skin: 0xd9cfc4, mustache: true, mustacheColor: 0x9a9a9a, bandana: null, vest: null, armor: true };
