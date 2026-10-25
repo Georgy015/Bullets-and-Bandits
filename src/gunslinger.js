@@ -3,13 +3,18 @@
 
 import { INK, shade, rect, rrect, circle, ellipse, poly, line, star } from './ink.js';
 import SHERIFF_ART from './art/sheriff.json';
+import OUTLAW_ART from './art/outlaw.json';
 
 // Refined image parts per character (see docs/character-parts). Each part's anchor pixel is
 // placed on a game-unit point; anything without an image falls back to code drawing.
 // Add ?art=code to the URL to compare with the code-drawn look.
+// A look picks its set with `art` and can map slots to differently named parts with `artParts`
+// (e.g. { torso: 'torso_vest', head: 'head_bandana', hat: 'hat_cowboy' }).
 const { ppu: SHERIFF_PPU, ...SHERIFF_PARTS } = SHERIFF_ART;
+const { ppu: OUTLAW_PPU, ...OUTLAW_PARTS } = OUTLAW_ART;
 export const ART_SETS = {
   sheriff: { prefix: 'sheriff-', dir: 'art/sheriff/', ppu: SHERIFF_PPU, parts: SHERIFF_PARTS, skin: 0xe5ac83 },
+  outlaw: { prefix: 'outlaw-', dir: 'art/outlaw/', ppu: OUTLAW_PPU, parts: OUTLAW_PARTS, skin: 0xf0b88c },
 };
 const CODE_ART_ONLY = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('art') === 'code';
 
@@ -109,7 +114,7 @@ export class Gunslinger {
     c.add(this.shadow);
 
     const set = ART_SETS[this.look.art];
-    this.art = set && !CODE_ART_ONLY && scene.textures.exists(set.prefix + 'leg') ? set : null;
+    this.art = set && !CODE_ART_ONLY && scene.textures.exists(set.prefix + (this.look.artParts?.leg ?? 'leg')) ? set : null;
 
     if (this.art) {
       this.legBack = this.artImage('leg').setPosition(6, HIP_Y).setTint(0xc4c4c4);
@@ -130,12 +135,14 @@ export class Gunslinger {
     this.armBack = scene.add.container(BACK_SHOULDER.x, BACK_SHOULDER.y);
     this.armBackG = scene.add.graphics();
     this.armBack.add(this.armBackG);
-    drawGun(this.armBackG, 'revolver', shade(this.look.sleeve ?? this.look.shirt, 0.75), shade(this.look.skin, 0.85));
+    if (this.has('offhand')) this.armBack.add(this.artImage('offhand'));
+    else drawGun(this.armBackG, 'revolver', shade(this.look.sleeve ?? this.look.shirt, 0.75), shade(this.look.skin, 0.85));
     this.upper.add(this.armBack);
 
-    if (this.art) {
+    if (this.has('torso') && this.has('head')) {
       this.upper.add(this.artImage('torso', true));
-      this.upper.add(this.artImage('head', true));
+      this.headImg = this.artImage('head', true);
+      this.upper.add(this.headImg);
     } else {
       const body = scene.add.graphics();
       this.drawTorso(body);
@@ -147,8 +154,12 @@ export class Gunslinger {
     this.drawEyes(this.eyesG);
     this.upper.add(this.eyesG);
 
-    this.vestG = scene.add.graphics();
-    this.drawArmor(this.vestG);
+    if (this.has('armor')) {
+      this.vestG = this.artImage('armor', true);
+    } else {
+      this.vestG = scene.add.graphics();
+      this.drawArmor(this.vestG);
+    }
     this.vestG.setVisible(false);
     this.upper.add(this.vestG);
 
@@ -162,7 +173,7 @@ export class Gunslinger {
     this.setWeapon(this.weapon);
     this.upper.add(this.arm);
 
-    if (this.art?.parts.hat) {
+    if (this.has('hat')) {
       this.hat = this.artImage('hat', true);
     } else {
       this.hat = scene.add.graphics();
@@ -278,11 +289,15 @@ export class Gunslinger {
     const L = this.look;
     const H = HEAD;
     g.clear();
-    if (this.art?.parts.head) {
-      // Refined heads have the eyes baked in; on death paint over them and draw X's
-      if (!dead) return;
-      const [x1, y1, x2, y2] = this.art.parts.head.eye_band;
-      g.fillStyle(this.art.skin); g.fillRoundedRect(x1, y1 + 3, x2 - x1, y2 - y1 - 1, 3);
+    if (this.headImg) {
+      // Image heads have the eyes baked in: swap to the drawn dead head if there is one,
+      // otherwise paint over the eyes and draw X's
+      this.setPart(this.headImg, dead && this.has('head_dead') ? 'head_dead' : 'head');
+      if (!dead || this.has('head_dead')) return;
+      const head = this.part('head');
+      const [x1, y1, x2, y2] = head.eye_band;
+      g.fillStyle(head.skin ? parseInt(head.skin.slice(1), 16) : this.art.skin);
+      g.fillRoundedRect(x1, y1 + 3, x2 - x1, y2 - y1 - 1, 3);
       [x1 + (x2 - x1) * 0.32, x1 + (x2 - x1) * 0.74].forEach((x) => {
         const y = y2 - 3.5;
         line(g, INK, x - 3, y - 3, x + 3, y + 3, 2.4);
@@ -355,23 +370,39 @@ export class Gunslinger {
 
   // An image part placed by its manifest anchor. `atAnchor` puts it on its anchor's game
   // point (torso, head, hat); otherwise it sits at 0,0 (legs and arms pivot there).
-  artImage(name, atAnchor = false) {
-    const p = this.art.parts[name];
-    const img = this.scene.add.image(0, 0, this.art.prefix + name)
+  partName(slot) {
+    return this.look.artParts?.[slot] ?? slot;
+  }
+
+  part(slot) {
+    return this.art?.parts[this.partName(slot)];
+  }
+
+  has(slot) {
+    return !!this.part(slot);
+  }
+
+  // Point an image at a slot's part: texture, anchor and scale.
+  setPart(img, slot) {
+    const p = this.part(slot);
+    img.setTexture(this.art.prefix + this.partName(slot))
       .setOrigin(p.anchor_px[0] / p.size[0], p.anchor_px[1] / p.size[1])
       .setScale(1 / this.art.ppu);
+    return img;
+  }
+
+  artImage(slot, atAnchor = false) {
+    const img = this.setPart(this.scene.add.image(0, 0, '__DEFAULT'), slot);
+    const p = this.part(slot);
     if (atAnchor) img.setPosition(p.anchor_game[0], p.anchor_game[1]);
     return img;
   }
 
   setWeapon(type) {
     this.weapon = type;
-    const part = this.art?.parts['arm_' + (type === 'dual' ? 'revolver' : type)];
-    if (part) {
-      const p = part;
-      this.armImg.setTexture(this.art.prefix + 'arm_' + (type === 'dual' ? 'revolver' : type))
-        .setOrigin(p.anchor_px[0] / p.size[0], p.anchor_px[1] / p.size[1])
-        .setScale(1 / this.art.ppu).setVisible(true);
+    const slot = 'arm_' + (type === 'dual' ? 'revolver' : type);
+    if (this.has(slot)) {
+      this.setPart(this.armImg, slot).setVisible(true);
       this.armG.clear();
     } else {
       this.armImg?.setVisible(false);
@@ -427,8 +458,8 @@ export class Gunslinger {
   }
 
   muzzleWorld(hand = 'front') {
-    const artArm = this.art?.parts['arm_' + (this.weapon === 'dual' && hand === 'front' ? 'revolver' : this.weapon)];
-    const m = artArm && hand === 'front' ? { x: artArm.muzzle[0], y: artArm.muzzle[1] } : MUZZLE[this.weapon];
+    const artArm = hand === 'back' ? this.part('offhand') : this.part('arm_' + (this.weapon === 'dual' ? 'revolver' : this.weapon));
+    const m = artArm?.muzzle ? { x: artArm.muzzle[0], y: artArm.muzzle[1] } : MUZZLE[this.weapon];
     const s = this.shoulderWorld(hand);
     const a = this.armAngle;
     const mx = m.x * this.scale;
@@ -477,9 +508,18 @@ export class Gunslinger {
     if (!this.hat.visible) return null;
     this.hat.setVisible(false);
     const h = this.headWorld();
-    const g = this.scene.add.graphics({ x: h.x, y: h.y });
-    g.setScale(this.scale * this.facing, this.scale);
-    this.drawHat(g, -HEAD.x, -HEAD.y);
+    let g;
+    if (this.has('hat')) {
+      // Same image, placed where it sat on the head
+      const p = this.part('hat');
+      g = this.setPart(this.scene.add.image(0, 0, '__DEFAULT'), 'hat');
+      g.setPosition(this.x + p.anchor_game[0] * this.scale * this.facing, this.y + p.anchor_game[1] * this.scale);
+      g.setScale((this.scale * this.facing) / this.art.ppu, this.scale / this.art.ppu);
+    } else {
+      g = this.scene.add.graphics({ x: h.x, y: h.y });
+      g.setScale(this.scale * this.facing, this.scale);
+      this.drawHat(g, -HEAD.x, -HEAD.y);
+    }
     this.scene.tweens.add({
       targets: g,
       x: h.x + dir * (120 + Math.random() * 80),

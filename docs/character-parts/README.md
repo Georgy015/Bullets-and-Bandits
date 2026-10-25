@@ -98,4 +98,13 @@ The head, torso, leg, revolver arm and hat have been **fitted** and are used for
 
 Still missing, so the game falls back to the code-drawn versions: the off-hand (twin revolvers) arm, the shotgun, rifle and dynamite arms, the armor plate, and all outlaw parts.
 
-**Fitting tools:** `tools/fit_sheriff_art.py` measures, scales and anchors the delivered images; `tools/compose_art_check.py` builds the alignment check sheet (both need Pillow).
+### Preview parts cut from the character sheet
+
+`refined/character_set_sheet.webp` is the full refined set on one sheet (1774 × 887, no transparency). As a **rough preview**, its parts were cut out (cream background removed), fitted with the same rules and put in the game:
+
+- **Sheriff extras** (`public/art/sheriff/`): shotgun, rifle, dynamite and off-hand arms, and the armor plate. The sheriff's head, torso, leg, revolver arm and hat stay the high-resolution versions above.
+- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters and Hiders use them; the Gambler, Rifleman, Dynamite Dan, the Undertaker and the gunslinger boss are still code-drawn.
+
+These cut-outs are low-resolution (each part was only 100–250 px on the sheet), so they're placeholders until the individual high-resolution transparent PNGs arrive. The **rifle** is due to be redrawn (it reads as a pistol and is no longer than the shotgun). On the sheet the sheriff's spurs also seem to be missing.
+
+**Fitting tools:** `tools/fit_sheriff_art.py` measures, scales and anchors the delivered images; `tools/compose_art_check.py` builds the alignment check sheet; `tools/cut_character_sheet.py` and `tools/fit_sheet_parts.py` cut and fit parts from a character sheet (all need Pillow).

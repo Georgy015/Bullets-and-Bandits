@@ -162,9 +162,13 @@ function lookFor(type, boss, rng) {
     vest: rng() < 0.5 ? 0x3b2a1e : null, mustache: rng() < 0.7, pants: 0x3d3346,
     scale: boss ? BOSS_SCALE : OUTLAW_SCALE,
   };
+  // Refined image parts (preview cut from the character sheet) for the plain outlaw types
+  // Only the plain head has a drawn dead version; bandana heads get X eyes painted on instead
+  const art = (torso, head, hat) => ({ art: 'outlaw', artParts: { torso, head, hat, head_dead: head === 'head' ? 'head_dead' : 'none' } });
   switch (type) {
     case 'hider':
-      return { ...base, shirt: 0x6b5a3a, hat: 0x3a2a1a, hatStyle: 'flat', bandana: pick(BANDANAS), vest: null };
+      return { ...base, shirt: 0x6b5a3a, hat: 0x3a2a1a, hatStyle: 'flat', bandana: pick(BANDANAS), vest: null,
+        ...art('torso_plain', 'head_bandana', 'hat_flat') };
     case 'gambler':
       return { ...base, shirt: 0xf2efe6, sleeve: 0x1c1c22, coat: 0x1c1c22, vest: 0x8c1c1c, hat: 0x1c1c22,
         hatStyle: 'top', hatBand: 0x8c1c1c, bandana: null, mustache: true };
@@ -177,7 +181,8 @@ function lookFor(type, boss, rng) {
       return { ...base, shirt: 0x3a3a42, sleeve: 0x15151a, coat: 0x15151a, hat: 0x15151a, hatStyle: 'top',
         hatBand: 0x5a5a64, skin: 0xd9cfc4, mustache: true, mustacheColor: 0x9a9a9a, bandana: null, vest: null, armor: true };
     default:
-      return base;
+      if (boss) return base;
+      return { ...base, ...art(base.vest ? 'torso_vest' : 'torso_plain', base.bandana ? 'head_bandana' : 'head', 'hat_cowboy') };
   }
 }
 

@@ -1,0 +1,239 @@
+{
+ "ppu": 3,
+ "leg": {
+  "file": "leg.png",
+  "size": [
+   113,
+   141
+  ],
+  "anchor_px": [
+   40.0,
+   7.5
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 2.55,
+  "from_sheet": true
+ },
+ "torso_vest": {
+  "file": "torso_vest.png",
+  "size": [
+   170,
+   160
+  ],
+  "anchor_px": [
+   88.5,
+   0.0
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 3.0,
+  "from_sheet": true
+ },
+ "torso_plain": {
+  "file": "torso_plain.png",
+  "size": [
+   164,
+   167
+  ],
+  "anchor_px": [
+   82.0,
+   0.0
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 2.78,
+  "from_sheet": true
+ },
+ "head": {
+  "file": "head.png",
+  "size": [
+   130,
+   120
+  ],
+  "anchor_px": [
+   0.0,
+   0.0
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 3.3,
+  "from_sheet": true
+ },
+ "head_bandana": {
+  "file": "head_bandana.png",
+  "size": [
+   128,
+   127
+  ],
+  "anchor_px": [
+   0.0,
+   0.0
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 3.3,
+  "from_sheet": true,
+  "eye_band": [
+   4.2,
+   -114.7,
+   23.4,
+   -104.1
+  ],
+  "skin": "#f6c49c"
+ },
+ "head_dead": {
+  "file": "head_dead.png",
+  "size": [
+   126,
+   119
+  ],
+  "anchor_px": [
+   0.0,
+   0.0
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 3.3,
+  "from_sheet": true
+ },
+ "arm_revolver": {
+  "file": "arm_revolver.png",
+  "size": [
+   209,
+   74
+  ],
+  "anchor_px": [
+   21.0,
+   36.2
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 3.07,
+  "from_sheet": true,
+  "muzzle": [
+   61.8,
+   -7.2
+  ]
+ },
+ "offhand": {
+  "file": "offhand.png",
+  "size": [
+   212,
+   74
+  ],
+  "anchor_px": [
+   21.0,
+   35.9
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 3.13,
+  "from_sheet": true,
+  "muzzle": [
+   62.6,
+   -6.7
+  ]
+ },
+ "armor": {
+  "file": "../sheriff/armor.png",
+  "size": [
+   132,
+   135
+  ],
+  "anchor_px": [
+   66.0,
+   67.5
+  ],
+  "anchor_game": [
+   0,
+   -68
+  ],
+  "src_ppu": 3.07,
+  "from_sheet": true
+ },
+ "hat_cowboy": {
+  "file": "hat_cowboy.png",
+  "size": [
+   198,
+   88
+  ],
+  "anchor_px": [
+   99.0,
+   88.3
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 2.95,
+  "from_sheet": true
+ },
+ "hat_flat": {
+  "file": "hat_flat.png",
+  "size": [
+   234,
+   77
+  ],
+  "anchor_px": [
+   117.0,
+   77.4
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 3.33,
+  "from_sheet": true
+ },
+ "hat_top": {
+  "file": "hat_top.png",
+  "size": [
+   168,
+   106
+  ],
+  "anchor_px": [
+   84.0,
+   105.7
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 2.84,
+  "from_sheet": true
+ },
+ "hat_bowler": {
+  "file": "hat_bowler.png",
+  "size": [
+   156,
+   84
+  ],
+  "anchor_px": [
+   78.0,
+   83.7
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 3.15,
+  "from_sheet": true
+ }
+}

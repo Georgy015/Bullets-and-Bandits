@@ -100,5 +100,106 @@
   "src_ppu": 17.68,
   "note": "brim bottom-centre",
   "height_units": 26.6
+ },
+ "arm_shotgun": {
+  "file": "arm_shotgun.png",
+  "size": [
+   255,
+   65
+  ],
+  "anchor_px": [
+   21.0,
+   35.2
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 3.53,
+  "from_sheet": true,
+  "muzzle": [
+   77.1,
+   -6.9
+  ]
+ },
+ "arm_rifle": {
+  "file": "arm_rifle.png",
+  "size": [
+   256,
+   73
+  ],
+  "anchor_px": [
+   21.0,
+   35.1
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 2.87,
+  "from_sheet": true,
+  "muzzle": [
+   77.4,
+   -6.6
+  ]
+ },
+ "arm_dynamite": {
+  "file": "arm_dynamite.png",
+  "size": [
+   138,
+   104
+  ],
+  "anchor_px": [
+   21.0,
+   77.1
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 2.8,
+  "from_sheet": true,
+  "muzzle": [
+   33.9,
+   -24.6
+  ]
+ },
+ "offhand": {
+  "file": "offhand.png",
+  "size": [
+   212,
+   74
+  ],
+  "anchor_px": [
+   21.0,
+   35.9
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 3.13,
+  "from_sheet": true,
+  "muzzle": [
+   62.6,
+   -6.7
+  ]
+ },
+ "armor": {
+  "file": "armor.png",
+  "size": [
+   132,
+   135
+  ],
+  "anchor_px": [
+   66.0,
+   67.5
+  ],
+  "anchor_game": [
+   0,
+   -68
+  ],
+  "src_ppu": 3.07,
+  "from_sheet": true
  }
 }
