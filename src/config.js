@@ -162,9 +162,8 @@ function lookFor(type, boss, rng) {
     vest: rng() < 0.5 ? 0x3b2a1e : null, mustache: rng() < 0.7, pants: 0x3d3346,
     scale: boss ? BOSS_SCALE : OUTLAW_SCALE,
   };
-  // Refined image parts (preview cut from the character sheet) for the plain outlaw types
-  // Only the plain head has a drawn dead version; bandana heads get X eyes painted on instead
-  const art = (torso, head, hat) => ({ art: 'outlaw', artParts: { torso, head, hat, head_dead: head === 'head' ? 'head_dead' : 'none' } });
+  // Refined image parts for the drifters, each head with its dead version
+  const art = (torso, head, hat) => ({ art: 'outlaw', artParts: { torso, head, hat, head_dead: head === 'head' ? 'head_dead' : 'head_dead_bandana' } });
   switch (type) {
     case 'hider':
       return { ...base, shirt: 0x6b5a3a, hat: 0x3a2a1a, hatStyle: 'flat', bandana: pick(BANDANAS), vest: null,

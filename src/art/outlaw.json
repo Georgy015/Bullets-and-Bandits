@@ -3,19 +3,18 @@
  "leg": {
   "file": "leg.png",
   "size": [
-   113,
-   141
+   82,
+   142
   ],
   "anchor_px": [
-   40.0,
-   7.5
+   30.6,
+   7.9
   ],
   "anchor_game": [
    0,
    0
   ],
-  "src_ppu": 2.55,
-  "from_sheet": true
+  "src_ppu": 27.51
  },
  "torso_vest": {
   "file": "torso_vest.png",
@@ -52,60 +51,50 @@
  "head": {
   "file": "head.png",
   "size": [
-   130,
-   120
+   134,
+   121
   ],
   "anchor_px": [
-   0.0,
-   0.0
+   0.5,
+   0.5
   ],
   "anchor_game": [
    -18,
    -124
   ],
-  "src_ppu": 3.3,
-  "from_sheet": true
+  "src_ppu": 25.57
  },
  "head_bandana": {
   "file": "head_bandana.png",
   "size": [
-   128,
-   127
+   137,
+   136
   ],
   "anchor_px": [
-   0.0,
-   0.0
+   0.5,
+   0.5
   ],
   "anchor_game": [
    -18,
    -124
   ],
-  "src_ppu": 3.3,
-  "from_sheet": true,
-  "eye_band": [
-   4.2,
-   -114.7,
-   23.4,
-   -104.1
-  ],
-  "skin": "#f6c49c"
+  "src_ppu": 23.36
  },
  "head_dead": {
   "file": "head_dead.png",
   "size": [
-   126,
-   119
+   131,
+   121
   ],
   "anchor_px": [
-   0.0,
-   0.0
+   0.5,
+   0.5
   ],
   "anchor_game": [
    -18,
    -124
   ],
-  "src_ppu": 3.3,
-  "from_sheet": true
+  "src_ppu": 26.48
  },
  "arm_revolver": {
   "file": "arm_revolver_red.png",
@@ -914,5 +903,21 @@
    -113.5
   ],
   "src_ppu": 19.25
+ },
+ "head_dead_bandana": {
+  "file": "head_dead_bandana.png",
+  "size": [
+   137,
+   136
+  ],
+  "anchor_px": [
+   0.5,
+   0.5
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 23.36
  }
 }
