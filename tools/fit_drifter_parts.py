@@ -10,7 +10,7 @@
 import colorsys, glob, json, sys
 from PIL import Image
 
-SRC, OUT = sys.argv[1], sys.argv[2]
+SRC, OUT = (sys.argv[1], sys.argv[2]) if __name__ == '__main__' else (None, None)
 PPU = 3
 SLEEVES = {'red': (177, 43, 38), 'blue': (39, 63, 96)}  # sampled from the two torsos
 
@@ -85,26 +85,30 @@ def arm(key, im):
     muzzle = [round((bx - pivot[0]) / ppu, 1), round(((b1 + b2) / 2 - pivot[1]) / ppu, 1)]
     return emit(key, im, bb, ppu, pivot, [0, 0], {"muzzle": muzzle})
 
-manifest = json.load(open(f"{OUT}/manifest.json"))
+def main():
+    manifest = json.load(open(f"{OUT}/manifest.json"))
 
-for key in ('torso_vest', 'torso_plain'):
-    im = load_im(key)
+    for key in ('torso_vest', 'torso_plain'):
+        im = load_im(key)
+        a, bb = alpha(im)
+        ppu = (bb[3] - bb[1]) / 49.0
+        manifest[key] = emit(key, im, bb, ppu, ((bb[0] + bb[2]) / 2, bb[1]), [0, -93])
+
+    im = load_im('hat_cowboy')
     a, bb = alpha(im)
-    ppu = (bb[3] - bb[1]) / 49.0
-    manifest[key] = emit(key, im, bb, ppu, ((bb[0] + bb[2]) / 2, bb[1]), [0, -93])
+    manifest['hat_cowboy'] = emit('hat_cowboy', im, bb, (bb[2] - bb[0]) / 66.0, ((bb[0] + bb[2]) / 2, bb[3]), [2, -113.5])
 
-im = load_im('hat_cowboy')
-a, bb = alpha(im)
-manifest['hat_cowboy'] = emit('hat_cowboy', im, bb, (bb[2] - bb[0]) / 66.0, ((bb[0] + bb[2]) / 2, bb[3]), [2, -113.5])
+    for weapon in ('revolver', 'shotgun'):
+        im = load_im('arm_' + weapon)
+        for colour, rgb in SLEEVES.items():
+            key = f'arm_{weapon}_{colour}'
+            manifest[key] = arm(key, recolour_sleeve(im, rgb))
+    manifest['arm_revolver'] = dict(manifest['arm_revolver_red'])  # default for looks that don't pick a colour
 
-for weapon in ('revolver', 'shotgun'):
-    im = load_im('arm_' + weapon)
-    for colour, rgb in SLEEVES.items():
-        key = f'arm_{weapon}_{colour}'
-        manifest[key] = arm(key, recolour_sleeve(im, rgb))
-manifest['arm_revolver'] = dict(manifest['arm_revolver_red'])  # default for looks that don't pick a colour
+    json.dump(manifest, open(f"{OUT}/manifest.json", "w"), indent=1)
+    for k in ('torso_vest', 'torso_plain', 'hat_cowboy', 'arm_revolver_red', 'arm_revolver_blue', 'arm_shotgun_red', 'arm_shotgun_blue'):
+        v = manifest[k]
+        print(f"{k:18s} size={v['size']} src_ppu={v['src_ppu']} {v.get('muzzle', '')}")
 
-json.dump(manifest, open(f"{OUT}/manifest.json", "w"), indent=1)
-for k in ('torso_vest', 'torso_plain', 'hat_cowboy', 'arm_revolver_red', 'arm_revolver_blue', 'arm_shotgun_red', 'arm_shotgun_blue'):
-    v = manifest[k]
-    print(f"{k:18s} size={v['size']} src_ppu={v['src_ppu']} {v.get('muzzle', '')}")
+if __name__ == '__main__':
+    main()

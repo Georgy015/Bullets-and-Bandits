@@ -821,5 +821,98 @@
    100.2,
    -6.8
   ]
+ },
+ "torso_gunslinger": {
+  "file": "torso_gunslinger.png",
+  "size": [
+   140,
+   211
+  ],
+  "anchor_px": [
+   69.8,
+   0.8
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 15.5,
+  "bottom_y_units": -23.3
+ },
+ "arm_rifle_gunslinger": {
+  "file": "arm_rifle_gunslinger.png",
+  "size": [
+   324,
+   74
+  ],
+  "anchor_px": [
+   21.8,
+   47.0
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 15.93,
+  "muzzle": [
+   100.3,
+   -4.8
+  ]
+ },
+ "arm_revolver_gunslinger": {
+  "file": "arm_revolver_gunslinger.png",
+  "size": [
+   283,
+   83
+  ],
+  "anchor_px": [
+   21.6,
+   41.4
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 18.53,
+  "muzzle": [
+   86.5,
+   -7.6
+  ]
+ },
+ "offhand_gunslinger": {
+  "file": "offhand_gunslinger.png",
+  "size": [
+   283,
+   83
+  ],
+  "anchor_px": [
+   21.6,
+   41.4
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 18.53,
+  "muzzle": [
+   86.5,
+   -7.6
+  ]
+ },
+ "hat_gunslinger": {
+  "file": "hat_gunslinger.png",
+  "size": [
+   217,
+   89
+  ],
+  "anchor_px": [
+   108.6,
+   88.1
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 19.25
  }
 }

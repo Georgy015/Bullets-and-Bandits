@@ -19,6 +19,9 @@ SIZES = {
     'dynamite_dan': {'torso_width': 46, 'hat_brim': 52, 'head_height': 40, 'weapon': 'dynamite'},
     'hider': {'torso_width': 46, 'hat_brim': 78, 'head_height': 45, 'weapon': 'revolver'},
     'undertaker': {'torso_width': 46, 'hat_brim': 56, 'head_height': 40, 'weapon': 'revolver'},
+    # The gunslinger boss: rifle drawn; his revolver arms are the drifter revolver arm with a teal sleeve
+    'gunslinger': {'torso_width': 46, 'hat_brim': 72, 'head_height': 40, 'weapon': 'rifle',
+                   'revolver_from': ('docs/character-parts/refined/drifter', (26, 167, 142))},
 }[TYPE]
 
 def load(name):
@@ -69,6 +72,8 @@ if glob.glob(f"{SRC}/{TYPE}_torso.*"):
 
 # Heads: skull top on the hit circle's top (y = -124), skull's left edge at x = -18
 for key in ('head', 'head_dead'):
+    if not glob.glob(f"{SRC}/{TYPE}_{key}.*"):
+        continue
     im, a, bb = load(key)
     ppu = (bb[3] - bb[1]) / SIZES['head_height']
     manifest[f'{key}_{TYPE}'] = emit(f'{key}_{TYPE}', im, bb, ppu, (bb[0], bb[1]), [-18, -124])
@@ -88,6 +93,25 @@ else:  # the end of the barrel
     b1, b2 = span_col(a, bx)
     muzzle = [round((bx - pivot[0]) / ppu, 1), round(((b1 + b2) / 2 - pivot[1]) / ppu, 1)]
 manifest[f'{ARM}_{TYPE}'] = emit(f'{ARM}_{TYPE}', im, bb, ppu, pivot, [0, 0], {"muzzle": muzzle})
+
+# Revolver and off-hand arms recoloured from another set's revolver arm (the off hand is drawn darker)
+if 'revolver_from' in SIZES:
+    sys.dont_write_bytecode = True
+    sys.path.insert(0, 'tools')
+    import fit_drifter_parts as fd
+    fd.SRC = SIZES['revolver_from'][0]
+    colour = SIZES['revolver_from'][1]
+    for key, c in ((f'arm_revolver_{TYPE}', colour), (f'offhand_{TYPE}', tuple(round(v * 0.72) for v in colour))):
+        im = fd.recolour_sleeve(fd.load_im('arm_revolver'), c)
+        a = im.getchannel('A').point(lambda v: 255 if v > 60 else 0); bb = a.getbbox()
+        W = bb[2] - bb[0]
+        y1, y2 = span_col(a, bb[0] + int(W * 0.12))
+        ppu = (y2 - y1) / 15.0
+        pivot = (bb[0] + 7.0 * ppu, (y1 + y2) / 2)
+        bx = bb[2] - 6
+        b1, b2 = span_col(a, bx)
+        muzzle = [round((bx - pivot[0]) / ppu, 1), round(((b1 + b2) / 2 - pivot[1]) / ppu, 1)]
+        manifest[key] = emit(key, im, bb, ppu, pivot, [0, 0], {"muzzle": muzzle})
 
 # Hat: brim width, brim bottom-centre at (2, -113.5). The brim bottom is the lowest row that is still
 # most of the brim's width, so a crown showing below the brim (a bowler seen from below) hangs under it

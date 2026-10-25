@@ -20,14 +20,8 @@ Everything in the game that doesn't use refined high-resolution art yet, as tran
 | `drifter_arm_shotgun.png` | Shotgun arm, currently **code-drawn** (no image yet). |
 | `drifter_leg.png` | Leg. |
 
-## Gunslinger boss (code-drawn)
+## Gunslinger boss
 
-The checkpoint boss who isn't the Undertaker. He carries a rifle or twin revolvers. His outfit is currently random (shirt, bandana and hat colours), and this is one example. A refined version could give him a fixed look of his own.
-
-| File | Notes |
-|---|---|
-| `gunslinger_assembled_rifle.png`, `gunslinger_assembled_twins.png` | Assembled, with each weapon. |
-| `gunslinger_torso.png`, `gunslinger_head.png`, `gunslinger_head_dead.png`, `gunslinger_hat.png`, `gunslinger_leg.png` | Body parts. |
-| `gunslinger_arm_rifle.png`, `gunslinger_arm_revolver.png` | Weapon arms. Twin revolvers use the revolver arm in both hands, so one revolver arm is enough. |
+**Done**: torso, rifle arm and hat (his revolver arms are recoloured from the drifter one). **Still needed**: his head, dead head and leg; until then he borrows Dynamite Dan's heads and the Gambler's leg.
 
 Code-drawn exports are at 4× game size. Pivots, muzzles and sizes follow [the parent README](../README.md).

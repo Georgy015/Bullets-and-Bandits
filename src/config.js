@@ -184,6 +184,12 @@ function lookFor(type, boss, rng) {
       return { ...base, shirt: 0xb03a2e, hat: 0x2b2b2b, hatStyle: 'bowler', vest: 0x2b1a10, bandana: null, mustache: true,
         art: 'outlaw', artParts: { torso: 'torso_dynamite_dan', head: 'head_dynamite_dan', head_dead: 'head_dead_dynamite_dan',
           hat: 'hat_dynamite_dan', arm_dynamite: 'arm_dynamite_dynamite_dan', leg: 'leg_dynamite_dan' } };
+    case 'gunslinger':
+      // Teal shirt, brown hat; until his own head and leg arrive he borrows Dynamite Dan's head and the Gambler's leg
+      return { ...base, shirt: 0x1fa58e, hat: 0x6b4a32, hatStyle: 'cowboy', bandana: null, vest: null, mustache: true,
+        art: 'outlaw', artParts: { torso: 'torso_gunslinger', head: 'head_dynamite_dan', head_dead: 'head_dead_dynamite_dan',
+          hat: 'hat_gunslinger', arm_rifle: 'arm_rifle_gunslinger', arm_revolver: 'arm_revolver_gunslinger',
+          offhand: 'offhand_gunslinger', leg: 'leg_gambler' } };
     case 'undertaker':
       return { ...base, shirt: 0x3a3a42, sleeve: 0x15151a, coat: 0x15151a, hat: 0x15151a, hatStyle: 'top',
         hatBand: 0x5a5a64, skin: 0xd9cfc4, mustache: true, mustacheColor: 0x9a9a9a, bandana: null, vest: null, armor: true,
