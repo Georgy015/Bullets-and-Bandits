@@ -112,7 +112,7 @@ Still missing, so the game falls back to the code-drawn versions: the off-hand (
 `refined/character_set_sheet.webp` is the full refined set on one sheet (1774 × 887, no transparency). As a **rough preview**, its parts were cut out (cream background removed), fitted with the same rules and put in the game:
 
 - **Sheriff extras** (`public/art/sheriff/`): shotgun, rifle, dynamite and off-hand arms, and the armor plate. The sheriff's head, torso, leg, revolver arm and hat stay the high-resolution versions above.
-- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters and Hiders use them; Dynamite Dan, Dynamite Dan, the Undertaker and the gunslinger boss are still code-drawn.
+- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters and Hiders use them; Dynamite Dan, the Undertaker and the gunslinger boss are still code-drawn.
 
 These cut-outs are low-resolution (each part was only 100–250 px on the sheet), so they're placeholders until the individual high-resolution transparent PNGs arrive. The **rifle** is due to be redrawn (it reads as a pistol and is no longer than the shotgun). On the sheet the sheriff's spurs also seem to be missing.
 
