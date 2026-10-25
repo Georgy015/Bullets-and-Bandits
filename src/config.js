@@ -192,7 +192,13 @@ function lookFor(type, boss, rng) {
           hat: 'hat_undertaker', arm_revolver: 'arm_revolver_undertaker', leg: 'leg_undertaker', armor: 'none' } };
     default:
       if (boss) return base;
-      return { ...base, ...art(base.vest ? 'torso_vest' : 'torso_plain', base.bandana ? 'head_bandana' : 'head', 'hat_cowboy') };
+      {
+        // Refined drifter art: a red shirt with a vest or a plain blue shirt, with sleeves to match
+        const look = { ...base, ...art(base.vest ? 'torso_vest' : 'torso_plain', base.bandana ? 'head_bandana' : 'head', 'hat_cowboy') };
+        const sleeve = base.vest ? 'red' : 'blue';
+        Object.assign(look.artParts, { arm_revolver: `arm_revolver_${sleeve}`, arm_shotgun: `arm_shotgun_${sleeve}` });
+        return look;
+      }
   }
 }
 

@@ -107,6 +107,7 @@ The head, torso, leg, revolver arm and hat have been **fitted** and are used for
 | Dynamite Dan | reference, torso (vest, belt and pouch), head, dead head, dynamite arm, bowler, leg | `torso_dynamite_dan` (46 units wide, belt at the hips, pouch down to y = -31.5), `head_dynamite_dan` / `head_dead_dynamite_dan` (skull 40 units), `arm_dynamite_dynamite_dan` (fuse tip (43.4, -30.1), where a thrown stick starts), `hat_dynamite_dan` (brim 52 units; the crown showing below the brim sits over the forehead), `leg_dynamite_dan`. |
 | Hider | reference, torso (jacket, belt and pouch), head and dead head (with bandana), revolver arm, flat hat, leg | `torso_hider` (46 units wide, pouch down to y = -25), `head_hider` / `head_dead_hider` (45 units tall: skull 40 plus the bandana knot), `arm_revolver_hider` (muzzle (82.3, -7.8)), `hat_hider` (brim 78 units), `leg_hider`. He always carries a revolver; his gun arm is hidden while he crouches behind the barrel. |
 | The Undertaker | reference, torso (long coat with the steel plate), head, dead head, revolver arm, top hat, leg | `torso_undertaker` (46 units wide, coat down to y = -20), `head_undertaker` / `head_dead_undertaker` (skull 40 units), `arm_revolver_undertaker` (muzzle (83.6, -6.6)), `hat_undertaker` (brim 56 units), `leg_undertaker`. The plate is part of his torso image, so the separate armor overlay is off for him (`armor: 'none'` in his parts); his body shots still take 25% damage. |
+| Drifters | vest torso (red shirt), plain torso (blue shirt), cowboy hat, revolver arm, shotgun arm | `torso_vest` / `torso_plain` (49 units from the top at y = -93 down to the belt at the hips), `hat_cowboy` (brim 66 units), `arm_revolver_red` / `_blue` (muzzle (86.5, -7.6)), `arm_shotgun_red` / `_blue` (muzzle (100.2, -6.8)). Each arm is saved with a red and a blue sleeve (recoloured, keeping the shading) to match the shirt. Heads and the leg are still the sheet cut-outs. Fit tool: `tools/fit_drifter_parts.py`. |
 
 Fit new outlaw parts with `python3 -I tools/fit_outlaw_parts.py docs/character-parts/refined/<type> <type> public/art/outlaw`, copy the manifest to `src/art/outlaw.json` and map the parts in `lookFor()` (`src/config.js`).
 
@@ -117,7 +118,7 @@ All sheriff parts are now refined. Fit tools: `tools/fit_sheriff_art.py` (head, 
 `refined/character_set_sheet.webp` is the full refined set on one sheet (1774 × 887, no transparency). As a **rough preview**, its parts were cut out (cream background removed), fitted with the same rules and put in the game:
 
 - **Sheriff extras**: replaced by the refined versions above.
-- **Outlaws** (`public/art/outlaw/`): leg, vest and plain torsos, plain, bandana and dead heads, revolver and off-hand arms, and the four hats. Drifters use them; the gunslinger boss is still code-drawn.
+- **Outlaws** (`public/art/outlaw/`): leg, plain, bandana and dead heads, off-hand arm and the flat, top and bowler hats. Drifters still use the leg and heads; the gunslinger boss is still code-drawn.
 
 These cut-outs are low-resolution (each part was only 100–250 px on the sheet), so they're placeholders until the individual high-resolution transparent PNGs arrive.
 

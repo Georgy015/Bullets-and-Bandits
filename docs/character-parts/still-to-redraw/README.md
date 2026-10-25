@@ -8,7 +8,7 @@ Everything in the game that doesn't use refined high-resolution art yet, as tran
 
 ## Drifters (the ordinary outlaws)
 
-Also from the character sheet, low resolution. Drifters mix and match: a vest or plain torso, a head with or without a bandana, the cowboy hat, and usually a revolver (sometimes a shotgun).
+**Done**: both torsos, the cowboy hat, and the revolver and shotgun arms. **Still needed**: the heads (plain, dead, bandana and a new bandana dead head) and the leg, which are still the low-resolution sheet cut-outs. Drifters mix and match: a vest or plain torso, a head with or without a bandana, the cowboy hat, and usually a revolver (sometimes a shotgun).
 
 | File | Notes |
 |---|---|

@@ -20,36 +20,34 @@
  "torso_vest": {
   "file": "torso_vest.png",
   "size": [
-   170,
-   160
+   173,
+   148
   ],
   "anchor_px": [
-   88.5,
-   0.0
+   86.5,
+   0.6
   ],
   "anchor_game": [
    0,
    -93
   ],
-  "src_ppu": 3.0,
-  "from_sheet": true
+  "src_ppu": 20.53
  },
  "torso_plain": {
   "file": "torso_plain.png",
   "size": [
-   164,
-   167
+   177,
+   148
   ],
   "anchor_px": [
-   82.0,
-   0.0
+   88.6,
+   0.6
   ],
   "anchor_game": [
    0,
    -93
   ],
-  "src_ppu": 2.78,
-  "from_sheet": true
+  "src_ppu": 19.8
  },
  "head": {
   "file": "head.png",
@@ -110,24 +108,23 @@
   "from_sheet": true
  },
  "arm_revolver": {
-  "file": "arm_revolver.png",
+  "file": "arm_revolver_red.png",
   "size": [
-   209,
-   74
+   283,
+   83
   ],
   "anchor_px": [
-   21.0,
-   36.2
+   21.6,
+   41.4
   ],
   "anchor_game": [
    0,
    0
   ],
-  "src_ppu": 3.07,
-  "from_sheet": true,
+  "src_ppu": 18.53,
   "muzzle": [
-   61.8,
-   -7.2
+   86.5,
+   -7.6
   ]
  },
  "offhand": {
@@ -171,19 +168,18 @@
  "hat_cowboy": {
   "file": "hat_cowboy.png",
   "size": [
-   198,
-   88
+   199,
+   78
   ],
   "anchor_px": [
-   99.0,
-   88.3
+   99.5,
+   77.4
   ],
   "anchor_game": [
    2,
    -113.5
   ],
-  "src_ppu": 2.95,
-  "from_sheet": true
+  "src_ppu": 26.32
  },
  "hat_flat": {
   "file": "hat_flat.png",
@@ -745,5 +741,85 @@
    -113.5
   ],
   "src_ppu": 21.45
+ },
+ "arm_revolver_red": {
+  "file": "arm_revolver_red.png",
+  "size": [
+   283,
+   83
+  ],
+  "anchor_px": [
+   21.6,
+   41.4
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 18.53,
+  "muzzle": [
+   86.5,
+   -7.6
+  ]
+ },
+ "arm_revolver_blue": {
+  "file": "arm_revolver_blue.png",
+  "size": [
+   283,
+   83
+  ],
+  "anchor_px": [
+   21.6,
+   41.4
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 18.53,
+  "muzzle": [
+   86.5,
+   -7.6
+  ]
+ },
+ "arm_shotgun_red": {
+  "file": "arm_shotgun_red.png",
+  "size": [
+   324,
+   61
+  ],
+  "anchor_px": [
+   21.7,
+   37.2
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 17.13,
+  "muzzle": [
+   100.2,
+   -6.8
+  ]
+ },
+ "arm_shotgun_blue": {
+  "file": "arm_shotgun_blue.png",
+  "size": [
+   324,
+   61
+  ],
+  "anchor_px": [
+   21.7,
+   37.2
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 17.13,
+  "muzzle": [
+   100.2,
+   -6.8
+  ]
  }
 }
