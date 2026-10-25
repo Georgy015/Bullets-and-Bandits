@@ -2,6 +2,16 @@
 // Local space faces right with its origin at the feet; `facing = -1` mirrors it.
 
 import { INK, shade, rect, rrect, circle, ellipse, poly, line, star } from './ink.js';
+import SHERIFF_ART from './art/sheriff.json';
+
+// Refined image parts per character (see docs/character-parts). Each part's anchor pixel is
+// placed on a game-unit point; anything without an image falls back to code drawing.
+// Add ?art=code to the URL to compare with the code-drawn look.
+const { ppu: SHERIFF_PPU, ...SHERIFF_PARTS } = SHERIFF_ART;
+export const ART_SETS = {
+  sheriff: { prefix: 'sheriff-', dir: 'art/sheriff/', ppu: SHERIFF_PPU, parts: SHERIFF_PARTS, skin: 0xe5ac83 },
+};
+const CODE_ART_ONLY = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('art') === 'code';
 
 const SHOULDER = { x: 4, y: -80 };
 const BACK_SHOULDER = { x: -6, y: -92 }; // off hand, drawn behind the body
@@ -22,7 +32,7 @@ export const SHERIFF_LOOK = {
   shirt: 0x5b4a33, pants: 0x4a3b2c, hat: 0x6b5238, skin: 0xe2ad85,
   poncho: 0x7d6a45, ponchoStripe: 0xd9c08a, ponchoStripe2: 0x8c3b2a,
   hatStyle: 'flat', squint: true, stubble: true, grayHair: true, cigar: true, star: true, spurs: true,
-  vest: null, bandana: null, mustache: false,
+  vest: null, bandana: null, mustache: false, art: 'sheriff',
 };
 
 // Gun arm: sleeve, hand and weapon, drawn with its pivot (the shoulder) at 0,0.
@@ -98,10 +108,18 @@ export class Gunslinger {
     this.shadow = scene.add.ellipse(0, 0, 78, 14, 0x000000, 0.28);
     c.add(this.shadow);
 
-    this.legBack = scene.add.graphics({ x: 6, y: HIP_Y });
-    this.legFront = scene.add.graphics({ x: -6, y: HIP_Y });
-    drawLeg(this.legBack, shade(this.look.pants, 0.85), this.look.spurs);
-    drawLeg(this.legFront, this.look.pants, this.look.spurs);
+    const set = ART_SETS[this.look.art];
+    this.art = set && !CODE_ART_ONLY && scene.textures.exists(set.prefix + 'leg') ? set : null;
+
+    if (this.art) {
+      this.legBack = this.artImage('leg').setPosition(6, HIP_Y).setTint(0xc4c4c4);
+      this.legFront = this.artImage('leg').setPosition(-6, HIP_Y);
+    } else {
+      this.legBack = scene.add.graphics({ x: 6, y: HIP_Y });
+      this.legFront = scene.add.graphics({ x: -6, y: HIP_Y });
+      drawLeg(this.legBack, shade(this.look.pants, 0.85), this.look.spurs);
+      drawLeg(this.legFront, this.look.pants, this.look.spurs);
+    }
     c.add([this.legBack, this.legFront]);
 
     // Everything above the hips bobs while walking
@@ -115,10 +133,15 @@ export class Gunslinger {
     drawGun(this.armBackG, 'revolver', shade(this.look.sleeve ?? this.look.shirt, 0.75), shade(this.look.skin, 0.85));
     this.upper.add(this.armBack);
 
-    const body = scene.add.graphics();
-    this.drawTorso(body);
-    this.drawHead(body);
-    this.upper.add(body);
+    if (this.art) {
+      this.upper.add(this.artImage('torso', true));
+      this.upper.add(this.artImage('head', true));
+    } else {
+      const body = scene.add.graphics();
+      this.drawTorso(body);
+      this.drawHead(body);
+      this.upper.add(body);
+    }
 
     this.eyesG = scene.add.graphics();
     this.drawEyes(this.eyesG);
@@ -132,11 +155,19 @@ export class Gunslinger {
     this.arm = scene.add.container(SHOULDER.x, SHOULDER.y);
     this.armG = scene.add.graphics();
     this.arm.add(this.armG);
-    drawGun(this.armG, this.weapon, this.look.sleeve ?? this.look.shirt, this.look.skin);
+    if (this.art) {
+      this.armImg = scene.add.image(0, 0, '__DEFAULT').setVisible(false);
+      this.arm.add(this.armImg);
+    }
+    this.setWeapon(this.weapon);
     this.upper.add(this.arm);
 
-    this.hat = scene.add.graphics();
-    this.drawHat(this.hat, 0, 0);
+    if (this.art?.parts.hat) {
+      this.hat = this.artImage('hat', true);
+    } else {
+      this.hat = scene.add.graphics();
+      this.drawHat(this.hat, 0, 0);
+    }
     this.upper.add(this.hat);
     this.recoilAt = -1e9;
 
@@ -247,6 +278,18 @@ export class Gunslinger {
     const L = this.look;
     const H = HEAD;
     g.clear();
+    if (this.art?.parts.head) {
+      // Refined heads have the eyes baked in; on death paint over them and draw X's
+      if (!dead) return;
+      const [x1, y1, x2, y2] = this.art.parts.head.eye_band;
+      g.fillStyle(this.art.skin); g.fillRoundedRect(x1, y1 + 3, x2 - x1, y2 - y1 - 1, 3);
+      [x1 + (x2 - x1) * 0.32, x1 + (x2 - x1) * 0.74].forEach((x) => {
+        const y = y2 - 3.5;
+        line(g, INK, x - 3, y - 3, x + 3, y + 3, 2.4);
+        line(g, INK, x + 3, y - 3, x - 3, y + 3, 2.4);
+      });
+      return;
+    }
     if (dead) {
       [[H.x + 7, H.y - 3], [H.x + 14.5, H.y - 3]].forEach(([x, y]) => {
         line(g, INK, x - 3, y - 3, x + 3, y + 3, 2.4);
@@ -310,11 +353,33 @@ export class Gunslinger {
   get x() { return this.container.x; }
   get y() { return this.container.y; }
 
+  // An image part placed by its manifest anchor. `atAnchor` puts it on its anchor's game
+  // point (torso, head, hat); otherwise it sits at 0,0 (legs and arms pivot there).
+  artImage(name, atAnchor = false) {
+    const p = this.art.parts[name];
+    const img = this.scene.add.image(0, 0, this.art.prefix + name)
+      .setOrigin(p.anchor_px[0] / p.size[0], p.anchor_px[1] / p.size[1])
+      .setScale(1 / this.art.ppu);
+    if (atAnchor) img.setPosition(p.anchor_game[0], p.anchor_game[1]);
+    return img;
+  }
+
   setWeapon(type) {
     this.weapon = type;
-    drawGun(this.armG, type, this.look.sleeve ?? this.look.shirt, this.look.skin);
+    const part = this.art?.parts['arm_' + (type === 'dual' ? 'revolver' : type)];
+    if (part) {
+      const p = part;
+      this.armImg.setTexture(this.art.prefix + 'arm_' + (type === 'dual' ? 'revolver' : type))
+        .setOrigin(p.anchor_px[0] / p.size[0], p.anchor_px[1] / p.size[1])
+        .setScale(1 / this.art.ppu).setVisible(true);
+      this.armG.clear();
+    } else {
+      this.armImg?.setVisible(false);
+      drawGun(this.armG, type, this.look.sleeve ?? this.look.shirt, this.look.skin);
+    }
     this.armBack.setVisible(type === 'dual');
   }
+
 
   setArmor(on) {
     this.vestG.setVisible(on);
@@ -362,7 +427,8 @@ export class Gunslinger {
   }
 
   muzzleWorld(hand = 'front') {
-    const m = MUZZLE[this.weapon];
+    const artArm = this.art?.parts['arm_' + (this.weapon === 'dual' && hand === 'front' ? 'revolver' : this.weapon)];
+    const m = artArm && hand === 'front' ? { x: artArm.muzzle[0], y: artArm.muzzle[1] } : MUZZLE[this.weapon];
     const s = this.shoulderWorld(hand);
     const a = this.armAngle;
     const mx = m.x * this.scale;

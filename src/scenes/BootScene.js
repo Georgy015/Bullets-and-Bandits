@@ -4,10 +4,18 @@ import { initSDK, loadingStart, loadingStop, setAdHooks } from '../sdk.js';
 import { loadSave } from '../save.js';
 import { setMuted, setAdMuted } from '../sfx.js';
 import { FONT } from '../config.js';
+import { ART_SETS } from '../gunslinger.js';
 
 export class BootScene extends Phaser.Scene {
   constructor() {
     super('Boot');
+  }
+
+  // Image parts for characters that have refined artwork (code drawing is the fallback).
+  preload() {
+    for (const set of Object.values(ART_SETS)) {
+      for (const [name, part] of Object.entries(set.parts)) this.load.image(set.prefix + name, set.dir + part.file);
+    }
   }
 
   async create() {

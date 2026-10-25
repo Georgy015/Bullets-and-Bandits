@@ -3,7 +3,7 @@
 This folder holds two sets of character art:
 
 - **Original code-drawn parts** (top level): the sheriff and outlaws exactly as the game draws them today, split into the parts it animates. Each PNG is transparent and exported at **4× game size** (divide pixel values by 4 to get game units). `_overview.png` shows them all on one sheet; `_pivots.json` lists each file's size and pivot in pixels.
-- **Refined sheriff artwork** (`refined/`): new art in the target style. These files have **different canvas sizes** from the originals and are **not yet fitted** to the game's geometry (see [Refined artwork status](#refined-artwork-status)).
+- **Refined sheriff artwork** (`refined/`): new art in the target style, as delivered (different canvas sizes from the originals). The fitted versions the game uses are in `public/art/sheriff/` (see [Refined artwork status](#refined-artwork-status)).
 
 Replacement art can drop into the game without code or gameplay changes **only if** it matches the original parts' canvas size (or a known scale of it), placement, pivot points and weapon muzzle positions listed below. Art that doesn't match will need fitting or code adjustments first.
 
@@ -85,13 +85,17 @@ The existing coordinates, animation angles, character scales and hit zones above
 
 ## Refined artwork status
 
+The head, torso, leg, revolver arm and hat have been **fitted** and are used for the sheriff in the game. The fitted files (3 px per game unit) are in `public/art/sheriff/`, with each part's anchor in `manifest.json` (copied to `src/art/sheriff.json`). `refined/_fit_check.png` shows the fitted parts assembled with the game's attachment points, hit zones and muzzle, next to the reference. Add `?art=code` to the game URL to compare with the code-drawn sheriff.
+
 | File | Canvas (px) | Status |
 |---|---|---|
-| `refined/sheriff_reference.webp` | 1080 × 1456 | Style reference showing the **intended appearance**. It was generated as a whole image and is **not** proof that the individual parts align when assembled. |
-| `refined/sheriff_head.webp` | 1327 × 1185 | Not fitted. Eyes baked in; needs placement around the head hit circle and a dead (X-eyes) variant. |
-| `refined/sheriff_torso.webp` | 1335 × 1178 | Not fitted. |
-| `refined/sheriff_leg.webp` | 953 × 1651 | Not fitted. Noticeably wider relative to its height than the original leg (≈ 1.7 : 1 vs ≈ 2.1 : 1), so the boot and hip overlap need checking. |
-| `refined/sheriff_arm_revolver.png` | 1840 × 854 | Not fitted. Horizontal neutral pose as required; shoulder pivot and muzzle position still to be defined. |
-| `refined/sheriff_hat.png` | 1473 × 1068 | Not fitted. |
+| `refined/sheriff_reference.webp` | 1080 × 1456 | Style reference showing the **intended appearance**. It was generated as a whole image and is not proof that the parts align; `_fit_check.png` is the alignment check. |
+| `refined/sheriff_head.webp` | 1327 × 1185 | **Fitted**: skull height 40 units, centred on the head hit circle. Eyes are baked in; on death the game paints over them and draws X eyes. A proper dead (X-eyes) head would still look better. |
+| `refined/sheriff_torso.webp` | 1335 × 1178 | **Fitted**: poncho shoulder width 46 units, top edge at y = -93. Slightly wider at the fringe than the original (66 vs 62 units). |
+| `refined/sheriff_leg.webp` | 953 × 1651 | **Fitted**: 44.5 units from hip to sole plus 2.5 units of hidden overlap above the hip. Pants about 14 units wide (original 13). The back leg is the same image, tinted darker. |
+| `refined/sheriff_arm_revolver.png` | 1840 × 854 | **Fitted**: sleeve 15 units thick, shoulder pivot 7 units in from the sleeve end. The revolver is longer than the original, so its muzzle is at **(80.3, -7.5)** instead of (68, -5); the game uses the new value. |
+| `refined/sheriff_hat.png` | 1473 × 1068 | **Fitted**: brim 78 units wide, centred at x = 2, brim bottom at y = -113. |
 
-All refined files have transparent backgrounds. Compared to the original 4× exports, the parts are drawn at **different scales** from each other (roughly 4.5× to 8× the original 4× size, depending on the part), so they must be normalised to one scale before fitting. No refined off-hand arm, shotgun, rifle or dynamite arm exists yet.
+Still missing, so the game falls back to the code-drawn versions: the off-hand (twin revolvers) arm, the shotgun, rifle and dynamite arms, the armor plate, and all outlaw parts.
+
+**Fitting tools:** `tools/fit_sheriff_art.py` measures, scales and anchors the delivered images; `tools/compose_art_check.py` builds the alignment check sheet (both need Pillow).

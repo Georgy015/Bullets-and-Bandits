@@ -1,0 +1,104 @@
+{
+ "ppu": 3,
+ "leg": {
+  "file": "leg.png",
+  "size": [
+   86,
+   142
+  ],
+  "anchor_px": [
+   40.5,
+   7.9
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 30.13,
+  "note": "pivot = hip",
+  "pants_width_units": 14.1
+ },
+ "arm_revolver": {
+  "file": "arm_revolver.png",
+  "size": [
+   264,
+   82
+  ],
+  "anchor_px": [
+   21.6,
+   40.5
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 18.87,
+  "note": "pivot = shoulder",
+  "muzzle": [
+   80.3,
+   -7.5
+  ],
+  "length_units": 80.7
+ },
+ "torso": {
+  "file": "torso.png",
+  "size": [
+   200,
+   164
+  ],
+  "anchor_px": [
+   100.3,
+   0.6
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 18.87,
+  "note": "top-centre of the poncho",
+  "bottom_y_units": -38.9,
+  "width_units": 66.1
+ },
+ "head": {
+  "file": "head.png",
+  "size": [
+   149,
+   121
+  ],
+  "anchor_px": [
+   0.5,
+   60.5
+  ],
+  "anchor_game": [
+   -18.5,
+   -104
+  ],
+  "src_ppu": 23.45,
+  "note": "left hair edge, skull centre height",
+  "eye_band": [
+   2.5,
+   -115.1,
+   23.1,
+   -105.0
+  ],
+  "width_units": 49.3
+ },
+ "hat": {
+  "file": "hat.png",
+  "size": [
+   235,
+   81
+  ],
+  "anchor_px": [
+   117.7,
+   80.6
+  ],
+  "anchor_game": [
+   2,
+   -113
+  ],
+  "src_ppu": 17.68,
+  "note": "brim bottom-centre",
+  "height_units": 26.6
+ }
+}
