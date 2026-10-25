@@ -173,7 +173,7 @@ function lookFor(type, boss, rng) {
       return { ...base, shirt: 0xf2efe6, sleeve: 0x1c1c22, coat: 0x1c1c22, vest: 0x8c1c1c, hat: 0x1c1c22,
         hatStyle: 'top', hatBand: 0x8c1c1c, bandana: null, mustache: true,
         art: 'outlaw', artParts: { torso: 'torso_gambler', head: 'head_gambler', head_dead: 'head_dead_gambler',
-          hat: 'hat_gambler', arm_revolver: 'arm_revolver_gambler' } };
+          hat: 'hat_gambler', arm_revolver: 'arm_revolver_gambler', leg: 'leg_gambler' } };
     case 'rifleman':
       return { ...base, shirt: 0x5a4632, sleeve: 0xb08d57, coat: 0xb08d57, hat: 0x5a4030, hatStyle: 'flat',
         vest: null, bandana: 0x6e6e6e };

@@ -3,9 +3,9 @@
 #   python3 -I tools/fit_outlaw_parts.py docs/character-parts/refined/gambler gambler public/art/outlaw
 #   cp public/art/outlaw/manifest.json src/art/outlaw.json
 #
-# Expects <type>_torso, <type>_head, <type>_head_dead, <type>_arm_revolver and <type>_hat
-# (any image format, transparent). Parts are saved as <slot>_<type>.png. Same rules as the
-# sheriff fit: torso by full width, heads by skull height, arm by sleeve thickness, hat by brim width.
+# Expects <type>_torso, <type>_head, <type>_head_dead, <type>_arm_revolver, <type>_hat and
+# optionally <type>_leg (any image format, transparent). Parts are saved as <slot>_<type>.png. Same rules as the
+# sheriff fit: leg by height, torso by full width, heads by skull height, arm by sleeve thickness, hat by brim width.
 import glob, json, sys
 from PIL import Image
 
@@ -21,6 +21,10 @@ def load(name):
     im = Image.open(path).convert('RGBA')
     a = im.getchannel('A').point(lambda v: 255 if v > 60 else 0)
     return im, a, a.getbbox()
+
+def span_row(a, y):
+    xs = [x for x in range(a.size[0]) if a.getpixel((x, y))]
+    return (min(xs), max(xs))
 
 def span_col(a, x):
     ys = [y for y in range(a.size[1]) if a.getpixel((x, y))]
@@ -41,6 +45,15 @@ def emit(key, im, bbox, ppu, anchor_px, anchor_game, extra=None):
     return info
 
 manifest = json.load(open(f"{OUT}/manifest.json"))
+
+# Leg: hip pivot; 44.5 units from pivot to sole, ~2.5 units of hidden overlap above the hip
+if glob.glob(f"{SRC}/{TYPE}_leg.*"):
+    im, a, bb = load('leg')
+    H = bb[3] - bb[1]
+    ppu = H / 47.0
+    x1, x2 = span_row(a, bb[1] + int(H * 0.15))
+    manifest[f'leg_{TYPE}'] = emit(f'leg_{TYPE}', im, bb, ppu, ((x1 + x2) / 2, bb[3] - 44.5 * ppu), [0, 0],
+        {"pants_width_units": round((x2 - x1) / ppu, 1)})
 
 # Torso (long coat): widest point = torso width, top-centre at y = -93
 im, a, bb = load('torso')

@@ -320,5 +320,22 @@
    -113.5
   ],
   "src_ppu": 21.66
+ },
+ "leg_gambler": {
+  "file": "leg_gambler.png",
+  "size": [
+   75,
+   142
+  ],
+  "anchor_px": [
+   28.7,
+   7.9
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 29.53,
+  "pants_width_units": 14.6
  }
 }

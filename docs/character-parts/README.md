@@ -100,7 +100,7 @@ The head, torso, leg, revolver arm and hat have been **fitted** and are used for
 
 | Outlaw | Delivered (`refined/<type>/`) | Fitted as (`public/art/outlaw/`) |
 |---|---|---|
-| Gambler | torso (long coat), head, dead head, revolver arm, top hat | `torso_gambler` (46 units wide, coat down to y = -15), `head_gambler` / `head_dead_gambler` (skull 40 units), `arm_revolver_gambler` (muzzle (77.8, -8)), `hat_gambler` (brim 56 units). He uses the outlaw leg and always carries a revolver. |
+| Gambler | torso (long coat), head, dead head, revolver arm, top hat, leg | `torso_gambler` (46 units wide, coat down to y = -15), `head_gambler` / `head_dead_gambler` (skull 40 units), `arm_revolver_gambler` (muzzle (77.8, -8)), `hat_gambler` (brim 56 units), `leg_gambler` (47 units incl. hip overlap). He always carries a revolver. |
 
 Fit new outlaw parts with `python3 -I tools/fit_outlaw_parts.py docs/character-parts/refined/<type> <type> public/art/outlaw`, copy the manifest to `src/art/outlaw.json` and map the parts in `lookFor()` (`src/config.js`).
 
