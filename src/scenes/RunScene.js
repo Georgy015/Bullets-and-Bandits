@@ -377,6 +377,7 @@ export class RunScene extends Phaser.Scene {
       e.maskG.fillStyle(0xffffff).fillRect(-5000, -5000, 10000, 5000 + GROUND_Y);
       g.container.setMask(e.maskG.createGeometryMask());
       g.container.y = perch.top + HIDE_DROP;
+      g.arm.setVisible(false); // the holstered gun would poke out beside the barrel
       e.up = false;
     }
     if (foe.type === 'rifleman') e.glint = this.add.image(0, 0, 'star').setDepth(27).setBlendMode('ADD').setVisible(false);
@@ -1060,6 +1061,7 @@ export class RunScene extends Phaser.Scene {
       this.tweens.killTweensOf(e.g.container);
       e.g.container.y = e.top;
     }
+    e.g.arm.setVisible(true);
     e.g.die(1, GROUND_Y, () => this.bodyDust(e.g.x, 1, e.g.scale));
     this.kills++;
     const coins = e.foe.coins * (this.perk('horseshoe') ? 2 : 1);
@@ -1309,7 +1311,9 @@ export class RunScene extends Phaser.Scene {
   setHiderUp(e, up) {
     if (e.up === up || !e.alive) return;
     e.up = up;
-    this.tweens.add({ targets: e.g.container, y: up ? e.top : e.top + HIDE_DROP, duration: 160, ease: 'Quad.easeOut' });
+    if (up) e.g.arm.setVisible(true);
+    this.tweens.add({ targets: e.g.container, y: up ? e.top : e.top + HIDE_DROP, duration: 160, ease: 'Quad.easeOut',
+      onComplete: () => { if (!e.up && e.alive) e.g.arm.setVisible(false); } });
   }
 
   // ---------------------------------------------------------------- Pause

@@ -17,6 +17,7 @@ SIZES = {
     'gambler': {'torso_width': 46, 'hat_brim': 56, 'head_height': 40, 'weapon': 'revolver'},
     'rifleman': {'torso_width': 46, 'hat_brim': 78, 'head_height': 45, 'weapon': 'rifle'},
     'dynamite_dan': {'torso_width': 46, 'hat_brim': 52, 'head_height': 40, 'weapon': 'dynamite'},
+    'hider': {'torso_width': 46, 'hat_brim': 78, 'head_height': 45, 'weapon': 'revolver'},
 }[TYPE]
 
 def load(name):

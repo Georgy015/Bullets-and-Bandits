@@ -112,7 +112,7 @@ export const hitChanceAt = (meters, boss = false) => Math.min(
 export const OUTLAWS = {
   drifter: { from: 0, weight: 3 },
   hider: {
-    from: 40, weight: 2, label: 'HIDER', hp: 0.9, perch: 'street',
+    from: 40, weight: 2, label: 'HIDER', weapon: 'revolver', hp: 0.9, perch: 'street',
     tip: 'HIDER: shoot when he pops up from cover!',
   },
   gambler: {
@@ -168,7 +168,8 @@ function lookFor(type, boss, rng) {
   switch (type) {
     case 'hider':
       return { ...base, shirt: 0x6b5a3a, hat: 0x3a2a1a, hatStyle: 'flat', bandana: pick(BANDANAS), vest: null,
-        ...art('torso_plain', 'head_bandana', 'hat_flat') };
+        art: 'outlaw', artParts: { torso: 'torso_hider', head: 'head_hider', head_dead: 'head_dead_hider',
+          hat: 'hat_hider', arm_revolver: 'arm_revolver_hider', leg: 'leg_hider' } };
     case 'gambler':
       return { ...base, shirt: 0xf2efe6, sleeve: 0x1c1c22, coat: 0x1c1c22, vest: 0x8c1c1c, hat: 0x1c1c22,
         hatStyle: 'top', hatBand: 0x8c1c1c, bandana: null, mustache: true,

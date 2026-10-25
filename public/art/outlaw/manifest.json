@@ -541,5 +541,107 @@
   ],
   "src_ppu": 17.83,
   "bottom_y_units": -31.5
+ },
+ "leg_hider": {
+  "file": "leg_hider.png",
+  "size": [
+   72,
+   142
+  ],
+  "anchor_px": [
+   28.0,
+   7.9
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 28.28,
+  "pants_width_units": 15.3
+ },
+ "torso_hider": {
+  "file": "torso_hider.png",
+  "size": [
+   140,
+   206
+  ],
+  "anchor_px": [
+   69.8,
+   0.8
+  ],
+  "anchor_game": [
+   0,
+   -93
+  ],
+  "src_ppu": 15.78,
+  "bottom_y_units": -24.8
+ },
+ "head_hider": {
+  "file": "head_hider.png",
+  "size": [
+   132,
+   136
+  ],
+  "anchor_px": [
+   0.5,
+   0.5
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 22.38
+ },
+ "head_dead_hider": {
+  "file": "head_dead_hider.png",
+  "size": [
+   130,
+   136
+  ],
+  "anchor_px": [
+   0.5,
+   0.5
+  ],
+  "anchor_game": [
+   -18,
+   -124
+  ],
+  "src_ppu": 22.98
+ },
+ "arm_revolver_hider": {
+  "file": "arm_revolver_hider.png",
+  "size": [
+   270,
+   84
+  ],
+  "anchor_px": [
+   21.7,
+   41.7
+  ],
+  "anchor_game": [
+   0,
+   0
+  ],
+  "src_ppu": 17.33,
+  "muzzle": [
+   82.3,
+   -7.8
+  ]
+ },
+ "hat_hider": {
+  "file": "hat_hider.png",
+  "size": [
+   235,
+   72
+  ],
+  "anchor_px": [
+   117.6,
+   71.6
+  ],
+  "anchor_game": [
+   2,
+   -113.5
+  ],
+  "src_ppu": 21.46
  }
 }
