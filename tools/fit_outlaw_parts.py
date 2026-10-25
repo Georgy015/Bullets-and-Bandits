@@ -16,6 +16,7 @@ SIZES = {
     # head_height: skull (40) plus anything hanging below it, like a bandana knot
     'gambler': {'torso_width': 46, 'hat_brim': 56, 'head_height': 40, 'weapon': 'revolver'},
     'rifleman': {'torso_width': 46, 'hat_brim': 78, 'head_height': 45, 'weapon': 'rifle'},
+    'dynamite_dan': {'torso_width': 46, 'hat_brim': 52, 'head_height': 40, 'weapon': 'dynamite'},
 }[TYPE]
 
 def load(name):
@@ -57,11 +58,12 @@ if glob.glob(f"{SRC}/{TYPE}_leg.*"):
     manifest[f'leg_{TYPE}'] = emit(f'leg_{TYPE}', im, bb, ppu, ((x1 + x2) / 2, bb[3] - 44.5 * ppu), [0, 0],
         {"pants_width_units": round((x2 - x1) / ppu, 1)})
 
-# Torso (long coat): widest point = torso width, top-centre at y = -93
-im, a, bb = load('torso')
-ppu = (bb[2] - bb[0]) / SIZES['torso_width']
-manifest[f'torso_{TYPE}'] = emit(f'torso_{TYPE}', im, bb, ppu, ((bb[0] + bb[2]) / 2, bb[1]), [0, -93],
-    {"bottom_y_units": round(-93 + (bb[3] - bb[1]) / ppu, 1)})
+# Torso: widest point = torso width, top-centre at y = -93
+if glob.glob(f"{SRC}/{TYPE}_torso.*"):
+    im, a, bb = load('torso')
+    ppu = (bb[2] - bb[0]) / SIZES['torso_width']
+    manifest[f'torso_{TYPE}'] = emit(f'torso_{TYPE}', im, bb, ppu, ((bb[0] + bb[2]) / 2, bb[1]), [0, -93],
+        {"bottom_y_units": round(-93 + (bb[3] - bb[1]) / ppu, 1)})
 
 # Heads: skull top on the hit circle's top (y = -124), skull's left edge at x = -18
 for key in ('head', 'head_dead'):
@@ -76,15 +78,24 @@ W = bb[2] - bb[0]
 y1, y2 = span_col(a, bb[0] + int(W * 0.12))
 ppu = (y2 - y1) / 15.0
 pivot = (bb[0] + 7.0 * ppu, (y1 + y2) / 2)
-bx = bb[2] - 6
-b1, b2 = span_col(a, bx)
-muzzle = [round((bx - pivot[0]) / ppu, 1), round(((b1 + b2) / 2 - pivot[1]) / ppu, 1)]
+if SIZES['weapon'] == 'dynamite':  # the lit end of the fuse, at the top
+    tx1, tx2 = span_row(a, bb[1] + 2)
+    muzzle = [round(((tx1 + tx2) / 2 - pivot[0]) / ppu, 1), round((bb[1] + 3 - pivot[1]) / ppu, 1)]
+else:  # the end of the barrel
+    bx = bb[2] - 6
+    b1, b2 = span_col(a, bx)
+    muzzle = [round((bx - pivot[0]) / ppu, 1), round(((b1 + b2) / 2 - pivot[1]) / ppu, 1)]
 manifest[f'{ARM}_{TYPE}'] = emit(f'{ARM}_{TYPE}', im, bb, ppu, pivot, [0, 0], {"muzzle": muzzle})
 
-# Hat: brim width, brim bottom-centre at (2, -113.5)
+# Hat: brim width, brim bottom-centre at (2, -113.5). The brim bottom is the lowest row that is still
+# most of the brim's width, so a crown showing below the brim (a bowler seen from below) hangs under it
 im, a, bb = load('hat')
 ppu = (bb[2] - bb[0]) / SIZES['hat_brim']
-manifest[f'hat_{TYPE}'] = emit(f'hat_{TYPE}', im, bb, ppu, ((bb[0] + bb[2]) / 2, bb[3]), [2, -113.5])
+brim_y = max(y for y in range(bb[1], bb[3]) if a.crop((0, y, a.width, y + 1)).getbbox()
+             and span_row(a, y)[1] - span_row(a, y)[0] > 0.8 * (bb[2] - bb[0]))
+if bb[3] - brim_y < 0.1 * (bb[3] - bb[1]):  # nothing below the brim but its rounded outline
+    brim_y = bb[3]
+manifest[f'hat_{TYPE}'] = emit(f'hat_{TYPE}', im, bb, ppu, ((bb[0] + bb[2]) / 2, brim_y), [2, -113.5])
 
 json.dump(manifest, open(f"{OUT}/manifest.json", "w"), indent=1)
 for k, v in manifest.items():
