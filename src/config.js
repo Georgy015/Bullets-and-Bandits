@@ -5,9 +5,8 @@ export const H = 720;
 export const GROUND_Y = 610;
 export const GRAVITY = 900; // px/s², only for lobbed projectiles (dynamite)
 
-// Titles: Ultra, printed with worn ink (see `wornFill` in ui.js). Labels and buttons: Arvo Bold.
-export const FONT = 'Ultra, Georgia, serif';
-export const FONT_UI = 'Arvo, Georgia, serif';
+export const FONT = 'Rye, Georgia, serif';
+export const FONT_UI = 'Arial Black, Arial, sans-serif';
 
 // The trail
 export const PX_PER_M = 20; // world pixels per meter of distance

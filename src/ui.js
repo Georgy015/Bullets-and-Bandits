@@ -1,5 +1,4 @@
 import { FONT, FONT_UI } from './config.js';
-import Phaser from 'phaser';
 import { sfx, unlockAudio } from './sfx.js';
 
 export const COLORS = {
@@ -11,90 +10,11 @@ export const COLORS = {
   wood: [0x9b6a3d, 0x5e3b1e],
 };
 
-// Old-movie-title ink for the title font: lighter at the top and darker at the bottom, with fine grain,
-// irregular chipped patches where the ink has worn away and hairline cracks. Patterns are cached per
-// colour and size and generated from a fixed seed, so every "FAST GUN" looks the same.
-const wornCache = new Map();
-export function wornFill(colour, size) {
-  const key = `${colour}|${size}`;
-  if (wornCache.has(key)) return wornCache.get(key);
-  const h = Math.ceil(size * 1.45); // one line of text
-  const w = 512;
-  const cv = document.createElement('canvas');
-  cv.width = w; cv.height = h;
-  const ctx = cv.getContext('2d');
-  let seed = 1234567;
-  const rnd = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
-  // smooth value noise, tiling horizontally so the pattern repeats without a seam
-  const layer = (cell) => {
-    const gw = Math.ceil(w / cell), gh = Math.ceil(h / cell) + 1;
-    const grid = Array.from({ length: gh + 1 }, () => Array.from({ length: gw }, rnd));
-    return (x, y) => {
-      const gx = x / cell, gy = y / cell;
-      const x0 = Math.floor(gx), y0 = Math.floor(gy), fx = gx - x0, fy = gy - y0;
-      const sx = fx * fx * (3 - 2 * fx), sy = fy * fy * (3 - 2 * fy);
-      const g = (xx, yy) => grid[yy][xx % gw];
-      const top = g(x0, y0) + (g(x0 + 1, y0) - g(x0, y0)) * sx;
-      const bot = g(x0, y0 + 1) + (g(x0 + 1, y0 + 1) - g(x0, y0 + 1)) * sx;
-      return top + (bot - top) * sy;
-    };
-  };
-  const big = layer(Math.max(6, size * 0.3)), small = layer(Math.max(3, size * 0.09));
-  const base = Phaser.Display.Color.HexStringToColor(colour);
-  const ink = [42, 20, 8];
-  // small text gets only the grain and shading, so it stays readable
-  const threshold = size >= 40 ? 0.62 : size >= 30 ? 0.7 : 2;
-  const img = ctx.createImageData(w, h);
-  for (let y = 0; y < h; y++) {
-    const shadeY = 1.14 - 0.42 * (y / h); // lighter top, darker bottom
-    for (let x = 0; x < w; x++) {
-      const n = big(x, y) * 0.65 + small(x, y) * 0.35;
-      const grain = 0.9 + rnd() * 0.2;
-      // worn patches: the dark under-layer shows through where the noise peaks
-      const wear = Math.min(0.85, Math.max(0, (n - threshold) * 7));
-      const f = shadeY * grain;
-      const o = (y * w + x) * 4;
-      img.data[o] = Math.min(255, base.red * f) * (1 - wear) + ink[0] * wear;
-      img.data[o + 1] = Math.min(255, base.green * f) * (1 - wear) + ink[1] * wear;
-      img.data[o + 2] = Math.min(255, base.blue * f) * (1 - wear) + ink[2] * wear;
-      img.data[o + 3] = 255;
-    }
-  }
-  ctx.putImageData(img, 0, 0);
-  // hairline cracks that wander and fork
-  if (size >= 30) {
-    ctx.strokeStyle = 'rgba(42, 20, 8, 0.85)';
-    ctx.lineCap = 'round';
-    const crack = (x, y, a, steps, width) => {
-      ctx.lineWidth = width;
-      ctx.beginPath(); ctx.moveTo(x, y);
-      for (let k = 0; k < steps; k++) {
-        a += (rnd() - 0.5) * 1.2;
-        x += Math.cos(a) * size * 0.1; y += Math.sin(a) * size * 0.1;
-        ctx.lineTo(x, y);
-        if (rnd() < 0.18 && width > 1) {
-          ctx.stroke();
-          crack(x, y, a + (rnd() < 0.5 ? 0.9 : -0.9), Math.ceil(steps / 2), width * 0.6);
-          ctx.lineWidth = width;
-          ctx.beginPath(); ctx.moveTo(x, y);
-        }
-      }
-      ctx.stroke();
-    };
-    for (let i = 0; i < w / 110; i++) crack(rnd() * w, rnd() * h, rnd() * Math.PI * 2, 7, Math.max(1.2, size / 40));
-  }
-  const pattern = ctx.createPattern(cv, 'repeat');
-  wornCache.set(key, pattern);
-  return pattern;
-}
-
 export function text(scene, x, y, str, size = 28, opts = {}) {
-  const colour = opts.color ?? '#fff4dc';
   return scene.add.text(x, y, str, {
     fontFamily: opts.ui ? FONT_UI : FONT,
-    fontStyle: opts.ui ? 'bold' : '',
     fontSize: `${size}px`,
-    color: opts.ui || opts.worn === false ? colour : wornFill(colour, size),
+    color: opts.color ?? '#fff4dc',
     stroke: opts.stroke ?? '#2a1408',
     strokeThickness: opts.strokeThickness ?? Math.max(3, Math.round(size / 7)),
     align: 'center',
