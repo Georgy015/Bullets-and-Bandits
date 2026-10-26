@@ -8,7 +8,7 @@ import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, spend, addCoins } from '../save.js';
 import { button, text, coinCounter } from '../ui.js';
 import { sfx, setMuted, unlockAudio } from '../sfx.js';
-import { woodBoard, horseshoe, bulletHole, pinnedStar, brokenBottle } from '../boards.js';
+import { woodBoard, plankButton, horseshoe, bulletHole, pinnedStar, brokenBottle } from '../boards.js';
 import { rrect, ellipse } from '../ink.js';
 import { rewardedAd } from '../sdk.js';
 
@@ -52,10 +52,10 @@ export class MenuScene extends Phaser.Scene {
 
     // Ride out from the furthest checkpoint, or start the trail over
     if (s.checkpoint > 0) {
-      button(this, 230, 545, 330, 74, `CONTINUE · ${s.checkpoint} m`, 'green', () => this.startRun(s.checkpoint), { size: 28 });
-      button(this, 230, 632, 330, 58, 'NEW RUN', 'blue', () => this.startRun(0), { size: 24 });
+      plankButton(this, 230, 545, 340, 74, `CONTINUE · ${s.checkpoint} m`, () => this.startRun(s.checkpoint), { size: 28, seed: 31 });
+      plankButton(this, 230, 630, 300, 56, 'NEW RUN', () => this.startRun(0), { size: 24, light: false, seed: 37 });
     } else {
-      button(this, 230, 570, 330, 84, 'RIDE OUT', 'green', () => this.startRun(0), { size: 36 });
+      plankButton(this, 230, 570, 340, 84, 'RIDE OUT', () => this.startRun(0), { size: 36, seed: 41 });
     }
     text(this, 230, 684, `Best: ${s.bestDistance} m`, 18, { ui: true, color: '#cfe3ff' });
 

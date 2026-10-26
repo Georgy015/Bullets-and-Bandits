@@ -3,6 +3,7 @@
 
 import { INK, shade, rect, rrect, circle, ellipse, poly, line, star } from './ink.js';
 import { FONT } from './config.js';
+import { sfx, unlockAudio } from './sfx.js';
 
 const WOOD = [0x8a5a32, 0x7f5129, 0x94613a];
 const GRAIN = 0x5e3b1e;
@@ -42,6 +43,35 @@ export function engraved(scene, x, y, str, size) {
   const style = (color) => ({ fontFamily: FONT, fontSize: `${size}px`, color });
   const layer = (dx, dy, color) => scene.add.text(dx, dy, str, style(color)).setOrigin(0.5);
   c.add([layer(0, 1.6, '#d9a86e'), layer(0, -1.2, '#1f1007'), layer(0, 0, '#4a2810')]);
+  return c;
+}
+
+// A plank sign used as a button, with the label carved in. `light` picks the paler wood for the main action.
+export function plankButton(scene, x, y, w, h, label, onClick, { size = 28, light = true, seed = 5 } = {}) {
+  const rnd = rng(seed);
+  const c = scene.add.container(x, y);
+  const g = scene.add.graphics();
+  const wood = light ? 0xb07842 : 0x8a5a32;
+  g.fillStyle(0x0d0614, 0.4); g.fillRoundedRect(-w / 2 + 4, -h / 2 + 7, w, h, 6);
+  rrect(g, wood, -w / 2, -h / 2, w, h, 6, 2.6);
+  g.fillStyle(0xffffff, 0.14); g.fillRect(-w / 2 + 4, -h / 2 + 4, w - 8, h * 0.22);
+  grain(g, -w / 2, -h / 2, w, h, rnd);
+  line(g, shade(wood, 0.7), -w / 2 + 3, h / 2 - 5, w / 2 - 3, h / 2 - 5, 3); // lower bevel
+  nail(g, -w / 2 + 14, 0);
+  nail(g, w / 2 - 14, 0);
+  c.add(g);
+  c.add(engraved(scene, 0, 1, label, size));
+  c.setSize(w, h).setInteractive({ useHandCursor: true });
+  let pressed = false;
+  c.on('pointerdown', () => { pressed = true; c.setScale(0.95); unlockAudio(); });
+  c.on('pointerout', () => { pressed = false; c.setScale(1); });
+  c.on('pointerup', () => {
+    c.setScale(1);
+    if (!pressed) return;
+    pressed = false;
+    sfx.click();
+    onClick();
+  });
   return c;
 }
 
