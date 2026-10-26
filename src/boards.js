@@ -2,7 +2,7 @@
 // a pinned sheriff star and a broken whiskey bottle. Everything is drawn with the ink helpers.
 
 import { INK, shade, rect, rrect, circle, ellipse, poly, line, star } from './ink.js';
-import { text } from './ui.js';
+import { FONT } from './config.js';
 
 const WOOD = [0x8a5a32, 0x7f5129, 0x94613a];
 const GRAIN = 0x5e3b1e;
@@ -35,6 +35,16 @@ function nail(g, x, y) {
   g.fillStyle(0xffffff, 0.5); g.fillCircle(x - 1, y - 1, 1);
 }
 
+// Letters carved into the wood: a dark groove, its upper edge in shadow and its lower edge catching
+// the light. Three stacked texts, no outline.
+export function engraved(scene, x, y, str, size) {
+  const c = scene.add.container(x, y);
+  const style = (color) => ({ fontFamily: FONT, fontSize: `${size}px`, color });
+  const layer = (dx, dy, color) => scene.add.text(dx, dy, str, style(color)).setOrigin(0.5);
+  c.add([layer(0, 1.6, '#d9a86e'), layer(0, -1.2, '#1f1007'), layer(0, 0, '#4a2810')]);
+  return c;
+}
+
 // Planks with a wider sign plank across the top carrying `title`. Returns a container.
 export function woodBoard(scene, x, y, w, h, title, seed = 7) {
   const rnd = rng(seed);
@@ -59,7 +69,7 @@ export function woodBoard(scene, x, y, w, h, title, seed = 7) {
   nail(g, x - 2, sy + 23);
   nail(g, x + w + 2, sy + 23);
   c.add(g);
-  c.add(text(scene, x + w / 2, sy + 23, title, 24, { color: '#ffd76a' }));
+  c.add(engraved(scene, x + w / 2, sy + 24, title, 26));
   return c;
 }
 
