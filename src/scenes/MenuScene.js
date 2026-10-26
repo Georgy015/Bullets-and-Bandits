@@ -6,8 +6,10 @@ import {
 import { addParallax, biomeAt } from '../biomes.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, spend, addCoins } from '../save.js';
-import { button, text, panel, coinCounter } from '../ui.js';
+import { button, text, coinCounter } from '../ui.js';
 import { sfx, setMuted, unlockAudio } from '../sfx.js';
+import { woodBoard, horseshoe, bulletHole, pinnedStar, brokenBottle } from '../boards.js';
+import { rrect, ellipse } from '../ink.js';
 import { rewardedAd } from '../sdk.js';
 
 export class MenuScene extends Phaser.Scene {
@@ -39,6 +41,8 @@ export class MenuScene extends Phaser.Scene {
       scale: 2, weapon: WEAPONS[s.equipped] ? s.equipped : 'revolver', look: SHERIFF_LOOK,
     });
     this.hero.aim(-0.25);
+
+    brokenBottle(this, 770, GROUND_Y + 4);
 
     this.upgradeLayer = this.add.container(0, 0);
     this.weaponLayer = this.add.container(0, 0);
@@ -75,8 +79,12 @@ export class MenuScene extends Phaser.Scene {
   buildUpgrades() {
     const s = getSave();
     const L = this.upgradeLayer;
-    L.add(panel(this, 24, 140, 440, 230));
-    L.add(text(this, 244, 165, 'UPGRADES', 24, { color: '#ffd76a' }));
+    L.add(woodBoard(this, 24, 160, 440, 214, 'UPGRADES', 11));
+    const deco = this.add.graphics();
+    horseshoe(deco, 420, 160, 14);
+    bulletHole(deco, 66, 165, 5, 5);
+    bulletHole(deco, 455, 312, 3.5, 8);
+    L.add(deco);
     UPGRADES.forEach((u, i) => {
       const y = 215 + i * 62;
       const lvl = s.upgrades[u.key];
@@ -94,10 +102,17 @@ export class MenuScene extends Phaser.Scene {
       L.add(b);
       L.add(text(this, 162, y - 10, u.label, 18, { ui: true, ox: 0, color: `#${u.color.toString(16).padStart(6, '0')}` }));
       L.add(text(this, 162, y + 13, u.text, 15, { ui: true, ox: 0, color: '#e9dcc4' }));
+      // level shown as a row of cartridges: brass ones bought, empty slots still to buy
       const pips = this.add.graphics();
       for (let p = 0; p < MAX_UPGRADE; p++) {
-        pips.fillStyle(p < lvl ? u.color : 0x3a2c44, 1);
-        pips.fillRoundedRect(300 + p * 15, y - 8, 12, 16, 3);
+        const px = 304 + p * 15;
+        if (p < lvl) {
+          ellipse(pips, 0x9aa0a6, px + 5, y - 6, 9, 12, 1.4);
+          rrect(pips, 0xd9a441, px, y - 4, 10, 15, 2, 1.4);
+          pips.fillStyle(0xfff0b8, 0.6); pips.fillRect(px + 2, y - 2, 2, 10);
+        } else {
+          rrect(pips, 0x3b2412, px, y - 6, 10, 17, 3, 1.2);
+        }
       }
       L.add(pips);
     });
@@ -106,17 +121,26 @@ export class MenuScene extends Phaser.Scene {
   buildWeapons() {
     const s = getSave();
     const L = this.weaponLayer;
-    L.add(panel(this, 890, 100, 370, 405));
-    L.add(text(this, 1075, 126, 'GUN BELT', 24, { color: '#ffd76a' }));
+    L.add(woodBoard(this, 890, 120, 370, 386, 'GUN BELT', 23));
+    const deco = this.add.graphics();
+    pinnedStar(deco, 1236, 122, 14);
+    bulletHole(deco, 922, 122, 5, 9);
+    bulletHole(deco, 1253, 318, 3.5, 4);
+    L.add(deco);
     WEAPON_ORDER.forEach((key, i) => {
       const w = WEAPONS[key];
       const y = 190 + i * 88;
       const owned = !!s.owned[key];
       const equipped = s.equipped === key;
+      // each gun has a leather slot with stitching; the equipped one is trimmed in gold
       const card = this.add.graphics();
-      card.fillStyle(equipped ? 0x4a3418 : 0x2a1a33, 0.95);
-      card.fillRoundedRect(904, y - 38, 342, 78, 12);
-      if (equipped) { card.lineStyle(3, 0xf6c343); card.strokeRoundedRect(904, y - 38, 342, 78, 12); }
+      rrect(card, equipped ? 0x8a4f26 : 0x5e3418, 904, y - 38, 342, 78, 10, 2.4);
+      card.lineStyle(1.6, 0xd8b27a, 0.8);
+      for (let sx = 914; sx < 1238; sx += 12) {
+        card.lineBetween(sx, y - 31, sx + 6, y - 31);
+        card.lineBetween(sx, y + 33, sx + 6, y + 33);
+      }
+      if (equipped) { card.lineStyle(3, 0xf6c343); card.strokeRoundedRect(904, y - 38, 342, 78, 10); }
       L.add(card);
       L.add(text(this, 920, y - 14, w.name.toUpperCase(), 20, { ui: true, ox: 0 }));
       L.add(text(this, 920, y + 12, w.desc, 14, { ui: true, ox: 0, color: '#d9c9ad' }));
