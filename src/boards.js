@@ -46,21 +46,65 @@ export function engraved(scene, x, y, str, size) {
   return c;
 }
 
-// A plank sign used as a button, with the label carved in. `light` picks the paler wood for the main action.
-export function plankButton(scene, x, y, w, h, label, onClick, { size = 28, light = true, seed = 5 } = {}) {
-  const rnd = rng(seed);
-  const c = scene.add.container(x, y);
+// An old trail signpost: a weathered post planted in the ground with arrow boards nailed to it.
+// Each sign is { label, dir (1 = points right, -1 = left), y, w, h, tilt (deg), size, onClick, seed }.
+export function signpost(scene, x, groundY, signs, { top = groundY - 170 } = {}) {
+  const c = scene.add.container(0, 0);
   const g = scene.add.graphics();
-  const wood = light ? 0xb07842 : 0x8a5a32;
-  g.fillStyle(0x0d0614, 0.4); g.fillRoundedRect(-w / 2 + 4, -h / 2 + 7, w, h, 6);
-  rrect(g, wood, -w / 2, -h / 2, w, h, 6, 2.6);
-  g.fillStyle(0xffffff, 0.14); g.fillRect(-w / 2 + 4, -h / 2 + 4, w - 8, h * 0.22);
-  grain(g, -w / 2, -h / 2, w, h, rnd);
-  line(g, shade(wood, 0.7), -w / 2 + 3, h / 2 - 5, w / 2 - 3, h / 2 - 5, 3); // lower bevel
-  nail(g, -w / 2 + 14, 0);
-  nail(g, w / 2 - 14, 0);
+  // post, a little crooked, with grain and a split at the top
+  const pw = 22;
+  g.fillStyle(0x0d0614, 0.35); g.fillEllipse(x + 6, groundY + 4, 70, 12);
+  poly(g, 0x6e4a2c, [
+    { x: x - pw / 2, y: groundY + 2 }, { x: x - pw / 2 + 2, y: top + 6 }, { x: x - 4, y: top },
+    { x: x + 1, y: top + 7 }, { x: x + pw / 2, y: top + 2 }, { x: x + pw / 2 - 1, y: groundY + 2 },
+  ]);
+  g.lineStyle(1.6, 0x4a2f1a, 0.8);
+  [[-5, 0.15], [3, 0.4], [-2, 0.7]].forEach(([dx, f]) => g.lineBetween(x + dx, top + 20 + (groundY - top) * f, x + dx + 1, top + 20 + (groundY - top) * (f + 0.18)));
+  line(g, INK, x + 1, top + 7, x - 1, top + 26, 1.6); // split
+  // stones and dry grass at the foot
+  ellipse(g, 0x8b8178, x - 18, groundY + 1, 18, 10);
+  ellipse(g, 0x9d948a, x + 16, groundY + 2, 14, 8);
+  g.lineStyle(2, 0xb59a5a, 1);
+  [[-26, -12], [-20, -16], [22, -14], [28, -10]].forEach(([dx, h]) => g.lineBetween(x + dx, groundY + 2, x + dx + (dx < 0 ? -3 : 3), groundY + h));
   c.add(g);
-  c.add(engraved(scene, 0, 1, label, size));
+  for (const sgn of signs) c.add(arrowSign(scene, x, sgn));
+  return c;
+}
+
+function arrowSign(scene, postX, { label, dir = 1, y, w = 300, h = 56, tilt = 0, size = 26, onClick, seed = 9 }) {
+  const rnd = rng(seed);
+  // the board sits across the post, mostly on the side it points to
+  const cx = postX + dir * (w / 2 - 40);
+  const c = scene.add.container(cx, y).setAngle(tilt);
+  const g = scene.add.graphics();
+  const wood = 0x9a7550; // sun-bleached
+  const tip = h * 0.5;
+  const hw = w / 2;
+  const pts = dir > 0
+    ? [{ x: -hw, y: -h / 2 }, { x: hw - tip, y: -h / 2 }, { x: hw, y: 0 }, { x: hw - tip, y: h / 2 }, { x: -hw, y: h / 2 }, { x: -hw + 10, y: 0 }]
+    : [{ x: hw, y: -h / 2 }, { x: -hw + tip, y: -h / 2 }, { x: -hw, y: 0 }, { x: -hw + tip, y: h / 2 }, { x: hw, y: h / 2 }, { x: hw - 10, y: 0 }];
+  const shadow = pts.map((p) => ({ x: p.x + 4, y: p.y + 6 }));
+  g.fillStyle(0x0d0614, 0.4); g.fillPoints(shadow, true);
+  poly(g, wood, pts, 2.6);
+  g.fillStyle(0xffffff, 0.12); g.fillRect(-hw + 12, -h / 2 + 4, w - tip - 20, h * 0.2);
+  grain(g, -hw + 6, -h / 2, w - tip, h, rnd);
+  // weathering: a chipped corner, cracks and worn dark patches
+  const back = -dir * hw;
+  poly(g, 0x6e4a2c, [{ x: back, y: h / 2 }, { x: back + dir * 16, y: h / 2 }, { x: back + dir * 4, y: h / 2 - 10 }], 0);
+  g.lineStyle(1.8, 0x3b2412, 0.9);
+  for (let i = 0; i < 2; i++) {
+    let px = -dir * (hw * 0.2 + rnd() * hw * 0.5), py = (rnd() < 0.5 ? -1 : 1) * h / 2;
+    const pts2 = [{ x: px, y: py }];
+    for (let k = 0; k < 3; k++) { px += dir * (6 + rnd() * 8); py += -Math.sign(py) * (5 + rnd() * 5); pts2.push({ x: px, y: py }); }
+    g.strokePoints(pts2);
+  }
+  g.fillStyle(0x3b2412, 0.18);
+  g.fillEllipse(dir * hw * 0.35, h * 0.15, w * 0.25, h * 0.35);
+  // nailed to the post
+  const nx = postX - cx;
+  nail(g, nx, -h / 4); nail(g, nx, h / 4);
+  c.add(g);
+  c.add(engraved(scene, -dir * tip * 0.25 + (nx > 0 ? -10 : 10) * 0, 1, label, size));
   c.setSize(w, h).setInteractive({ useHandCursor: true });
   let pressed = false;
   c.on('pointerdown', () => { pressed = true; c.setScale(0.95); unlockAudio(); });
