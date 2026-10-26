@@ -47,7 +47,7 @@ Outlaws' perches follow the area (rock pillars in the desert and canyon, boxcar 
 | Drifter | 0 m | Stands, warns "!", shoots | Baseline |
 | Hider | 40 m | Crouches behind a barrel (it stops bullets), pops up only to shoot | Shoot when he's up |
 | Gambler | 80 m | Very short warning, fires often, low health | Drop him first |
-| Rifleman | 120 m | On rooftops/towers, long warning with a scope glint, heavy hits | Watch for the glint |
+| Rifleman | 120 m | On rooftops/towers, long warning with a glint off his rifle barrel, heavy hits | Watch for the glint |
 | Dynamite Dan | 160 m | Lobs dynamite that explodes where it lands | Shoot the stick mid-air (+5 coins) |
 
 Checkpoint bosses are either a gunslinger (rifle or twin revolvers) or **The Undertaker**, whose armored chest takes only 25% damage from body shots, so aim for the head. Each type shows a tip the first time you meet it. Types, unlock distances and stats live in `OUTLAWS` / `BOSS_TYPES` in `src/config.js`.

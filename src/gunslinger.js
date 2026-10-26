@@ -70,8 +70,7 @@ export function drawGun(g, type, sleeve, skin) {
   } else if (type === 'rifle') {
     rect(g, steel, 34, -8, 20, 9);
     rect(g, dark, 52, -7, 46, 4);
-    rect(g, 0x2d2d33, 40, -15, 16, 5);
-    circle(g, 0x6bb8ff, 56, -12.5, 2.4, 1.2);
+    rect(g, dark, 92, -10, 3, 3, 1.2); // front sight
     line(g, 0xc8c8d0, 54, -6.2, 96, -6.2, 1);
     g.lineStyle(1.6, INK); g.strokeCircle(44, 4, 3.5);
   } else if (type === 'dynamite') {

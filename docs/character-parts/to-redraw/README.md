@@ -13,4 +13,4 @@ Starting images for the parts that still need refined artwork. All PNGs are tran
 
 Outlaws: `gambler`, `rifleman`, `dynamite_dan`, `hider`, `undertaker`. Their weapons: revolver (Gambler, Hider, Undertaker), rifle (Rifleman), dynamite (Dynamite Dan).
 
-Pivots, muzzles and sizes follow the rules in [the parent README](../README.md). The rifle should be the longest gun: a lever-action with a full stock and the lever loop under the action, an optional scope, and no shotgun-style forend.
+Pivots, muzzles and sizes follow the rules in [the parent README](../README.md). The rifle should be the longest gun: a lever-action with a full stock and the lever loop under the action, no scope (it doesn't fit the period), and no shotgun-style forend.

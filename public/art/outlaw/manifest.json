@@ -393,11 +393,11 @@
   "file": "arm_rifle_rifleman.png",
   "size": [
    376,
-   79
+   55
   ],
   "anchor_px": [
    21.8,
-   52.9
+   28.9
   ],
   "anchor_game": [
    0,
@@ -832,11 +832,11 @@
   "file": "arm_rifle_gunslinger.png",
   "size": [
    324,
-   74
+   53
   ],
   "anchor_px": [
    21.8,
-   47.0
+   26.1
   ],
   "anchor_game": [
    0,

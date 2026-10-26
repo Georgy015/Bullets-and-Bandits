@@ -273,13 +273,11 @@ function drawStation(scene) {
   canvasTexture(scene, 'station-mid', W, MID_H, (c, w, h) => {
     const base = h - 20;
     c.fillStyle = '#121a33';
-    // Depot with a sign and lit windows
+    // Depot with lit windows (no sign: it sat right behind the menu's signpost)
     c.fillRect(60, base - 170, 300, 170);
     c.beginPath(); c.moveTo(40, base - 170); c.lineTo(210, base - 230); c.lineTo(380, base - 170); c.fill();
     c.fillStyle = '#f4c46a';
     [[90, 100], [150, 100], [270, 100], [320, 100]].forEach(([x, y]) => c.fillRect(x, base - y - 40, 26, 34));
-    c.fillStyle = '#c9a36a'; c.fillRect(150, base - 160, 120, 24);
-    c.fillStyle = '#121a33'; c.font = 'bold 18px Georgia'; c.textAlign = 'center'; c.fillText('DEPOT', 210, base - 142);
     // Boxcars with wheels
     const car = (x) => {
       c.fillStyle = '#16203e'; c.fillRect(x, base - 110, 200, 90);
