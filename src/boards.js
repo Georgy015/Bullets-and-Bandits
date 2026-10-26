@@ -199,8 +199,13 @@ export function pinnedStar(g, x, y, r = 15) {
 // A whiskey bottle lying on the ground with its neck snapped off and glass around it.
 export function brokenBottle(scene, px, py, scale = 1.6) {
   const g = scene.add.graphics().setPosition(px, py).setScale(scale);
-  const x = 0, y = 0;
-  ellipse(g, 0x0d0614, x + 6, y + 3, 92, 10, 0);
+  drawBrokenBottle(g, 0, 0);
+  return g;
+}
+
+// The bottle itself, with its base at (x, y); also used for the trail props.
+export function drawBrokenBottle(g, x, y, withShadow = true) {
+  if (withShadow) ellipse(g, 0x0d0614, x + 6, y + 3, 92, 10, 0);
   // body, lying down, broken end on the right
   const body = [
     { x: x - 34, y: y - 22 }, { x: x + 6, y: y - 22 }, { x: x + 12, y: y - 15 }, { x: x + 8, y: y - 11 },
@@ -219,5 +224,4 @@ export function brokenBottle(scene, px, py, scale = 1.6) {
   [[x + 20, y - 1, 7], [x + 66, y, 5], [x + 40, y + 2, 4]].forEach(([sx, sy, s], i) => {
     poly(g, i % 2 ? 0xb06a2a : 0x9c5a1e, [{ x: sx, y: sy }, { x: sx + s, y: sy - s * 0.9 }, { x: sx + s * 1.6, y: sy }], 1.4);
   });
-  return g;
 }

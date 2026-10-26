@@ -5,6 +5,7 @@ import {
   PERK_SPAWN_CHANCE, PERK_DROP_CHANCE, groupSize, makeFoe, BONUS, PLAYER_DYNAMITE, FORCE_BONUS,
 } from '../config.js';
 import { drawPerch, drawCheckpoint, drawBarrel, BARREL, drawProp, PROPS } from '../art.js';
+import { createTrailPropTextures, TRAIL_PROPS } from '../trailProps.js';
 import { addParallax, biomeAt, loopAt, BIOME_INFO } from '../biomes.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, addCoins } from '../save.js';
@@ -72,6 +73,10 @@ export class RunScene extends Phaser.Scene {
     this.state = 'walk';
     this.bullets = [];
     this.world = []; // display objects that scroll with the trail
+    // Junk scattered along the trail; a few already lie on screen at the start
+    createTrailPropTextures(this);
+    this.nextPropAt = 0;
+    for (let x = rand(120, 300); x < W; x += rand(260, 520)) this.spawnTrailProp(x);
     this.enemies = [];
     this.active = []; // outlaws in the current fight
     this.pickups = [];
@@ -257,6 +262,7 @@ export class RunScene extends Phaser.Scene {
 
   scroll(dx) {
     this.worldX += dx;
+    if (this.worldX >= this.nextPropAt) this.spawnTrailProp(W + 90);
     this.layers.scroll(dx);
     this.fadingFrom?.scroll(dx);
     for (const o of this.world) o.x -= dx;
@@ -1286,6 +1292,17 @@ export class RunScene extends Phaser.Scene {
         g.fillCircle(m.x + Math.cos(a) * d, m.y + Math.sin(a) * d, 2 + 2.5 * k);
       }
     }
+  }
+
+  // A bottle, wagon wheel, skull... lying in the dirt; scrolls with the trail like everything else.
+  spawnTrailProp(x) {
+    this.nextPropAt = this.worldX + rand(260, 620);
+    let r = Math.random() * TRAIL_PROPS.reduce((n, [, w]) => n + w, 0);
+    const [key] = TRAIL_PROPS.find(([, w]) => (r -= w) <= 0) ?? TRAIL_PROPS[0];
+    // a narrow strip just in front of the feet, clear of the buttons along the bottom
+    const img = this.add.image(x, GROUND_Y + rand(16, 34), key).setOrigin(0.5, 1).setDepth(9)
+      .setScale(rand(0.9, 1.1)).setFlipX(Math.random() < 0.5);
+    this.world.push(img);
   }
 
   // Ambient tumbleweeds bouncing along the street in town and desert.
