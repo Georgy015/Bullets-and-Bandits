@@ -3,7 +3,7 @@ import { createSpriteTextures } from '../art.js';
 import { initSDK, loadingStart, loadingStop, setAdHooks } from '../sdk.js';
 import { loadSave } from '../save.js';
 import { setMuted, setAdMuted } from '../sfx.js';
-import { FONT } from '../config.js';
+import { FONT, FONT_UI } from '../config.js';
 import { ART_SETS } from '../gunslinger.js';
 
 export class BootScene extends Phaser.Scene {
@@ -24,10 +24,10 @@ export class BootScene extends Phaser.Scene {
     setAdHooks(() => setAdMuted(true), () => setAdMuted(false));
     const save = loadSave();
     setMuted(save.muted);
-    // Text renders with a fallback font if the title font hasn't arrived yet.
+    // Text renders with a fallback font if the fonts haven't arrived yet.
     try {
       await Promise.race([
-        document.fonts.load(`40px ${FONT.split(',')[0]}`),
+        Promise.all([document.fonts.load(`40px ${FONT.split(',')[0]}`), document.fonts.load(`bold 40px ${FONT_UI.split(',')[0]}`)]),
         new Promise((r) => setTimeout(r, 1500)),
       ]);
     } catch {

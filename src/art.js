@@ -2,7 +2,7 @@
 // so the prototype needs no image files. Swap any of these for real art later by loading
 // a texture under the same key.
 
-import { GROUND_Y } from './config.js';
+import { GROUND_Y, FONT } from './config.js';
 import { INK, shade, rect, rrect, circle, ellipse, poly, line } from './ink.js';
 
 export function createSpriteTextures(scene) {
@@ -196,7 +196,7 @@ export function drawPerch(scene, type, x, biome = 'town') {
     rrect(g, 0xf2d38b, x - 74, top - 152, 148, 44, 4, 2.6);
     rect(g, 0x5a1e14, x - 68, top - 146, 136, 32, 0);
     c.add(scene.add.text(x, top - 130, 'SALOON', {
-      fontFamily: 'Rye, Georgia, serif', fontSize: '24px', color: '#f2d38b', stroke: '#2a1408', strokeThickness: 3,
+      fontFamily: FONT, fontSize: '22px', color: '#f2d38b', stroke: '#2a1408', strokeThickness: 3,
     }).setOrigin(0.5));
     // Swinging doors
     rect(g, 0x24140b, x - 38, GROUND_Y - 90, 76, 90, 2.4);
@@ -255,7 +255,7 @@ export function drawCheckpoint(scene, meters) {
   c.add(scene.add.image(0, -220, 'glow').setScale(1.4).setBlendMode('ADD'));
   c.add(g);
   const t = scene.add.text(0, -155, `CHECKPOINT\n${meters} m`, {
-    fontFamily: 'Rye, Georgia, serif', fontSize: '17px', color: '#fff1cf', align: 'center',
+    fontFamily: FONT, fontSize: '15px', color: '#fff1cf', align: 'center',
     stroke: '#3a2212', strokeThickness: 3,
   }).setOrigin(0.5);
   c.add(t);

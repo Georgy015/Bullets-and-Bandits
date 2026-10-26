@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import '@fontsource/rye/400.css';
+import '@fontsource/ultra/400.css';
+import '@fontsource/arvo/700.css';
 import { W, H } from './config.js';
 import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
