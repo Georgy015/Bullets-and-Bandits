@@ -24,7 +24,7 @@ export class MenuScene extends Phaser.Scene {
 
     const title = text(this, 640, 58, 'FAST GUN', 84, { color: '#ffd76a', strokeThickness: 10 });
     this.tweens.add({ targets: title, scale: 1.04, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
-    text(this, 640, 112, 'Are you the fastest gun in the West?', 22, { color: '#f6e3c0' });
+    text(this, 640, 112, 'Help the sheriff protect his town!', 22, { color: '#f6e3c0' });
 
     this.coins = coinCounter(this, 1170, 52, s.coins);
 
