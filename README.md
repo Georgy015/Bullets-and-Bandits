@@ -2,7 +2,7 @@
 
 A single-player Wild West game for the web, built with [Phaser 3](https://phaser.io) and aimed at [CrazyGames](https://www.crazygames.com).
 
-**▶ Play it: https://georgy015.github.io/Fast-Gun/** (redeployed automatically on every push to `main`)
+**▶ Play it: https://georgy015.github.io/Bullets-and-Bandits/** (redeployed automatically on every push to `main`)
 
 An old sheriff walks the trail through town, runs into outlaws and shoots it out with them. Go as far as you can.
 
@@ -52,7 +52,7 @@ Outlaws' perches follow the area (rock pillars in the desert and canyon, boxcar 
 
 Checkpoint bosses are either a gunslinger (rifle or twin revolvers) or **The Undertaker**, whose armored chest takes only 25% damage from body shots, so aim for the head. Each type shows a tip the first time you meet it. Types, unlock distances and stats live in `OUTLAWS` / `BOSS_TYPES` in `src/config.js`.
 
-**Testing a type:** add `?outlaw=hider` (or `gambler`, `rifleman`, `dynamite`) or `?boss=undertaker` to the page URL to force it, e.g. https://georgy015.github.io/Fast-Gun/?outlaw=dynamite
+**Testing a type:** add `?outlaw=hider` (or `gambler`, `rifleman`, `dynamite`) or `?boss=undertaker` to the page URL to force it, e.g. https://georgy015.github.io/Bullets-and-Bandits/?outlaw=dynamite
 
 ### Bonus round
 
