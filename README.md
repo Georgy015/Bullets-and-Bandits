@@ -1,4 +1,4 @@
-# Fast Gun
+# Bullets & Bandits
 
 A single-player Wild West game for the web, built with [Phaser 3](https://phaser.io) and aimed at [CrazyGames](https://www.crazygames.com).
 

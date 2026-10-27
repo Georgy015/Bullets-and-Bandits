@@ -1,6 +1,6 @@
 import { storageGet, storageSet } from './sdk.js';
 
-const KEY = 'fast-gun-save-v1';
+const KEY = 'fast-gun-save-v1'; // kept from the old name so saves carry over
 
 const DEFAULTS = () => ({
   coins: 0,
