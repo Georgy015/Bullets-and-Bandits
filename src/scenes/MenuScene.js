@@ -95,14 +95,14 @@ export class MenuScene extends Phaser.Scene {
       const maxed = lvl >= MAX_UPGRADE;
       const cost = upgradeCost(lvl);
       const affordable = s.coins >= cost;
-      const b = button(this, 92, y, 112, 46, maxed ? 'MAX' : `● ${cost}`, maxed ? 'gray' : affordable ? 'green' : 'gray', () => {
+      const b = plankTag(this, 92, y, 112, 46, maxed ? 'MAX' : `● ${cost}`, () => {
         if (maxed) return;
         if (!spend(cost)) { this.cameras.main.shake(120, 0.004); return; }
         s.upgrades[u.key] += 1;
         save();
         sfx.coin();
         this.refresh();
-      }, { ui: true, size: 20 });
+      }, { tone: maxed || !affordable ? 'dark' : 'honey', size: 20, color: maxed ? '#f6c343' : affordable ? '#ffe48a' : '#a89a88', seed: 80 + i });
       L.add(b);
       L.add(text(this, 162, y - 10, u.label, 18, { ui: true, ox: 0, color: `#${u.color.toString(16).padStart(6, '0')}` }));
       L.add(text(this, 162, y + 13, u.text, 15, { ui: true, ox: 0, color: '#e9dcc4' }));
