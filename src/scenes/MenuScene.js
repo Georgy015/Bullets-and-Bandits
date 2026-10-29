@@ -8,7 +8,7 @@ import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, spend, addCoins } from '../save.js';
 import { button, text, coinCounter } from '../ui.js';
 import { sfx, setMuted, unlockAudio } from '../sfx.js';
-import { woodBoard, signpost, horseshoe, bulletHole, pinnedStar, brokenBottle } from '../boards.js';
+import { woodBoard, signpost, plankTag, horseshoe, bulletHole, pinnedStar, brokenBottle } from '../boards.js';
 import { rrect, ellipse } from '../ink.js';
 import { rewardedAd } from '../sdk.js';
 
@@ -150,26 +150,26 @@ export class MenuScene extends Phaser.Scene {
       L.add(text(this, 920, y + 12, w.desc, 14, { ui: true, ox: 0, color: '#d9c9ad' }));
 
       if (owned) {
-        L.add(button(this, 1180, y, 110, 46, equipped ? 'READY' : 'EQUIP', equipped ? 'gray' : 'yellow', () => {
+        L.add(plankTag(this, 1180, y, 110, 46, equipped ? 'READY' : 'EQUIP', () => {
           if (equipped) return;
           s.equipped = key;
           save();
           this.refresh();
-        }, { ui: true, size: 18 }));
+        }, { tone: equipped ? 'dark' : 'honey', size: 18, color: equipped ? '#f6c343' : '#fff4dc', seed: 50 + i }));
       } else {
         const can = s.coins >= w.price;
-        L.add(button(this, 1180, y - 12, 110, 38, `● ${w.price}`, can ? 'green' : 'gray', () => {
+        L.add(plankTag(this, 1180, y - 12, 110, 38, `● ${w.price}`, () => {
           if (!spend(w.price)) { this.cameras.main.shake(120, 0.004); return; }
           s.owned[key] = true;
           s.equipped = key;
           save();
           sfx.coin();
           this.refresh();
-        }, { ui: true, size: 17 }));
-        L.add(button(this, 1180, y + 22, 110, 26, '▶ TRY FREE', 'blue', async () => {
+        }, { tone: can ? 'honey' : 'dark', size: 17, color: can ? '#ffe48a' : '#a89a88', seed: 60 + i }));
+        L.add(plankTag(this, 1180, y + 22, 110, 26, '▶ TRY FREE', async () => {
           const ok = await rewardedAd();
           if (ok) this.scene.start('Run', { startM: s.checkpoint, trial: key });
-        }, { ui: true, size: 13 }));
+        }, { tone: 'pine', size: 13, color: '#dff1ff', seed: 70 + i }));
       }
     });
   }

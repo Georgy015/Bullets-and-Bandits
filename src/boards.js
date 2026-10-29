@@ -4,6 +4,7 @@
 import { INK, shade, rect, rrect, circle, ellipse, poly, line, star } from './ink.js';
 import { FONT } from './config.js';
 import { sfx, unlockAudio } from './sfx.js';
+import { text } from './ui.js';
 
 const WOOD = [0x8a5a32, 0x7f5129, 0x94613a];
 const GRAIN = 0x5e3b1e;
@@ -43,6 +44,42 @@ export function engraved(scene, x, y, str, size) {
   const style = (color) => ({ fontFamily: FONT, fontSize: `${size}px`, color });
   const layer = (dx, dy, color) => scene.add.text(dx, dy, str, style(color)).setOrigin(0.5);
   c.add([layer(0, 1.6, '#d9a86e'), layer(0, -1.2, '#1f1007'), layer(0, 0, '#4a2810')]);
+  return c;
+}
+
+// A small plank used as a button on the boards, with a painted label.
+// tone: 'honey' (main action), 'dark' (done or can't afford), 'pine' (paler, for secondary actions).
+const PLANK_TONES = { honey: 0xc08a4e, dark: 0x5a3a22, pine: 0xd8b07a };
+export function plankTag(scene, x, y, w, h, label, onClick, { tone = 'honey', size = 18, color = '#fff4dc', seed = 3 } = {}) {
+  const rnd = rng(seed);
+  const c = scene.add.container(x, y);
+  const g = scene.add.graphics();
+  const wood = PLANK_TONES[tone] ?? tone;
+  g.fillStyle(0x0d0614, 0.4); g.fillRoundedRect(-w / 2 + 2, -h / 2 + 4, w, h, 4);
+  rrect(g, wood, -w / 2, -h / 2, w, h, 4, 2.2);
+  g.fillStyle(0xffffff, 0.16); g.fillRect(-w / 2 + 3, -h / 2 + 3, w - 6, Math.max(2, h * 0.18));
+  g.lineStyle(1.2, shade(wood, 0.7), 0.7);
+  for (let k = 0; k < (h > 30 ? 2 : 1); k++) {
+    const yy = -h / 2 + h * (h > 30 ? 0.35 + k * 0.35 : 0.72) + (rnd() - 0.5) * 2;
+    g.lineBetween(-w / 2 + 6, yy, w / 2 - 6, yy + (rnd() - 0.5) * 2);
+  }
+  line(g, shade(wood, 0.72), -w / 2 + 3, h / 2 - 3, w / 2 - 3, h / 2 - 3, 2);
+  if (h > 30) { nail(g, -w / 2 + 8, 0); nail(g, w / 2 - 8, 0); }
+  c.add(g);
+  const t = text(scene, 0, -1, label, size, { ui: true, color });
+  c.add(t);
+  c.setSize(w, h).setInteractive({ useHandCursor: true });
+  let pressed = false;
+  c.on('pointerdown', () => { pressed = true; c.setScale(0.95); unlockAudio(); });
+  c.on('pointerout', () => { pressed = false; c.setScale(1); });
+  c.on('pointerup', () => {
+    c.setScale(1);
+    if (!pressed) return;
+    pressed = false;
+    sfx.click();
+    onClick();
+  });
+  c.label = t;
   return c;
 }
 
