@@ -1,11 +1,39 @@
 // Synthesized sound effects, so the draft needs no audio files. Replace with recorded
-// samples later for a better feel.
+// samples later for a better feel. Background music is a looping track streamed from public/audio.
 
 let ctx = null;
 let master = null;
 let noise = null;
 let muted = false;
 let adMuted = false;
+
+// Music: "Covert Affair" by Kevin MacLeod (incompetech.com), CC BY 4.0. Streamed with an <audio>
+// element so a long track isn't decoded into memory. It starts on the first tap (browsers block
+// autoplay) and pauses while muted, during ads and while the tab is hidden.
+const MUSIC_URL = 'audio/music.mp3';
+const MUSIC_VOLUME = 0.35;
+let music = null;
+let musicWanted = false;
+
+function updateMusic() {
+  if (!music) return;
+  const play = musicWanted && !muted && !adMuted && !document.hidden;
+  if (play && music.paused) music.play().catch(() => {});
+  else if (!play && !music.paused) music.pause();
+}
+
+if (typeof document !== 'undefined') document.addEventListener('visibilitychange', updateMusic);
+
+export function startMusic() {
+  if (typeof Audio === 'undefined') return;
+  if (!music) {
+    music = new Audio(MUSIC_URL);
+    music.loop = true;
+    music.volume = MUSIC_VOLUME;
+  }
+  musicWanted = true;
+  updateMusic();
+}
 
 function ensure() {
   if (ctx) return ctx;
@@ -26,10 +54,12 @@ function ensure() {
 export function unlockAudio() {
   const c = ensure();
   if (c && c.state === 'suspended') c.resume();
+  startMusic();
 }
 
 function applyVolume() {
   if (master) master.gain.value = muted || adMuted ? 0 : 0.5;
+  updateMusic();
 }
 
 export function setMuted(m) {
@@ -102,3 +132,5 @@ export const sfx = {
   win() { [523, 659, 784, 1047].forEach((f, i) => tone({ freq: f, dur: 0.18, gain: 0.15, type: 'triangle', delay: i * 0.1 })); },
   lose() { [392, 330, 262].forEach((f, i) => tone({ freq: f, dur: 0.3, gain: 0.15, type: 'triangle', delay: i * 0.18 })); },
 };
+
+export const musicPlaying = () => !!music && !music.paused;

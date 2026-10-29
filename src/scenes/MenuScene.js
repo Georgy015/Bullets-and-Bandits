@@ -64,6 +64,9 @@ export class MenuScene extends Phaser.Scene {
     text(this, 210, 684, `Best: ${s.bestDistance} m`, 18, { ui: true, color: '#cfe3ff' });
 
     this.input.once('pointerdown', unlockAudio);
+    // CC BY credit for the music
+    text(this, W - 12, 708, 'Music: "Covert Affair" by Kevin MacLeod (incompetech.com) · CC BY 4.0', 12,
+      { ui: true, ox: 1, color: '#cdbb9a', strokeThickness: 3 });
   }
 
   startRun(startM) {
