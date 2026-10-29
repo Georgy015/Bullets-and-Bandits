@@ -11,7 +11,7 @@ let adMuted = false;
 // element so a long track isn't decoded into memory. It starts on the first tap (browsers block
 // autoplay) and pauses while muted, during ads and while the tab is hidden.
 const MUSIC_URL = 'audio/music.mp3';
-const MUSIC_VOLUME = 0.35;
+const MUSIC_VOLUME = 0.18;
 let music = null;
 let musicWanted = false;
 
