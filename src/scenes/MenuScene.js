@@ -125,15 +125,15 @@ export class MenuScene extends Phaser.Scene {
   buildWeapons() {
     const s = getSave();
     const L = this.weaponLayer;
-    L.add(woodBoard(this, 890, 120, 370, 386, 'GUN BELT', 23));
+    L.add(woodBoard(this, 890, 160, 370, 386, 'GUN BELT', 23));
     const deco = this.add.graphics();
-    pinnedStar(deco, 1236, 122, 14);
-    bulletHole(deco, 922, 122, 5, 9);
-    bulletHole(deco, 1253, 318, 3.5, 4);
+    pinnedStar(deco, 1236, 162, 14);
+    bulletHole(deco, 922, 162, 5, 9);
+    bulletHole(deco, 1253, 358, 3.5, 4);
     L.add(deco);
     WEAPON_ORDER.forEach((key, i) => {
       const w = WEAPONS[key];
-      const y = 190 + i * 88;
+      const y = 230 + i * 88;
       const owned = !!s.owned[key];
       const equipped = s.equipped === key;
       // each gun has a leather slot with stitching; the equipped one is trimmed in gold
