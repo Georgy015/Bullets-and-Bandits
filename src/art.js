@@ -263,13 +263,13 @@ export function drawCheckpoint(scene, meters) {
 }
 
 // Barrel the Hider crouches behind; drawn at local (0, GROUND_Y) and placed in front of him.
-export const BARREL = { w: 84, h: 112 };
+export const BARREL = { w: 96, h: 128 };
 export function drawBarrel(scene) {
   const g = scene.add.graphics();
   const { w, h } = BARREL;
   rrect(g, 0x6e4126, -w / 2, GROUND_Y - h, w, h, 14, 3);
   g.fillStyle(0x8c5632);
-  for (let i = 0; i < 4; i++) g.fillRect(-w / 2 + 8 + i * 19, GROUND_Y - h + 6, 10, h - 12);
+  for (let i = 0; i < 4; i++) g.fillRect(-w / 2 + 8 + i * ((w - 26) / 3), GROUND_Y - h + 6, 10, h - 12);
   g.fillStyle(0xffffff, 0.12); g.fillRect(-w / 2 + 10, GROUND_Y - h + 8, 8, h - 16);
   [GROUND_Y - h + 14, GROUND_Y - h / 2 - 4, GROUND_Y - 22].forEach((y) => rect(g, 0x3a3a42, -w / 2, y, w, 8, 1.8));
   ellipse(g, 0x2b1a10, 0, GROUND_Y - h + 4, w - 10, 12, 2);
@@ -279,7 +279,7 @@ export function drawBarrel(scene) {
 // Props for the bonus shooting gallery, drawn at local x = 0 standing on the street.
 // `top` = y the bottles stand on, `width` = usable surface, `cap` = max bottles.
 export const PROPS = {
-  barrel: { top: GROUND_Y - 112, width: 60, cap: 2 },
+  barrel: { top: GROUND_Y - BARREL.h, width: 60, cap: 2 },
   crate: { top: GROUND_Y - 70, width: 60, cap: 2 },
   stack: { top: GROUND_Y - 140, width: 60, cap: 2 },
   fence: { top: GROUND_Y - 96, width: 150, cap: 3 },

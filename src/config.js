@@ -44,9 +44,9 @@ export const ENEMY_BULLET_SPEED = { revolver: 1150, shotgun: 1000, rifle: 1600, 
 export const HEADSHOT_MULT = 3;
 
 // Character sizes
-export const SHERIFF_SCALE = 1.55;
-export const OUTLAW_SCALE = 1.45;
-export const BOSS_SCALE = 1.6;
+export const SHERIFF_SCALE = 1.85;
+export const OUTLAW_SCALE = 1.75;
+export const BOSS_SCALE = 1.9;
 
 export const UPGRADES = [
   { key: 'damage', label: 'DAMAGE', per: 0.08, color: 0xff6b5b, text: '+8%' },

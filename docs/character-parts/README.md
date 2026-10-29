@@ -57,7 +57,7 @@ In play the arm rotates from about -1.5 rad (aiming up) to +1.0 rad (aiming down
 
 ## Sizes in the game
 
-- Sheriff drawn at **1.55×** game units (≈ 230 px tall on a 1280×720 screen); outlaws at **1.45×**, bosses at **1.6×**.
+- Sheriff drawn at **1.85×** game units (≈ 275 px tall on a 1280×720 screen); outlaws at **1.75×**, bosses at **1.9×**.
 - Hit zones: head = the circle above; body = a 40 × 92 box above the feet.
 
 ## Variants (original parts)
@@ -79,7 +79,7 @@ The Gambler, Rifleman, Dynamite Dan and the Undertaker are the same base with di
 - Apply heavier dark-brown outlines, stronger silhouettes, restrained geometric shading, fuller hands and boots, and fewer, broader fringe tabs.
 - Extend that treatment consistently to the outlaws, weapons, hats and armor.
 - Keep heads and hats as separate pieces, with enough hidden overlap at the shoulders and hips to prevent gaps when parts rotate.
-- Check readability at the actual on-screen size (≈ 230 px tall for the sheriff).
+- Check readability at the actual on-screen size (≈ 275 px tall for the sheriff).
 
 The existing coordinates, animation angles, character scales and hit zones above remain the **implementation targets**. Artwork should be fitted to those values before it is described as ready to drop into the game.
 
