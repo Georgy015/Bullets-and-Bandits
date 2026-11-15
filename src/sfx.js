@@ -153,7 +153,7 @@ export const sfx = {
   reloaded() { tone({ freq: 500, to: 300, dur: 0.06, gain: 0.18, type: 'square' }); tone({ freq: 1200, dur: 0.05, gain: 0.1, type: 'square', delay: 0.08 }); },
   empty() { tone({ freq: 1400, to: 1100, dur: 0.03, gain: 0.12, type: 'square' }); },
   glass() {
-    if (sample('glass', 1.2)) return;
+    if (sample('glass', 1.08)) return;
     burst({ dur: 0.25, freq: 5200, q: 2, gain: 0.5, type: 'bandpass', decay: 0.22 });
     [2400, 3100, 3900].forEach((f, i) => tone({ freq: f, to: f * 0.9, dur: 0.12, gain: 0.05, type: 'sine', delay: 0.02 + i * 0.04 }));
   },
