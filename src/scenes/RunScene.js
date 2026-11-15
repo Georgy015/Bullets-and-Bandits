@@ -724,7 +724,7 @@ export class RunScene extends Phaser.Scene {
     const s = e.g.shoulderWorld();
     e.g.aim(Math.atan2(target.y - s.y, target.x - s.x));
     this.hitscan(e.g.muzzleWorld(), target, 0xff9a7a);
-    sfx.shot(e.g.weapon);
+    sfx.shot(e.g.weapon, true);
     banner(this, this.early ? 'TOO EARLY!' : 'TOO SLOW!', '#ff7a5c', 60, 450);
     this.damagePlayer(e.foe.damage, target.x, target.y);
     if (this.state === 'resolve') this.time.delayedCall(450, () => this.enterFight());
@@ -816,7 +816,7 @@ export class RunScene extends Phaser.Scene {
     this.sparks.explode(10, m.x, m.y);
     this.muzzleFlash(m.x, m.y, p.angle);
     e.g.recoil();
-    sfx.shot(e.g.weapon);
+    sfx.shot(e.g.weapon, true);
   }
 
   throwDynamite(e, p) {
