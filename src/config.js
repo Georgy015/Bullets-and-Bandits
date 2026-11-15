@@ -3,6 +3,16 @@
 export const W = 1280;
 export const H = 720;
 export const GROUND_Y = 610;
+
+// The canvas renders at RES × the 1280×720 game size, so text and outlines stay sharp when the game is
+// scaled up on large or high-density screens (phones). Each scene's camera zooms by RES, so all game
+// coordinates stay in 1280×720. Capped at 2 to keep phones fast.
+export const RES = (() => {
+  if (typeof window === 'undefined') return 1;
+  const fit = Math.min(window.innerWidth / 1280, window.innerHeight / 720);
+  const r = Math.round((window.devicePixelRatio || 1) * fit * 2) / 2;
+  return Math.max(1, Math.min(2, r));
+})();
 export const GRAVITY = 900; // px/s², only for lobbed projectiles (dynamite)
 
 export const FONT = 'Rye, Georgia, serif';

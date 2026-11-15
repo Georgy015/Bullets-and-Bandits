@@ -1,15 +1,24 @@
 import Phaser from 'phaser';
 import '@fontsource/rye/400.css';
-import { W, H } from './config.js';
+import { W, H, RES } from './config.js';
 import { BootScene } from './scenes/BootScene.js';
 import { MenuScene } from './scenes/MenuScene.js';
 import { RunScene } from './scenes/RunScene.js';
 
+// Text is rasterised at the canvas resolution too, otherwise it would be stretched and blurry.
+const addText = Phaser.GameObjects.GameObjectFactory.prototype.text;
+Phaser.GameObjects.GameObjectFactory.prototype.text = function (x, y, str, style) {
+  return addText.call(this, x, y, str, { resolution: RES, ...style });
+};
+
+// Every scene views the 1280×720 world through a camera zoomed to the canvas resolution.
+const zoomCamera = (scene) => scene.cameras.main.setZoom(RES).centerOn(W / 2, H / 2);
+
 const game = new Phaser.Game({
   type: Phaser.AUTO,
   parent: 'game',
-  width: W,
-  height: H,
+  width: W * RES,
+  height: H * RES,
   backgroundColor: '#120c1c',
   scale: {
     mode: Phaser.Scale.FIT,
@@ -17,6 +26,9 @@ const game = new Phaser.Game({
   },
   input: { activePointers: 2 },
   scene: [BootScene, MenuScene, RunScene],
+});
+game.events.once('ready', () => {
+  for (const scene of game.scene.scenes) scene.events.on('create', () => zoomCamera(scene));
 });
 
 // Handy for debugging and automated play-testing in dev builds only.

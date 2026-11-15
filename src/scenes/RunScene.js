@@ -1221,7 +1221,7 @@ export class RunScene extends Phaser.Scene {
         if (this.reloading) return;
         if (this.ammo[this.weaponKey] <= 0) { sfx.empty(); this.startReload(); return; }
         this.aiming = true;
-        this.aimStart = { x: p.x, y: p.y };
+        this.aimStart = { x: p.worldX, y: p.worldY };
         this.aimCur = null;
         this.aimPull = 0;
       }
@@ -1242,14 +1242,14 @@ export class RunScene extends Phaser.Scene {
 
   // Drag back like a slingshot: the sheriff aims opposite the drag.
   aimAt(p) {
-    const dx = this.aimStart.x - p.x;
-    const dy = this.aimStart.y - p.y;
+    const dx = this.aimStart.x - p.worldX;
+    const dy = this.aimStart.y - p.worldY;
     this.aimPull = Math.hypot(dx, dy);
     let a = Math.atan2(dy, dx);
     if (a < -Math.PI / 2) a = -1.5;
     else if (a > Math.PI / 2) a = 1.0;
     this.aimBase = Phaser.Math.Clamp(a, -1.5, 1.0);
-    this.aimCur = { x: p.x, y: p.y };
+    this.aimCur = { x: p.worldX, y: p.worldY };
   }
 
   // Aim wobbles a little; Steady Hand upgrades shrink the wobble.
