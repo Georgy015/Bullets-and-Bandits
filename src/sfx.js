@@ -43,11 +43,40 @@ function ensure() {
   master = ctx.createGain();
   master.gain.value = muted || adMuted ? 0 : 0.5;
   master.connect(ctx.destination);
+  loadSamples();
   const len = ctx.sampleRate;
   noise = ctx.createBuffer(1, len, ctx.sampleRate);
   const data = noise.getChannelData(0);
   for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
   return ctx;
+}
+
+// Recorded samples (public/audio), decoded once the audio context exists. Until a sample has loaded,
+// or if it fails to, the synthesized version plays instead.
+const SAMPLE_FILES = {
+  glass: 'audio/glass.mp3', // "hard glass break 3" by elevatorfan2020 (freesound.org #861044)
+};
+const samples = {};
+
+function loadSamples() {
+  for (const [name, url] of Object.entries(SAMPLE_FILES)) {
+    fetch(url).then((r) => r.arrayBuffer()).then((b) => ctx.decodeAudioData(b))
+      .then((buf) => { samples[name] = buf; }).catch(() => {});
+  }
+}
+
+// Play a loaded sample with a little random pitch so repeats don't sound identical.
+function sample(name, gain = 0.8) {
+  const buf = samples[name];
+  if (!buf || !ensure()) return false;
+  const src = ctx.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = 0.92 + Math.random() * 0.16;
+  const g = ctx.createGain();
+  g.gain.value = gain;
+  src.connect(g).connect(master);
+  src.start();
+  return true;
 }
 
 // Browsers only allow audio after a user gesture; call this from any input handler.
@@ -124,6 +153,7 @@ export const sfx = {
   reloaded() { tone({ freq: 500, to: 300, dur: 0.06, gain: 0.18, type: 'square' }); tone({ freq: 1200, dur: 0.05, gain: 0.1, type: 'square', delay: 0.08 }); },
   empty() { tone({ freq: 1400, to: 1100, dur: 0.03, gain: 0.12, type: 'square' }); },
   glass() {
+    if (sample('glass', 0.7)) return;
     burst({ dur: 0.25, freq: 5200, q: 2, gain: 0.5, type: 'bandpass', decay: 0.22 });
     [2400, 3100, 3900].forEach((f, i) => tone({ freq: f, to: f * 0.9, dur: 0.12, gain: 0.05, type: 'sine', delay: 0.02 + i * 0.04 }));
   },

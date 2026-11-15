@@ -117,3 +117,4 @@ Perks lie on the road ahead of some encounters, and outlaws sometimes drop one (
 ## Credits
 
 - Music: "Covert Affair" by Kevin MacLeod ([incompetech.com](https://incompetech.com)), licensed under [Creative Commons: By Attribution 4.0](http://creativecommons.org/licenses/by/4.0/). The credit is also shown on the main screen.
+- Bottle-break sound: "hard glass break 3" by elevatorfan2020, [freesound.org #861044](https://freesound.org/s/861044/). Check the licence on that page (credit it here if it is CC BY).
