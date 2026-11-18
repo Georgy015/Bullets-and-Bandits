@@ -58,6 +58,7 @@ const SAMPLE_FILES = {
   revolver: 'audio/revolver.mp3', // "glock 19x" by areniporgen (freesound.org #828786)
   rifle: 'audio/rifle.mp3', // AK-47 shot by serutonin-deprivd (freesound.org #855843)
   shotgun: 'audio/shotgun.mp3', // first second of "unrelenting shotgun" by kodack (freesound.org #258194)
+  reload: 'audio/reload.mp3', // "shotgun cock reload layered powerful" by paul368 (freesound.org #200966)
 };
 const samples = {};
 
@@ -141,10 +142,10 @@ function tone({ freq = 440, to = freq, dur = 0.15, gain = 0.3, type = 'square', 
 export const sfx = {
   // `enemy` shots play a little quieter, as if from across the street.
   shot(kind = 'revolver', enemy = false) {
-    if ((kind === 'revolver' || kind === 'dual') && sample('revolver', enemy ? 0.25 : 0.37)) return;
-    if (kind === 'rifle' && sample('rifle', enemy ? 0.25 : 0.37)) return;
+    if ((kind === 'revolver' || kind === 'dual') && sample('revolver', enemy ? 0.2 : 0.3)) return;
+    if (kind === 'rifle' && sample('rifle', enemy ? 0.2 : 0.3)) return;
     // this recording is about 7 dB hotter than the others, hence the lower gain
-    if (kind === 'shotgun' && sample('shotgun', enemy ? 0.11 : 0.16)) return;
+    if (kind === 'shotgun' && sample('shotgun', enemy ? 0.14 : 0.21)) return;
     if (kind === 'shotgun') burst({ dur: 0.4, freq: 900, gain: 1, decay: 0.35 });
     else if (kind === 'rifle') { burst({ dur: 0.35, freq: 2400, gain: 0.9, decay: 0.3 }); tone({ freq: 160, to: 40, dur: 0.2, gain: 0.4, type: 'sine' }); }
     else if (kind === 'dynamite') tone({ freq: 500, to: 900, dur: 0.12, gain: 0.15, type: 'triangle' });
@@ -157,7 +158,8 @@ export const sfx = {
   coin() { tone({ freq: 988, dur: 0.07, gain: 0.12 }); tone({ freq: 1319, dur: 0.15, gain: 0.12, delay: 0.07 }); },
   click() { tone({ freq: 660, to: 520, dur: 0.06, gain: 0.12, type: 'triangle' }); },
   bell() { tone({ freq: 880, dur: 0.9, gain: 0.25, type: 'sine' }); tone({ freq: 1320, dur: 0.6, gain: 0.1, type: 'sine' }); },
-  reload() { [0, 0.12, 0.24].forEach((d) => tone({ freq: 900, to: 700, dur: 0.04, gain: 0.1, type: 'square', delay: d })); },
+  // kept very quiet: a background cue, not a gunshot
+  reload() { if (sample('reload', 0.08)) return; [0, 0.12, 0.24].forEach((d) => tone({ freq: 900, to: 700, dur: 0.04, gain: 0.1, type: 'square', delay: d })); },
   reloaded() { tone({ freq: 500, to: 300, dur: 0.06, gain: 0.18, type: 'square' }); tone({ freq: 1200, dur: 0.05, gain: 0.1, type: 'square', delay: 0.08 }); },
   empty() { tone({ freq: 1400, to: 1100, dur: 0.03, gain: 0.12, type: 'square' }); },
   glass() {
