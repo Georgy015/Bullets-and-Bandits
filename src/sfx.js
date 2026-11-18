@@ -57,7 +57,6 @@ const SAMPLE_FILES = {
   glass: 'audio/glass.mp3', // "hard glass break 3" by elevatorfan2020 (freesound.org #861044)
   revolver: 'audio/revolver.mp3', // "glock 19x" by areniporgen (freesound.org #828786)
   rifle: 'audio/rifle.mp3', // AK-47 shot by serutonin-deprivd (freesound.org #855843)
-  shotgun: 'audio/shotgun.mp3', // first second of "unrelenting shotgun" by kodack (freesound.org #258194)
   reload: 'audio/reload.mp3', // "shotgun cock reload layered powerful" by paul368 (freesound.org #200966)
 };
 const samples = {};
@@ -144,8 +143,8 @@ export const sfx = {
   shot(kind = 'revolver', enemy = false) {
     if ((kind === 'revolver' || kind === 'dual') && sample('revolver', enemy ? 0.2 : 0.3)) return;
     if (kind === 'rifle' && sample('rifle', enemy ? 0.2 : 0.3)) return;
-    // this recording is about 7 dB hotter than the others, hence the lower gain
-    if (kind === 'shotgun' && sample('shotgun', enemy ? 0.14 : 0.21)) return;
+    // the shotgun reuses the rifle recording, 20% quieter
+    if (kind === 'shotgun' && sample('rifle', enemy ? 0.16 : 0.24)) return;
     if (kind === 'shotgun') burst({ dur: 0.4, freq: 900, gain: 1, decay: 0.35 });
     else if (kind === 'rifle') { burst({ dur: 0.35, freq: 2400, gain: 0.9, decay: 0.3 }); tone({ freq: 160, to: 40, dur: 0.2, gain: 0.4, type: 'sine' }); }
     else if (kind === 'dynamite') tone({ freq: 500, to: 900, dur: 0.12, gain: 0.15, type: 'triangle' });

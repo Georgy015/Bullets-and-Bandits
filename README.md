@@ -119,6 +119,5 @@ Perks lie on the road ahead of some encounters, and outlaws sometimes drop one (
 - Music: "Covert Affair" by Kevin MacLeod ([incompetech.com](https://incompetech.com)), licensed under [Creative Commons: By Attribution 4.0](http://creativecommons.org/licenses/by/4.0/). The credit is also shown on the main screen.
 - Bottle-break sound: "hard glass break 3" by elevatorfan2020, [freesound.org #861044](https://freesound.org/s/861044/). Check the licence on that page (credit it here if it is CC BY).
 - Revolver shot: "glock 19x" by areniporgen, [freesound.org #828786](https://freesound.org/s/828786/). Check the licence on that page (credit it here if it is CC BY).
-- Rifle shot: AK-47 shot by serutonin-deprivd, [freesound.org #855843](https://freesound.org/s/855843/). Check the licence on that page (credit it here if it is CC BY).
-- Shotgun shot: first second of "unrelenting shotgun" by kodack, [freesound.org #258194](https://freesound.org/s/258194/). Check the licence on that page (credit it here if it is CC BY).
+- Rifle and shotgun shot: AK-47 shot by serutonin-deprivd, [freesound.org #855843](https://freesound.org/s/855843/). Check the licence on that page (credit it here if it is CC BY).
 - Reload: "shotgun cock reload layered powerful" by paul368, [freesound.org #200966](https://freesound.org/s/200966/). Check the licence on that page (credit it here if it is CC BY).
