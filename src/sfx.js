@@ -139,7 +139,7 @@ function tone({ freq = 440, to = freq, dur = 0.15, gain = 0.3, type = 'square', 
 export const sfx = {
   // `enemy` shots play a little quieter, as if from across the street.
   shot(kind = 'revolver', enemy = false) {
-    if ((kind === 'revolver' || kind === 'dual') && sample('revolver', enemy ? 0.35 : 0.53)) return;
+    if ((kind === 'revolver' || kind === 'dual') && sample('revolver', enemy ? 0.25 : 0.37)) return;
     if (kind === 'shotgun') burst({ dur: 0.4, freq: 900, gain: 1, decay: 0.35 });
     else if (kind === 'rifle') { burst({ dur: 0.35, freq: 2400, gain: 0.9, decay: 0.3 }); tone({ freq: 160, to: 40, dur: 0.2, gain: 0.4, type: 'sine' }); }
     else if (kind === 'dynamite') tone({ freq: 500, to: 900, dur: 0.12, gain: 0.15, type: 'triangle' });
