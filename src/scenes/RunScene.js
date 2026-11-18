@@ -881,6 +881,7 @@ export class RunScene extends Phaser.Scene {
   bodyDust(x, dir, scale) {
     [0.15, 0.5, 0.85].forEach((k) => this.deathDust.explode(9, x + dir * k * 140 * scale, GROUND_Y - 4));
     this.cameras.main.shake(90, 0.003);
+    sfx.bodyfall();
   }
 
   muzzleFlash(x, y, angle) {
