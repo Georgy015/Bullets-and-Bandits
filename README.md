@@ -121,3 +121,4 @@ Perks lie on the road ahead of some encounters, and outlaws sometimes drop one (
 - Revolver shot: "glock 19x" by areniporgen, [freesound.org #828786](https://freesound.org/s/828786/). Check the licence on that page (credit it here if it is CC BY).
 - Rifle and shotgun shot: AK-47 shot by serutonin-deprivd, [freesound.org #855843](https://freesound.org/s/855843/). Check the licence on that page (credit it here if it is CC BY).
 - Reload: "shotgun cock reload layered powerful" by paul368, [freesound.org #200966](https://freesound.org/s/200966/). Check the licence on that page (credit it here if it is CC BY).
+- Dynamite explosion: first second of "explosion2" by idkmrgarcia, [freesound.org #446624](https://freesound.org/s/446624/). Check the licence on that page (credit it here if it is CC BY).

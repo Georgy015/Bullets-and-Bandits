@@ -58,6 +58,7 @@ const SAMPLE_FILES = {
   revolver: 'audio/revolver.mp3', // "glock 19x" by areniporgen (freesound.org #828786)
   rifle: 'audio/rifle.mp3', // AK-47 shot by serutonin-deprivd (freesound.org #855843)
   shotgun: 'audio/shotgun.mp3', // the same recording cut short, so the echo dies away quickly
+  explosion: 'audio/explosion.mp3', // first second of "explosion2" by idkmrgarcia (freesound.org #446624)
   reload: 'audio/reload.mp3', // "shotgun cock reload layered powerful" by paul368 (freesound.org #200966)
 };
 const samples = {};
@@ -154,7 +155,7 @@ export const sfx = {
   hit() { tone({ freq: 180, to: 60, dur: 0.12, gain: 0.5, type: 'sine' }); burst({ dur: 0.08, freq: 600, gain: 0.4 }); },
   headshot() { this.hit(); tone({ freq: 1400, to: 1900, dur: 0.12, gain: 0.15, type: 'triangle', delay: 0.04 }); },
   ricochet() { tone({ freq: 2600, to: 900, dur: 0.25, gain: 0.08, type: 'sine' }); },
-  explosion() { burst({ dur: 0.9, freq: 400, gain: 1.2, decay: 0.85 }); tone({ freq: 90, to: 30, dur: 0.5, gain: 0.6, type: 'sine' }); },
+  explosion() { if (sample('explosion', 0.25)) return; burst({ dur: 0.9, freq: 400, gain: 1.2, decay: 0.85 }); tone({ freq: 90, to: 30, dur: 0.5, gain: 0.6, type: 'sine' }); },
   coin() { tone({ freq: 988, dur: 0.07, gain: 0.12 }); tone({ freq: 1319, dur: 0.15, gain: 0.12, delay: 0.07 }); },
   click() { tone({ freq: 660, to: 520, dur: 0.06, gain: 0.12, type: 'triangle' }); },
   bell() { tone({ freq: 880, dur: 0.9, gain: 0.25, type: 'sine' }); tone({ freq: 1320, dur: 0.6, gain: 0.1, type: 'sine' }); },
