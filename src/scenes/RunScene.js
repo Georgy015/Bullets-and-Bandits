@@ -1028,11 +1028,13 @@ export class RunScene extends Phaser.Scene {
       floatText(this, x, y - 20, `ARMOR ${dmg}`, '#c9d2dc', 24);
     } else if (zone === 'head') {
       sfx.headshot();
+      sfx.grunt();
       const hat = e.g.knockHatOff(1, GROUND_Y);
       if (hat) this.world.push(hat);
       floatText(this, x, y - 30, `HEADSHOT! ${dmg}`, '#ffd76a', 30);
     } else {
       sfx.hit();
+      sfx.grunt();
       floatText(this, x, y - 20, `${dmg}`, '#ffffff', 28);
     }
     // A hit staggers the outlaw: his next shot comes a bit later.
@@ -1053,6 +1055,7 @@ export class RunScene extends Phaser.Scene {
     this.blood.explode(8, x, y);
     this.player.flinch();
     sfx.hurt();
+    sfx.grunt();
     floatText(this, x, y - 20, `-${dmg}`, '#ff6b5b', 28);
     this.hurtFlash.setAlpha(0.3);
     this.tweens.add({ targets: this.hurtFlash, alpha: 0, duration: 300 });
