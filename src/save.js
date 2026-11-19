@@ -13,6 +13,7 @@ const DEFAULTS = () => ({
   equipped: 'revolver',
   nextGiftAt: 0,
   muted: false,
+  musicOff: false,
   sfxVolume: 1, // effects volume, 0..1 (music has its own level)
 });
 

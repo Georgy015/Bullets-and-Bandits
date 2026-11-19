@@ -10,7 +10,7 @@ import { addParallax, biomeAt, loopAt, BIOME_INFO } from '../biomes.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, addCoins } from '../save.js';
 import { button, text, panel, coinCounter, floatText, banner, bar } from '../ui.js';
-import { sfx, unlockAudio } from '../sfx.js';
+import { sfx, unlockAudio, setMusicOff } from '../sfx.js';
 import { gameplayStart, gameplayStop, happytime, midgameAd, rewardedAd } from '../sdk.js';
 
 const PLAYER_X = 220;
@@ -1351,16 +1351,25 @@ export class RunScene extends Phaser.Scene {
     gameplayStop();
     const c = this.add.container(0, 0).setDepth(80);
     c.add(this.add.rectangle(0, 0, W, H, 0x0d0614, 0.6).setOrigin(0).setInteractive());
-    c.add(panel(this, 470, 220, 340, 280, 0.95));
-    c.add(text(this, 640, 270, 'PAUSED', 44, { color: '#ffd76a' }));
-    c.add(button(this, 640, 350, 240, 56, 'RESUME', 'green', () => {
+    c.add(panel(this, 470, 190, 340, 350, 0.95));
+    c.add(text(this, 640, 240, 'PAUSED', 44, { color: '#ffd76a' }));
+    c.add(button(this, 640, 320, 240, 56, 'RESUME', 'green', () => {
       c.destroy();
       this.paused = false;
       this.tweens.resumeAll();
       this.time.paused = false;
       gameplayStart();
     }, { ui: true, size: 24 }));
-    c.add(button(this, 640, 425, 240, 56, 'QUIT', 'red', () => this.scene.start('Menu'), { ui: true, size: 24 }));
+    const s = getSave();
+    const musicLabel = () => (s.musicOff ? 'MUSIC: OFF' : 'MUSIC: ON');
+    const musicBtn = button(this, 640, 395, 240, 56, musicLabel(), 'wood', () => {
+      s.musicOff = !s.musicOff;
+      setMusicOff(s.musicOff);
+      musicBtn.setLabel(musicLabel());
+      save();
+    }, { ui: true, size: 22 });
+    c.add(musicBtn);
+    c.add(button(this, 640, 470, 240, 56, 'QUIT', 'red', () => this.scene.start('Menu'), { ui: true, size: 24 }));
   }
 
   // ---------------------------------------------------------------- Loop

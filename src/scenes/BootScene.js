@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { createSpriteTextures } from '../art.js';
 import { initSDK, loadingStart, loadingStop, setAdHooks } from '../sdk.js';
 import { loadSave } from '../save.js';
-import { setMuted, setAdMuted, setSfxVolume } from '../sfx.js';
+import { setMuted, setAdMuted, setSfxVolume, setMusicOff } from '../sfx.js';
 import { FONT } from '../config.js';
 import { ART_SETS } from '../gunslinger.js';
 
@@ -25,6 +25,7 @@ export class BootScene extends Phaser.Scene {
     const save = loadSave();
     setMuted(save.muted);
     setSfxVolume(save.sfxVolume ?? 1);
+    setMusicOff(!!save.musicOff);
     // Text renders with a fallback font if the title font hasn't arrived yet.
     try {
       await Promise.race([

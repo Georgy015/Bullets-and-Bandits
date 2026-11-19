@@ -16,10 +16,11 @@ const MUSIC_URL = 'audio/music.mp3';
 const MUSIC_VOLUME = 0.18;
 let music = null;
 let musicWanted = false;
+let musicOff = false; // the player's music on/off choice (separate from muting everything)
 
 function updateMusic() {
   if (!music) return;
-  const play = musicWanted && !muted && !adMuted && !document.hidden;
+  const play = musicWanted && !musicOff && !muted && !adMuted && !document.hidden;
   if (play && music.paused) music.play().catch(() => {});
   else if (!play && !music.paused) music.pause();
 }
@@ -104,6 +105,11 @@ function applyVolume() {
 export function setSfxVolume(v) {
   sfxVolume = Math.max(0, Math.min(1, v));
   applyVolume();
+}
+
+export function setMusicOff(off) {
+  musicOff = off;
+  updateMusic();
 }
 
 export function setMuted(m) {
