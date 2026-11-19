@@ -29,7 +29,20 @@ mkdir -p release && rm -f release/bullets-and-bandits.zip
 | `cover_800x1200.png` | 800 × 1200 (portrait 2:3) |
 | `cover_800x800.png` | 800 × 800 (square) |
 
-They're rendered from the game's own art. Check the portal for the current required sizes and rules (for example whether the title may be shown on a cover) before uploading.
+They're rendered from the game's own art and follow CrazyGames' cover rules: only the game's title as text, no borders, icons, logos or "Play" text.
+
+## 2b. Preview videos (mandatory)
+
+| File | Size | Length |
+|---|---|---|
+| `preview_landscape_1920x1080.mp4` | 1920 × 1080 (16:9) | 19.7 s |
+| `preview_portrait_1080x1620.mp4` | 1080 × 1620 (2:3) | 19.7 s |
+
+- Both open on the matching static cover and fade into gameplay, as CrazyGames asks.
+- Silent, no cursor, no black bars, no promotional text, real speed (no fast-forward); H.264 MP4, 2–4 MB each.
+- **Content:** a boss quick-draw duel, outlaw fights in town and the desert (headshots, twin revolvers, shotgun, rifle), a second boss duel.
+- The portrait video shows the landscape gameplay as a band over a blurred version of the portrait cover, with the title on top.
+- **Re-recording:** `tools/video/record_gameplay.cjs` plays the game with a small aiming bot and captures it frame by frame (the game loop is stepped at 30 fps, so the capture is smooth). `tools/video/make_previews.py` cuts out most of the walking and encodes both videos. Both need the dev server running, Playwright and ffmpeg.
 
 ## 3. Store page text
 
@@ -66,4 +79,4 @@ How far can you ride?
 - [ ] Confirm you own, or have the rights to, all character art.
 - [ ] Upload the zip and test it in the CrazyGames QA tool / preview: ads, the loading and gameplay events, and saving.
 - [ ] Play it on a real phone: aiming, button sizes and speed.
-- [ ] Optional: a short gameplay video (CrazyGames uses it as the hover preview).
+- [ ] Upload the two preview videos with the covers.
