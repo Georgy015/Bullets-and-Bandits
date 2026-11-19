@@ -1054,8 +1054,7 @@ export class RunScene extends Phaser.Scene {
     this.hp -= dmg;
     this.blood.explode(8, x, y);
     this.player.flinch();
-    sfx.hurt();
-    sfx.grunt();
+    sfx.grunt(); // replaces the old synth 'hurt' buzz, which drowned it out
     floatText(this, x, y - 20, `-${dmg}`, '#ff6b5b', 28);
     this.hurtFlash.setAlpha(0.3);
     this.tweens.add({ targets: this.hurtFlash, alpha: 0, duration: 300 });

@@ -171,7 +171,7 @@ export const sfx = {
     const t = performance.now();
     if (t - (this.lastGrunt ?? 0) < 250) return;
     this.lastGrunt = t;
-    sample('grunt', 0.3);
+    sample('grunt', 0.9); // loud enough to cut through the gunshot's echo
   },
   bodyfall() { sample('bodyfall', 0.5); },
   explosion() { if (sample('explosion', 0.25)) return; burst({ dur: 0.9, freq: 400, gain: 1.2, decay: 0.85 }); tone({ freq: 90, to: 30, dur: 0.5, gain: 0.6, type: 'sine' }); },
