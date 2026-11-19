@@ -27,6 +27,15 @@ const game = new Phaser.Game({
   input: { activePointers: 2 },
   scene: [BootScene, MenuScene, RunScene],
 });
+// No browser right-click menu over the game.
+document.addEventListener('contextmenu', (e) => e.preventDefault());
+
+// Leaving the tab or app mid-fight opens the pause menu, so the player comes back to a paused game.
+game.events.on('hidden', () => {
+  const run = game.scene.getScene('Run');
+  if (game.scene.isActive('Run') && run.pause) run.pause();
+});
+
 game.events.once('ready', () => {
   for (const scene of game.scene.scenes) scene.events.on('create', () => zoomCamera(scene));
 });
