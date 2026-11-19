@@ -83,6 +83,42 @@ export function plankTag(scene, x, y, w, h, label, onClick, { tone = 'honey', si
   return c;
 }
 
+// A horizontal slider: a wooden groove with a brass knob. `onChange(v)` fires while dragging (0..1),
+// `onRelease(v)` once when let go.
+export function plankSlider(scene, x, y, w, value, onChange, onRelease) {
+  const c = scene.add.container(x, y);
+  const g = scene.add.graphics();
+  const knob = scene.add.graphics();
+  const fill = scene.add.graphics();
+  rrect(g, 0x5a3a22, -6, -7, w + 12, 14, 7, 2.2);
+  g.fillStyle(0x2a1a10, 1); g.fillRoundedRect(0, -3, w, 6, 3);
+  const draw = (v) => {
+    fill.clear();
+    fill.fillStyle(0xd9a441, 1); fill.fillRoundedRect(0, -3, Math.max(6, w * v), 6, 3);
+    knob.clear();
+    circle(knob, 0xd9a441, w * v, 0, 10, 2.2);
+    knob.fillStyle(0xfff0b8, 0.7); knob.fillCircle(w * v - 3, -3, 3);
+  };
+  draw(value);
+  c.add([g, fill, knob]);
+  // a generous touch area around the track
+  const hit = scene.add.rectangle(w / 2, 0, w + 30, 40, 0x000000, 0).setInteractive({ useHandCursor: true });
+  c.add(hit);
+  let dragging = false;
+  const set = (p) => {
+    const m = c.getWorldTransformMatrix();
+    const v = Math.max(0, Math.min(1, (p.worldX - m.tx) / w));
+    draw(v);
+    onChange(v);
+    return v;
+  };
+  hit.on('pointerdown', (p) => { dragging = true; unlockAudio(); set(p); });
+  scene.input.on('pointermove', (p) => { if (dragging) set(p); });
+  scene.input.on('pointerup', (p) => { if (!dragging) return; dragging = false; onRelease?.(set(p)); });
+  c.setValue = draw;
+  return c;
+}
+
 // An old trail signpost: a weathered post planted in the ground with arrow boards nailed to it.
 // Each sign is { label, dir (1 = points right, -1 = left), y, w, h, tilt (deg), size, onClick, seed }.
 export function signpost(scene, x, groundY, signs, { top = groundY - 170 } = {}) {

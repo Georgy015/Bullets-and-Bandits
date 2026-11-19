@@ -6,6 +6,8 @@ let master = null;
 let noise = null;
 let muted = false;
 let adMuted = false;
+let sfxVolume = 1; // effects slider, 0..1
+const SFX_GAIN = 0.5;
 
 // Music: "Covert Affair" by Kevin MacLeod (incompetech.com), CC BY 4.0. Streamed with an <audio>
 // element so a long track isn't decoded into memory. It starts on the first tap (browsers block
@@ -41,7 +43,7 @@ function ensure() {
   if (!AC) return null;
   ctx = new AC();
   master = ctx.createGain();
-  master.gain.value = muted || adMuted ? 0 : 0.5;
+  master.gain.value = muted || adMuted ? 0 : SFX_GAIN * sfxVolume;
   master.connect(ctx.destination);
   loadSamples();
   const len = ctx.sampleRate;
@@ -93,8 +95,14 @@ export function unlockAudio() {
 }
 
 function applyVolume() {
-  if (master) master.gain.value = muted || adMuted ? 0 : 0.5;
+  if (master) master.gain.value = muted || adMuted ? 0 : SFX_GAIN * sfxVolume;
   updateMusic();
+}
+
+// Effects volume from the menu slider (0..1); the music keeps its own level.
+export function setSfxVolume(v) {
+  sfxVolume = Math.max(0, Math.min(1, v));
+  applyVolume();
 }
 
 export function setMuted(m) {

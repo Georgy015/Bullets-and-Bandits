@@ -7,8 +7,8 @@ import { addParallax, biomeAt } from '../biomes.js';
 import { Gunslinger, SHERIFF_LOOK } from '../gunslinger.js';
 import { getSave, save, spend, addCoins } from '../save.js';
 import { button, text, coinCounter } from '../ui.js';
-import { sfx, setMuted, unlockAudio } from '../sfx.js';
-import { woodBoard, signpost, plankTag, horseshoe, bulletHole, pinnedStar, brokenBottle } from '../boards.js';
+import { sfx, setMuted, setSfxVolume, unlockAudio } from '../sfx.js';
+import { woodBoard, signpost, plankTag, plankSlider, horseshoe, bulletHole, pinnedStar, brokenBottle } from '../boards.js';
 import { rrect, ellipse } from '../ink.js';
 import { rewardedAd } from '../sdk.js';
 
@@ -35,6 +35,14 @@ export class MenuScene extends Phaser.Scene {
       mute.setLabel(soundLabel());
       save();
     }, { ui: true, size: 17 });
+
+    // Effects volume (music has its own fixed level)
+    text(this, 24, 100, 'EFFECTS', 13, { ui: true, ox: 0, color: '#f6e3c0', strokeThickness: 3 });
+    plankSlider(this, 92, 100, 80, s.sfxVolume ?? 1, (v) => setSfxVolume(v), (v) => {
+      s.sfxVolume = Math.round(v * 100) / 100;
+      save();
+      sfx.coin(); // a preview at the new level
+    });
 
     // Hero on the porch, showing the equipped gun
     this.hero = new Gunslinger(this, 600, GROUND_Y, {
