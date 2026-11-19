@@ -38,7 +38,7 @@ export class MenuScene extends Phaser.Scene {
 
     // Effects volume (music has its own fixed level)
     text(this, 24, 100, 'EFFECTS', 13, { ui: true, ox: 0, color: '#f6e3c0', strokeThickness: 3 });
-    plankSlider(this, 92, 100, 80, s.sfxVolume ?? 1, (v) => setSfxVolume(v), (v) => {
+    plankSlider(this, 104, 100, 76, s.sfxVolume ?? 1, (v) => setSfxVolume(v), (v) => {
       s.sfxVolume = Math.round(v * 100) / 100;
       save();
       sfx.coin(); // a preview at the new level
