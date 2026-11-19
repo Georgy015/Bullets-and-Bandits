@@ -1033,8 +1033,7 @@ export class RunScene extends Phaser.Scene {
       if (hat) this.world.push(hat);
       floatText(this, x, y - 30, `HEADSHOT! ${dmg}`, '#ffd76a', 30);
     } else {
-      sfx.hit();
-      sfx.grunt();
+      sfx.grunt(); // the recorded grunt replaces the old synth thud on body hits
       floatText(this, x, y - 20, `${dmg}`, '#ffffff', 28);
     }
     // A hit staggers the outlaw: his next shot comes a bit later.

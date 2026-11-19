@@ -163,7 +163,7 @@ export const sfx = {
     else burst({ dur: 0.25, freq: 1800, gain: 0.8, decay: 0.2 });
   },
   hit() { tone({ freq: 180, to: 60, dur: 0.12, gain: 0.5, type: 'sine' }); burst({ dur: 0.08, freq: 600, gain: 0.4 }); },
-  headshot() { this.hit(); tone({ freq: 1400, to: 1900, dur: 0.12, gain: 0.15, type: 'triangle', delay: 0.04 }); },
+  headshot() { tone({ freq: 1400, to: 1900, dur: 0.12, gain: 0.15, type: 'triangle', delay: 0.04 }); },
   ricochet() { tone({ freq: 2600, to: 900, dur: 0.25, gain: 0.08, type: 'sine' }); },
   // A pained grunt when a bullet hits someone. Shotgun pellets and twin revolvers land several hits
   // at once, so it plays at most once every 0.25 s.
