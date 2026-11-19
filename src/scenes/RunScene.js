@@ -1043,7 +1043,8 @@ export class RunScene extends Phaser.Scene {
   }
 
   damagePlayer(raw, x, y) {
-    if (this.state === 'over') return;
+    // once the last outlaw is down the fight is won; a late hit can't kill the sheriff any more
+    if (this.state === 'over' || this.state === 'cleared' || !this.player.alive) return;
     if (this.perk('vest')) {
       this.sparks.explode(14, x, y);
       sfx.ricochet();
@@ -1084,6 +1085,9 @@ export class RunScene extends Phaser.Scene {
     }
 
     if (this.active.some((a) => a.alive)) return;
+    // A bullet still in flight can drop the last outlaw after the sheriff is already down: the run is
+    // over, so don't start the "cleared" walk (it made the fallen sheriff walk along the ground)
+    if (this.state === 'over' || !this.player.alive) return;
 
     // Last outlaw down: slow-motion finish, then back on the trail
     this.state = 'cleared';
@@ -1095,7 +1099,7 @@ export class RunScene extends Phaser.Scene {
     this.tweens.timeScale = 0.25;
     this.time.delayedCall(650, () => { this.timeScale = 1; this.tweens.timeScale = 1; });
     this.time.delayedCall(1300, () => {
-      if (this.state !== 'cleared') return;
+      if (this.state !== 'cleared' || !this.player.alive) return;
       this.active = [];
       this.duelist = null;
       this.player.holster();
