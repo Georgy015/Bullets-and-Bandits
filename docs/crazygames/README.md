@@ -76,7 +76,7 @@ How far can you ride?
 ## 5. Before submitting
 
 - [x] Sound licences checked: every freesound.org sound is CC0 (free for commercial use, no credit required).
-- [ ] Confirm you own, or have the rights to, all character art.
+- [x] Character art: AI-generated (Claude and ChatGPT) from the developer's own prompts and edits; both services' terms give the user the rights to the output. If the submission form asks about AI-generated content, say yes.
 - [ ] Upload the zip and test it in the CrazyGames QA tool / preview: ads, the loading and gameplay events, and saving.
 - [ ] Play it on a real phone: aiming, button sizes and speed.
 - [ ] Upload the two preview videos with the covers.
