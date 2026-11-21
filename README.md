@@ -120,11 +120,13 @@ The upload zip, covers, store page text and a pre-submission checklist are in [d
 
 ## Credits
 
+All sound effects are CC0 (public domain): free for commercial use, no credit required. They're credited here anyway.
+
 - Music: "Covert Affair" by Kevin MacLeod ([incompetech.com](https://incompetech.com)), licensed under [Creative Commons: By Attribution 4.0](http://creativecommons.org/licenses/by/4.0/). The credit is also shown on the main screen.
-- Bottle-break sound: "hard glass break 3" by elevatorfan2020, [freesound.org #861044](https://freesound.org/s/861044/). Check the licence on that page (credit it here if it is CC BY).
-- Revolver shot: "glock 19x" by areniporgen, [freesound.org #828786](https://freesound.org/s/828786/). Check the licence on that page (credit it here if it is CC BY).
-- Rifle and shotgun shot: AK-47 shot by serutonin-deprivd, [freesound.org #855843](https://freesound.org/s/855843/). Check the licence on that page (credit it here if it is CC BY).
-- Reload: "shotgun cock reload layered powerful" by paul368, [freesound.org #200966](https://freesound.org/s/200966/). Check the licence on that page (credit it here if it is CC BY).
-- Dynamite explosion: first second of "explosion2" by idkmrgarcia, [freesound.org #446624](https://freesound.org/s/446624/). Check the licence on that page (credit it here if it is CC BY).
-- Body fall: "bodyfall" by magnuswaker, [freesound.org #614064](https://freesound.org/s/614064/). Check the licence on that page (credit it here if it is CC BY).
-- Hit grunt: "young man being hurt" by pepsimanfan, [freesound.org #546123](https://freesound.org/s/546123/). Check the licence on that page (credit it here if it is CC BY).
+- Bottle-break sound: "hard glass break 3" by elevatorfan2020, [freesound.org #861044](https://freesound.org/s/861044/). CC0.
+- Revolver shot: "glock 19x" by areniporgen, [freesound.org #828786](https://freesound.org/s/828786/). CC0.
+- Rifle and shotgun shot: AK-47 shot by serutonin-deprivd, [freesound.org #855843](https://freesound.org/s/855843/). CC0.
+- Reload: "shotgun cock reload layered powerful" by paul368, [freesound.org #200966](https://freesound.org/s/200966/). CC0.
+- Dynamite explosion: first second of "explosion2" by idkmrgarcia, [freesound.org #446624](https://freesound.org/s/446624/). CC0.
+- Body fall: "bodyfall" by magnuswaker, [freesound.org #614064](https://freesound.org/s/614064/). CC0.
+- Hit grunt: "young man being hurt" by pepsimanfan, [freesound.org #546123](https://freesound.org/s/546123/). CC0.

@@ -71,11 +71,11 @@ How far can you ride?
 ## 4. Credits (put in the description or the portal's credits field)
 
 - Music: "Covert Affair" by Kevin MacLeod (incompetech.com), licensed under Creative Commons: By Attribution 4.0.
-- Sound effects from freesound.org: elevatorfan2020, areniporgen, serutonin-deprivd, paul368, idkmrgarcia, magnuswaker, pepsimanfan. See the main README for each sound.
+- Sound effects from freesound.org (CC0, credit optional): elevatorfan2020, areniporgen, serutonin-deprivd, paul368, idkmrgarcia, magnuswaker, pepsimanfan. See the main README for each sound.
 
 ## 5. Before submitting
 
-- [ ] Check the licence of each freesound.org sound (links in the main README). CC0 needs nothing; CC BY needs the credit above; **non-commercial (NC) sounds can't be used in a game with ads** and must be replaced.
+- [x] Sound licences checked: every freesound.org sound is CC0 (free for commercial use, no credit required).
 - [ ] Confirm you own, or have the rights to, all character art.
 - [ ] Upload the zip and test it in the CrazyGames QA tool / preview: ads, the loading and gameplay events, and saving.
 - [ ] Play it on a real phone: aiming, button sizes and speed.
